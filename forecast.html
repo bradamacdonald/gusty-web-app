@@ -153,6 +153,21 @@
       background: currentColor;
       flex-shrink: 0;
     }
+    .condition-verdict.favorable {
+      background: rgba(52, 211, 153, 0.15);
+      color: var(--color-go);
+      border-color: rgba(52, 211, 153, 0.3);
+    }
+    .condition-verdict.marginal {
+      background: rgba(251, 191, 36, 0.15);
+      color: var(--color-caution);
+      border-color: rgba(251, 191, 36, 0.3);
+    }
+    .condition-verdict.unfavorable {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--color-no-go);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
 
     /* ============================================================
        ELEVATION SELECTOR
@@ -414,6 +429,17 @@
     .daily-wind .unit {
       color: var(--color-text-secondary);
     }
+    .daily-precip-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin-left: var(--space-2);
+      flex-shrink: 0;
+    }
+    .daily-precip-dot.none { background: transparent; border: 1px solid var(--color-border); }
+    .daily-precip-dot.trace { background: var(--precip-trace); }
+    .daily-precip-dot.light { background: var(--precip-light); }
+    .daily-precip-dot.heavy { background: var(--precip-heavy); }
 
     /* ============================================================
        AVALANCHE CONDITIONS CARD
@@ -520,9 +546,80 @@
       border-radius: 50%;
       padding: 4px;
     }
+
+    /* ============================================================
+       LOADING & ERROR STATES
+       ============================================================ */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--color-bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-4);
+      z-index: 100;
+      max-width: 390px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .loading-overlay.hidden { display: none; }
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--color-border);
+      border-top-color: var(--color-accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+    }
+    .error-state {
+      text-align: center;
+      padding: var(--space-6);
+    }
+    .error-state .error-message {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-4);
+    }
+    .retry-btn {
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-full);
+      background: var(--color-accent-dim);
+      border: 1px solid var(--color-accent-border);
+      color: var(--color-accent);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      cursor: pointer;
+    }
+    .retry-btn:hover {
+      background: rgba(56, 189, 248, 0.25);
+    }
   </style>
 </head>
 <body>
+
+  <!-- LOADING OVERLAY -->
+  <div class="loading-overlay" id="loading-overlay">
+    <div class="loading-spinner"></div>
+    <span class="loading-text">Loading forecast…</span>
+  </div>
+
+  <!-- ERROR STATE (hidden by default) -->
+  <div class="loading-overlay hidden" id="error-overlay">
+    <div class="error-state">
+      <p class="error-message" id="error-message">Failed to load forecast.</p>
+      <button type="button" class="retry-btn" id="retry-btn">Retry</button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="forecast-content">
 
   <!-- TOP BAR -->
   <header class="top-bar">
@@ -531,9 +628,9 @@
   </header>
 
   <!-- CONDITION VERDICT -->
-  <div class="condition-verdict">
+  <div class="condition-verdict" id="condition-verdict">
     <span class="dot"></span>
-    Favorable
+    <span id="verdict-text">Favorable</span>
   </div>
 
   <!-- ELEVATION SELECTOR -->
@@ -547,12 +644,12 @@
   <section class="wind-hero">
     <div class="wind-hero-label">Wind Speed</div>
     <div class="wind-hero-value-wrap">
-      <span class="wind-hero-value">67</span>
+      <span class="wind-hero-value" id="wind-hero-value">—</span>
       <span class="wind-hero-unit">km/h</span>
     </div>
     <div class="wind-hero-dir">
-      <span class="wind-hero-arrow">↗</span>
-      <span>NE · gusts to 89 km/h</span>
+      <span class="wind-hero-arrow" id="wind-hero-arrow">↑</span>
+      <span id="wind-hero-dir-text">—</span>
     </div>
   </section>
 
@@ -562,61 +659,8 @@
       <span class="section-label">Hourly</span>
       <a href="#" class="section-link">24h</a>
     </div>
-    <div class="hourly-strip">
-      <div class="hour-cell">
-        <span class="hour-time">6am</span>
-        <span class="hour-arrow">↑</span>
-        <span class="hour-wind" style="color:var(--wind-calm)">12</span>
-        <div class="hour-precip-wrap"><div class="hour-precip-bar" style="height:0;background:transparent;border:1px solid var(--color-border)"></div></div>
-      </div>
-      <div class="hour-cell">
-        <span class="hour-time">7am</span>
-        <span class="hour-arrow">↑</span>
-        <span class="hour-wind" style="color:var(--wind-calm)">18</span>
-        <div class="hour-precip-wrap"><div class="hour-precip-bar" style="height:4px;background:var(--precip-trace)"></div></div>
-      </div>
-      <div class="hour-cell active">
-        <span class="hour-time">8am</span>
-        <span class="hour-arrow">↗</span>
-        <span class="hour-wind" style="color:var(--wind-light)">24</span>
-        <div class="hour-precip-wrap"><div class="hour-precip-bar" style="height:4px;background:var(--precip-trace)"></div></div>
-      </div>
-      <div class="hour-cell">
-        <span class="hour-time">9am</span>
-        <span class="hour-arrow">↗</span>
-        <span class="hour-wind" style="color:var(--wind-moderate)">35</span>
-        <div class="hour-precip-wrap"><div class="hour-precip-bar" style="height:8px;background:var(--precip-light)"></div></div>
-      </div>
-      <div class="hour-cell">
-        <span class="hour-time">10am</span>
-        <span class="hour-arrow">→</span>
-        <span class="hour-wind" style="color:var(--wind-moderate)">42</span>
-        <div class="hour-precip-wrap"><div class="hour-precip-bar" style="height:8px;background:var(--precip-light)"></div></div>
-      </div>
-      <div class="hour-cell">
-        <span class="hour-time">11am</span>
-        <span class="hour-arrow">→</span>
-        <span class="hour-wind" style="color:var(--wind-moderate)">48</span>
-        <div class="hour-precip-wrap"><div class="hour-precip-bar" style="height:12px;background:var(--precip-heavy)"></div></div>
-      </div>
-      <div class="hour-cell">
-        <span class="hour-time">12pm</span>
-        <span class="hour-arrow">↘</span>
-        <span class="hour-wind" style="color:var(--wind-strong)">67</span>
-        <div class="hour-precip-wrap"><div class="hour-precip-bar" style="height:12px;background:var(--precip-heavy)"></div></div>
-      </div>
-      <div class="hour-cell">
-        <span class="hour-time">1pm</span>
-        <span class="hour-arrow">↘</span>
-        <span class="hour-wind" style="color:var(--wind-severe)">79</span>
-        <div class="hour-precip-wrap"><div class="hour-precip-bar" style="height:16px;background:var(--precip-snow)"></div></div>
-      </div>
-      <div class="hour-cell">
-        <span class="hour-time">2pm</span>
-        <span class="hour-arrow">↓</span>
-        <span class="hour-wind" style="color:var(--wind-severe)">83</span>
-        <div class="hour-precip-wrap"><div class="hour-precip-bar" style="height:16px;background:var(--precip-snow)"></div></div>
-      </div>
+    <div class="hourly-strip" id="hourly-strip">
+      <!-- Populated by JS -->
     </div>
   </section>
 
@@ -629,19 +673,19 @@
       </button>
     </div>
     <div class="model-panel-body">
-      <div class="model-row">
+      <div class="model-row" data-model="gfs">
         <span class="model-name">GFS</span>
-        <span class="model-value">71 km/h</span>
+        <span class="model-value" id="model-gfs">— km/h</span>
       </div>
-      <div class="model-row active">
+      <div class="model-row active" data-model="ecmwf">
         <span class="model-name">ECMWF</span>
-        <span class="model-value">67 km/h</span>
+        <span class="model-value" id="model-ecmwf">— km/h</span>
       </div>
-      <div class="model-row">
-        <span class="model-name">NAM</span>
-        <span class="model-value">74 km/h</span>
+      <div class="model-row" data-model="gem">
+        <span class="model-name">GEM</span>
+        <span class="model-value" id="model-gem">— km/h</span>
       </div>
-      <p class="model-confidence">Models agree within 7 km/h — moderate confidence.</p>
+      <p class="model-confidence" id="model-confidence">—</p>
     </div>
   </section>
 
@@ -651,19 +695,8 @@
       <span class="section-label">Daily</span>
       <a href="#" class="section-link">5-day</a>
     </div>
-    <div class="daily-strip">
-      <div class="daily-row">
-        <span class="daily-day">Tue</span>
-        <span class="daily-wind"><span class="daily-wind-range" style="color:var(--wind-strong)">28–67</span> <span class="unit">km/h</span></span>
-      </div>
-      <div class="daily-row">
-        <span class="daily-day">Wed</span>
-        <span class="daily-wind"><span class="daily-wind-range" style="color:var(--wind-strong)">22–54</span> <span class="unit">km/h</span></span>
-      </div>
-      <div class="daily-row">
-        <span class="daily-day">Thu</span>
-        <span class="daily-wind"><span class="daily-wind-range" style="color:var(--wind-moderate)">18–41</span> <span class="unit">km/h</span></span>
-      </div>
+    <div class="daily-strip" id="daily-strip">
+      <!-- Populated by JS -->
     </div>
   </section>
 
@@ -695,8 +728,268 @@
     </a>
   </nav>
 
+  </div><!-- #forecast-content -->
+
   <script>
     (function() {
+      'use strict';
+
+      const DEFAULT_LAT = 49.3756;
+      const DEFAULT_LON = -123.0378;
+      const ELEVATION = 1580;
+
+      const BASE_PARAMS = {
+        latitude: DEFAULT_LAT,
+        longitude: DEFAULT_LON,
+        elevation: ELEVATION,
+        wind_speed_unit: 'kmh',
+        timezone: 'America/Vancouver',
+        forecast_days: 2
+      };
+
+      function windRampColor(kmh) {
+        if (kmh <= 15) return 'var(--wind-calm)';
+        if (kmh <= 30) return 'var(--wind-light)';
+        if (kmh <= 50) return 'var(--wind-moderate)';
+        if (kmh <= 74) return 'var(--wind-strong)';
+        if (kmh <= 100) return 'var(--wind-severe)';
+        return 'var(--wind-extreme)';
+      }
+
+      function degreesToCompass(deg) {
+        if (deg == null) return '—';
+        const dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+        const i = Math.round(((deg % 360) / 22.5)) % 16;
+        return dirs[i];
+      }
+
+      function formatHour(iso) {
+        const d = new Date(iso);
+        const h = d.getHours();
+        if (h === 0) return '12am';
+        if (h === 12) return '12pm';
+        return h < 12 ? h + 'am' : (h - 12) + 'pm';
+      }
+
+      function formatDay(iso) {
+        const d = new Date(iso);
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        return days[d.getDay()];
+      }
+
+      async function fetchForecast(models) {
+        const params = new URLSearchParams({
+          ...BASE_PARAMS,
+          hourly: 'windspeed_10m,windgusts_10m,winddirection_10m,temperature_2m,dewpoint_2m,precipitation,cloudcover',
+          daily: 'windspeed_10m_max,windgusts_10m_max,precipitation_sum',
+          models: models || 'ecmwf_ifs025'
+        });
+        const url = 'https://api.open-meteo.com/v1/forecast?' + params.toString();
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('API request failed: ' + res.status);
+        const data = await res.json();
+        return data;
+      }
+
+      async function fetchModelWind(model) {
+        const params = new URLSearchParams({
+          ...BASE_PARAMS,
+          hourly: 'windspeed_10m',
+          forecast_days: 2,
+          models: model
+        });
+        const url = 'https://api.open-meteo.com/v1/forecast?' + params.toString();
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('API request failed: ' + res.status);
+        const data = await res.json();
+        return data;
+      }
+
+      function getCurrentHourIndex(hourly) {
+        const now = new Date();
+        for (let i = 0; i < hourly.time.length; i++) {
+          const t = new Date(hourly.time[i]);
+          if (t > now) return Math.max(0, i - 1);
+        }
+        return hourly.time.length - 1;
+      }
+
+      function showLoading() {
+        document.getElementById('loading-overlay').classList.remove('hidden');
+        document.getElementById('error-overlay').classList.add('hidden');
+        document.getElementById('forecast-content').style.visibility = 'hidden';
+      }
+
+      function hideLoading() {
+        document.getElementById('loading-overlay').classList.add('hidden');
+        document.getElementById('forecast-content').style.visibility = '';
+      }
+
+      function showError(msg) {
+        document.getElementById('loading-overlay').classList.add('hidden');
+        document.getElementById('error-overlay').classList.remove('hidden');
+        document.getElementById('error-message').textContent = msg || 'Failed to load forecast.';
+        document.getElementById('forecast-content').style.visibility = 'hidden';
+      }
+
+      function hideError() {
+        document.getElementById('error-overlay').classList.add('hidden');
+        document.getElementById('forecast-content').style.visibility = '';
+      }
+
+      function renderWindHero(data, idx) {
+        const h = data.hourly;
+        const speed = h.windspeed_10m[idx];
+        const gust = h.windgusts_10m && h.windgusts_10m[idx];
+        const dir = h.winddirection_10m && h.winddirection_10m[idx];
+
+        const valEl = document.getElementById('wind-hero-value');
+        const arrowEl = document.getElementById('wind-hero-arrow');
+        const dirEl = document.getElementById('wind-hero-dir-text');
+
+        valEl.textContent = speed != null ? Math.round(speed) : '—';
+        valEl.style.color = windRampColor(speed || 0);
+
+        arrowEl.textContent = '↑';
+        arrowEl.style.transform = 'rotate(' + (dir != null ? dir : 0) + 'deg)';
+
+        let dirText = (degreesToCompass(dir) + ' · ' + (dir != null ? dir + '°' : '—'));
+        if (gust != null && gust > 0) dirText += ' · gusts to ' + Math.round(gust) + ' km/h';
+        dirEl.textContent = dirText;
+      }
+
+      function renderHourlyStrip(data, startIdx, count) {
+        const h = data.hourly;
+        const strip = document.getElementById('hourly-strip');
+        const now = new Date();
+        strip.innerHTML = '';
+
+        const maxPrecip = Math.max(0.1, ...h.precipitation.slice(startIdx, startIdx + count).map(v => v || 0));
+
+        for (let i = 0; i < count; i++) {
+          const idx = startIdx + i;
+          const time = h.time[idx];
+          const speed = h.windspeed_10m[idx];
+          const dir = h.winddirection_10m && h.winddirection_10m[idx];
+          const precip = h.precipitation && h.precipitation[idx];
+
+          const t = new Date(time);
+          const isActive = t <= now && (idx + 1 >= h.time.length || new Date(h.time[idx + 1]) > now);
+
+          const precipH = maxPrecip > 0 ? Math.max(2, (precip || 0) / maxPrecip * 16) : 0;
+          const precipBg = precip > 2 ? 'var(--precip-heavy)' : precip > 0.5 ? 'var(--precip-light)' : precip > 0 ? 'var(--precip-trace)' : 'transparent';
+          const precipStyle = precip > 0 ? 'height:' + precipH + 'px;background:' + precipBg : 'height:2px;background:transparent;border:1px solid var(--color-border)';
+
+          const cell = document.createElement('div');
+          cell.className = 'hour-cell' + (isActive ? ' active' : '');
+          cell.innerHTML = '<span class="hour-time">' + formatHour(time) + '</span>' +
+            '<span class="hour-arrow" style="transform:rotate(' + (dir != null ? dir : 0) + 'deg)">↑</span>' +
+            '<span class="hour-wind" style="color:' + windRampColor(speed || 0) + '">' + (speed != null ? Math.round(speed) : '—') + '</span>' +
+            '<div class="hour-precip-wrap"><div class="hour-precip-bar" style="' + precipStyle + '"></div></div>';
+          strip.appendChild(cell);
+        }
+      }
+
+      function renderDailyStrip(data) {
+        const d = data.daily;
+        const strip = document.getElementById('daily-strip');
+        strip.innerHTML = '';
+
+        for (let i = 0; i < d.time.length; i++) {
+          const maxWind = d.windspeed_10m_max[i];
+          const precip = d.precipitation_sum && d.precipitation_sum[i];
+          const precipClass = !precip || precip === 0 ? 'none' : precip < 2 ? 'trace' : precip < 5 ? 'light' : 'heavy';
+
+          const row = document.createElement('div');
+          row.className = 'daily-row';
+          row.innerHTML = '<span class="daily-day">' + formatDay(d.time[i]) + '</span>' +
+            '<span class="daily-wind" style="display:flex;align-items:center;">' +
+            '<span class="daily-wind-range" style="color:' + windRampColor(maxWind || 0) + '">' + (maxWind != null ? Math.round(maxWind) : '—') + '</span> ' +
+            '<span class="unit">km/h</span>' +
+            '<span class="daily-precip-dot ' + precipClass + '"></span>' +
+            '</span>';
+          strip.appendChild(row);
+        }
+      }
+
+      function renderModelComparison(ecmwf, gfs, gem) {
+        const idx = getCurrentHourIndex(ecmwf.hourly);
+        const gLen = gfs.hourly.windspeed_10m.length;
+        const mLen = gem.hourly.windspeed_10m.length;
+        const eVal = ecmwf.hourly.windspeed_10m[idx];
+        const gVal = gfs.hourly.windspeed_10m[Math.min(idx, gLen - 1)];
+        const mVal = gem.hourly.windspeed_10m[Math.min(idx, mLen - 1)];
+
+        document.getElementById('model-ecmwf').textContent = (eVal != null ? Math.round(eVal) : '—') + ' km/h';
+        document.getElementById('model-ecmwf').style.color = windRampColor(eVal || 0);
+        document.getElementById('model-gfs').textContent = (gVal != null ? Math.round(gVal) : '—') + ' km/h';
+        document.getElementById('model-gfs').style.color = windRampColor(gVal || 0);
+        document.getElementById('model-gem').textContent = (mVal != null ? Math.round(mVal) : '—') + ' km/h';
+        document.getElementById('model-gem').style.color = windRampColor(mVal || 0);
+
+        const vals = [eVal, gVal, mVal].filter(v => v != null);
+        const spread = vals.length >= 2 ? Math.round(Math.max(...vals) - Math.min(...vals)) : 0;
+        let conf = '—';
+        if (spread <= 5) conf = 'Models agree within ' + spread + ' km/h — high confidence.';
+        else if (spread <= 15) conf = 'Models agree within ' + spread + ' km/h — moderate confidence.';
+        else conf = 'Models differ by ' + spread + ' km/h — low confidence.';
+        document.getElementById('model-confidence').textContent = conf;
+      }
+
+      function renderConditionVerdict(data, startIdx, count) {
+        const h = data.hourly;
+        let maxWind = 0;
+        for (let i = startIdx; i < Math.min(startIdx + count, h.windspeed_10m.length); i++) {
+          const v = h.windspeed_10m[i];
+          if (v != null && v > maxWind) maxWind = v;
+        }
+
+        const verdict = document.getElementById('condition-verdict');
+        const textEl = document.getElementById('verdict-text');
+        verdict.classList.remove('favorable', 'marginal', 'unfavorable');
+
+        if (maxWind < 30) {
+          textEl.textContent = 'Favorable';
+          verdict.classList.add('favorable');
+        } else if (maxWind <= 60) {
+          textEl.textContent = 'Marginal';
+          verdict.classList.add('marginal');
+        } else {
+          textEl.textContent = 'Unfavorable';
+          verdict.classList.add('unfavorable');
+        }
+      }
+
+      async function loadForecast() {
+        showLoading();
+        hideError();
+        try {
+          const [main, gfs, gem] = await Promise.all([
+            fetchForecast('ecmwf_ifs025'),
+            fetchModelWind('gfs_seamless'),
+            fetchModelWind('gem_seamless')
+          ]);
+
+          console.log('Open-Meteo API response (main/ECMWF):', main);
+          console.log('Open-Meteo API response (GFS):', gfs);
+          console.log('Open-Meteo API response (GEM):', gem);
+
+          const idx = getCurrentHourIndex(main.hourly);
+          renderWindHero(main, idx);
+          renderHourlyStrip(main, idx, 12);
+          renderDailyStrip(main);
+          renderModelComparison(main, gfs, gem);
+          renderConditionVerdict(main, idx, 12);
+
+          hideLoading();
+        } catch (err) {
+          console.error('Forecast fetch error:', err);
+          showError(err.message || 'Failed to load forecast.');
+        }
+      }
+
+      document.getElementById('retry-btn').addEventListener('click', loadForecast);
+
       var panel = document.getElementById('model-panel');
       var toggle = document.getElementById('model-toggle');
       if (panel && toggle) {
@@ -713,6 +1006,8 @@
           window.location.href = 'detail.html' + (model ? '?model=' + encodeURIComponent(model) : '');
         });
       });
+
+      loadForecast();
     })();
   </script>
 </body>
