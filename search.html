@@ -621,6 +621,33 @@
         marker.setLngLat([lng, lat]);
       }
 
+      function fetchReverseGeocode(lng, lat, callback) {
+        var url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxgl.accessToken}&limit=1`;
+        fetch(url)
+          .then(function(res) { return res.json(); })
+          .then(function(data) {
+            var name = '';
+            if (data.features && data.features.length > 0) {
+              var f = data.features[0];
+              name = f.text || f.place_name || '';
+            }
+            callback(name || formatCoords(lng, lat) || '');
+          })
+          .catch(function() {
+            callback(formatCoords(lng, lat) || '');
+          });
+      }
+
+      map.on('click', function(e) {
+        var lng = e.lngLat.lng;
+        var lat = e.lngLat.lat;
+        marker.setLngLat([lng, lat]);
+        fetchReverseGeocode(lng, lat, function(name) {
+          var coordsStr = formatCoords(lng, lat);
+          goToSelected(name, '—', coordsStr, lat, lng);
+        });
+      });
+
       function formatCoords(lng, lat) {
         var ns = lat >= 0 ? 'N' : 'S';
         var ew = lng >= 0 ? 'E' : 'W';
