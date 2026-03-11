@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forecast — gusty.ca</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       GUSTY.CA DESIGN TOKENS
+       ============================================================ */
+    :root {
+      --color-bg:          #0B1120;
+      --color-surface:     #111827;
+      --color-surface-elevated: #1A2333;
+      --color-border:      rgba(255, 255, 255, 0.07);
+      --color-border-strong: rgba(255, 255, 255, 0.13);
+
+      --color-text-primary:   #F0F4F8;
+      --color-text-secondary: #8A9BB0;
+      --color-text-muted:     #4A5C72;
+      --color-text-inverse:   #0B1120;
+
+      --color-accent:         #38BDF8;
+      --color-accent-dim:     rgba(56, 189, 248, 0.15);
+      --color-accent-border:  rgba(56, 189, 248, 0.30);
+
+      --wind-calm:      #34D399;
+      --wind-light:     #A3E635;
+      --wind-moderate:  #FBBF24;
+      --wind-strong:    #F97316;
+      --wind-severe:    #EF4444;
+      --wind-extreme:   #C026D3;
+
+      --color-go:       #34D399;
+      --color-caution:  #FBBF24;
+      --color-no-go:    #EF4444;
+
+      --precip-none:    rgba(255,255,255,0.0);
+      --precip-trace:   rgba(147, 197, 253, 0.25);
+      --precip-light:   rgba(147, 197, 253, 0.55);
+      --precip-heavy:   rgba(96, 165, 250, 0.85);
+      --precip-snow:    rgba(226, 232, 240, 0.70);
+
+      --font-ui:   'Inter', system-ui, sans-serif;
+      --font-data: 'DM Mono', 'Menlo', monospace;
+
+      --text-xs:   11px;
+      --text-sm:   13px;
+      --text-base: 15px;
+      --text-lg:   18px;
+      --text-xl:   22px;
+      --text-2xl:  28px;
+      --text-3xl:  40px;
+
+      --weight-regular:  400;
+      --weight-medium:   500;
+      --weight-semibold: 600;
+
+      --leading-tight:  1.15;
+      --leading-normal: 1.45;
+
+      --tracking-tight:  -0.025em;
+      --tracking-normal:  0em;
+      --tracking-wide:    0.06em;
+
+      --space-1:  4px;
+      --space-2:  8px;
+      --space-3:  12px;
+      --space-4:  16px;
+      --space-5:  20px;
+      --space-6:  24px;
+      --space-8:  32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+
+      --radius-sm:  6px;
+      --radius-md:  10px;
+      --radius-lg:  14px;
+      --radius-full: 999px;
+    }
+
+    /* ============================================================
+       RESET + BASE
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      background: var(--color-bg);
+      color: var(--color-text-primary);
+      font-family: var(--font-ui);
+      font-size: var(--text-base);
+      line-height: var(--leading-normal);
+      -webkit-font-smoothing: antialiased;
+    }
+    body {
+      min-height: 100vh;
+      max-width: 390px;
+      margin: 0 auto;
+      padding: var(--space-4);
+      padding-bottom: calc(var(--space-16) + var(--space-4));
+    }
+
+    /* ============================================================
+       TOP BAR
+       ============================================================ */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+    .location-name {
+      font-size: var(--text-xl);
+      font-weight: var(--weight-semibold);
+      letter-spacing: var(--tracking-tight);
+      color: var(--color-text-primary);
+    }
+    .elevation-tag {
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      background: var(--color-surface-elevated);
+      border: 1px solid var(--color-border);
+      font-family: var(--font-data);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      color: var(--color-text-secondary);
+    }
+
+    /* ============================================================
+       CONDITION VERDICT
+       ============================================================ */
+    .condition-verdict {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      letter-spacing: 0.02em;
+      background: rgba(52, 211, 153, 0.15);
+      color: var(--color-go);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      margin-bottom: var(--space-6);
+    }
+    .condition-verdict .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+       ELEVATION SELECTOR
+       ============================================================ */
+    .elevation-selector {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-6);
+    }
+    .elevation-chip {
+      padding: 6px var(--space-3);
+      border-radius: var(--radius-full);
+      font-family: var(--font-data);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      cursor: pointer;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface-elevated);
+      color: var(--color-text-secondary);
+    }
+    .elevation-chip.active {
+      background: var(--color-accent-dim);
+      border-color: var(--color-accent-border);
+      color: var(--color-accent);
+    }
+
+    /* ============================================================
+       WIND HERO
+       ============================================================ */
+    .wind-hero {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      padding: var(--space-6);
+      margin-bottom: var(--space-6);
+    }
+    .wind-hero-label {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+    }
+    .wind-hero-value-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-1);
+      margin-top: var(--space-1);
+    }
+    .wind-hero-value {
+      font-family: var(--font-data);
+      font-size: var(--text-3xl);
+      font-weight: var(--weight-medium);
+      color: var(--wind-strong);
+      letter-spacing: var(--tracking-tight);
+      line-height: var(--leading-tight);
+    }
+    .wind-hero-unit {
+      font-family: var(--font-data);
+      font-size: var(--text-lg);
+      color: var(--color-text-secondary);
+    }
+    .wind-hero-dir {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      margin-top: var(--space-2);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    .wind-hero-arrow {
+      font-size: 18px;
+      transform: rotate(45deg);
+    }
+
+    /* ============================================================
+       HOURLY STRIP
+       ============================================================ */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-3);
+    }
+    .section-label {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+    }
+    .section-link {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      text-decoration: none;
+    }
+    .hourly-strip {
+      display: flex;
+      gap: var(--space-2);
+      overflow-x: auto;
+      padding: var(--space-4);
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      margin-bottom: var(--space-6);
+    }
+    .hourly-strip::-webkit-scrollbar { display: none; }
+    .hour-cell {
+      flex-shrink: 0;
+      width: 52px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-2) 0;
+      border-radius: var(--radius-sm);
+      min-height: 44px;
+    }
+    .hour-cell.active {
+      background: var(--color-surface-elevated);
+    }
+    .hour-time {
+      font-size: 10px;
+      font-family: var(--font-data);
+      color: var(--color-text-muted);
+    }
+    .hour-wind {
+      font-size: var(--text-sm);
+      font-family: var(--font-data);
+      font-weight: var(--weight-medium);
+    }
+    .hour-arrow {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+    }
+    .hour-cell.active .hour-arrow {
+      color: var(--color-accent);
+    }
+    .hour-precip-wrap {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 1px;
+      height: 16px;
+      margin-top: var(--space-2);
+    }
+    .hour-precip-bar {
+      width: 4px;
+      min-height: 2px;
+      max-height: 16px;
+      border-radius: 2px;
+      align-self: flex-end;
+    }
+
+    /* ============================================================
+       MODEL COMPARISON PANEL
+       ============================================================ */
+    .model-panel {
+      background: var(--color-surface-elevated);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      padding: var(--space-5);
+      margin-bottom: var(--space-6);
+    }
+    .model-panel.collapsed .model-panel-body {
+      display: none;
+    }
+    .model-panel.collapsed .model-panel-toggle {
+      transform: rotate(180deg);
+    }
+    .model-panel.collapsed .model-panel-header {
+      margin-bottom: 0;
+    }
+    .model-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+    .model-panel-toggle {
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      padding: var(--space-1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 200ms ease;
+    }
+    .model-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-2) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .model-row:last-of-type {
+      border-bottom: none;
+    }
+    .model-name {
+      font-family: var(--font-data);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-text-secondary);
+    }
+    .model-row.active .model-name {
+      color: var(--color-accent);
+    }
+    .model-value {
+      font-family: var(--font-data);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--wind-strong);
+    }
+    .model-confidence {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      margin-top: var(--space-3);
+      line-height: 1.4;
+    }
+
+    /* ============================================================
+       DAILY STRIP
+       ============================================================ */
+    .daily-strip {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      padding: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+    .daily-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-2) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .daily-row:last-child {
+      border-bottom: none;
+    }
+    .daily-day {
+      font-size: var(--text-base);
+      font-weight: var(--weight-medium);
+      color: var(--color-text-primary);
+    }
+    .daily-wind {
+      font-family: var(--font-data);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--wind-strong);
+    }
+    .daily-wind .unit {
+      color: var(--color-text-secondary);
+    }
+
+    /* ============================================================
+       AVALANCHE CONDITIONS CARD
+       ============================================================ */
+    .avalanche-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      padding: var(--space-5);
+      margin-bottom: var(--space-6);
+    }
+    .avalanche-card-title {
+      font-size: var(--text-base);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-2);
+    }
+    .avalanche-card-desc {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      line-height: var(--leading-normal);
+      margin-bottom: var(--space-4);
+    }
+    .avalanche-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-4);
+    }
+    .avalanche-indicator-sq {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .avalanche-num {
+      font-weight: var(--weight-semibold);
+    }
+    .avalanche-link {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+    .avalanche-link:hover {
+      color: var(--color-accent);
+    }
+
+    /* ============================================================
+       BOTTOM NAVIGATION
+       ============================================================ */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 390px;
+      height: var(--space-16);
+      background: var(--color-surface);
+      border-top: 1px solid var(--color-border);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 var(--space-4);
+      backdrop-filter: blur(12px);
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-2);
+      min-width: 44px;
+      min-height: 44px;
+      justify-content: center;
+      text-decoration: none;
+      color: var(--color-text-secondary);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+    }
+    .nav-item.active {
+      color: var(--color-accent);
+    }
+    .nav-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+    }
+    .nav-item.active .nav-icon {
+      background: var(--color-accent-dim);
+      border-radius: 50%;
+      padding: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <header class="top-bar">
+    <h1 class="location-name">Garibaldi Lake TH</h1>
+    <span class="elevation-tag">1,580 m</span>
+  </header>
+
+  <!-- CONDITION VERDICT -->
+  <div class="condition-verdict">
+    <span class="dot"></span>
+    Favorable
+  </div>
+
+  <!-- ELEVATION SELECTOR -->
+  <div class="elevation-selector">
+    <button class="elevation-chip active">1,500 m</button>
+    <button class="elevation-chip">2,100 m</button>
+    <button class="elevation-chip">Summit</button>
+  </div>
+
+  <!-- WIND HERO -->
+  <section class="wind-hero">
+    <div class="wind-hero-label">Wind Speed</div>
+    <div class="wind-hero-value-wrap">
+      <span class="wind-hero-value">67</span>
+      <span class="wind-hero-unit">km/h</span>
+    </div>
+    <div class="wind-hero-dir">
+      <span class="wind-hero-arrow">↗</span>
+      <span>NE · gusts to 89 km/h</span>
+    </div>
+  </section>
+
+  <!-- HOURLY STRIP -->
+  <section>
+    <div class="section-header">
+      <span class="section-label">Hourly</span>
+      <a href="#" class="section-link">24h</a>
+    </div>
+    <div class="hourly-strip">
+      <div class="hour-cell">
+        <span class="hour-time">6am</span>
+        <span class="hour-arrow">↑</span>
+        <span class="hour-wind" style="color:var(--wind-calm)">12</span>
+        <div class="hour-precip-wrap"><div class="hour-precip-bar" style="height:0;background:transparent;border:1px solid var(--color-border)"></div></div>
+      </div>
+      <div class="hour-cell">
+        <span class="hour-time">7am</span>
+        <span class="hour-arrow">↑</span>
+        <span class="hour-wind" style="color:var(--wind-calm)">18</span>
+        <div class="hour-precip-wrap"><div class="hour-precip-bar" style="height:4px;background:var(--precip-trace)"></div></div>
+      </div>
+      <div class="hour-cell active">
+        <span class="hour-time">8am</span>
+        <span class="hour-arrow">↗</span>
+        <span class="hour-wind" style="color:var(--wind-light)">24</span>
+        <div class="hour-precip-wrap"><div class="hour-precip-bar" style="height:4px;background:var(--precip-trace)"></div></div>
+      </div>
+      <div class="hour-cell">
+        <span class="hour-time">9am</span>
+        <span class="hour-arrow">↗</span>
+        <span class="hour-wind" style="color:var(--wind-moderate)">35</span>
+        <div class="hour-precip-wrap"><div class="hour-precip-bar" style="height:8px;background:var(--precip-light)"></div></div>
+      </div>
+      <div class="hour-cell">
+        <span class="hour-time">10am</span>
+        <span class="hour-arrow">→</span>
+        <span class="hour-wind" style="color:var(--wind-moderate)">42</span>
+        <div class="hour-precip-wrap"><div class="hour-precip-bar" style="height:8px;background:var(--precip-light)"></div></div>
+      </div>
+      <div class="hour-cell">
+        <span class="hour-time">11am</span>
+        <span class="hour-arrow">→</span>
+        <span class="hour-wind" style="color:var(--wind-moderate)">48</span>
+        <div class="hour-precip-wrap"><div class="hour-precip-bar" style="height:12px;background:var(--precip-heavy)"></div></div>
+      </div>
+      <div class="hour-cell">
+        <span class="hour-time">12pm</span>
+        <span class="hour-arrow">↘</span>
+        <span class="hour-wind" style="color:var(--wind-strong)">67</span>
+        <div class="hour-precip-wrap"><div class="hour-precip-bar" style="height:12px;background:var(--precip-heavy)"></div></div>
+      </div>
+      <div class="hour-cell">
+        <span class="hour-time">1pm</span>
+        <span class="hour-arrow">↘</span>
+        <span class="hour-wind" style="color:var(--wind-severe)">79</span>
+        <div class="hour-precip-wrap"><div class="hour-precip-bar" style="height:16px;background:var(--precip-snow)"></div></div>
+      </div>
+      <div class="hour-cell">
+        <span class="hour-time">2pm</span>
+        <span class="hour-arrow">↓</span>
+        <span class="hour-wind" style="color:var(--wind-severe)">83</span>
+        <div class="hour-precip-wrap"><div class="hour-precip-bar" style="height:16px;background:var(--precip-snow)"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODEL COMPARISON PANEL -->
+  <section class="model-panel" id="model-panel">
+    <div class="model-panel-header">
+      <span class="section-label">Model Comparison</span>
+      <button class="model-panel-toggle" id="model-toggle" aria-label="Collapse" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" /></svg>
+      </button>
+    </div>
+    <div class="model-panel-body">
+      <div class="model-row">
+        <span class="model-name">GFS</span>
+        <span class="model-value">71 km/h</span>
+      </div>
+      <div class="model-row active">
+        <span class="model-name">ECMWF</span>
+        <span class="model-value">67 km/h</span>
+      </div>
+      <div class="model-row">
+        <span class="model-name">NAM</span>
+        <span class="model-value">74 km/h</span>
+      </div>
+      <p class="model-confidence">Models agree within 7 km/h — moderate confidence.</p>
+    </div>
+  </section>
+
+  <!-- DAILY STRIP -->
+  <section>
+    <div class="section-header">
+      <span class="section-label">Daily</span>
+      <a href="#" class="section-link">5-day</a>
+    </div>
+    <div class="daily-strip">
+      <div class="daily-row">
+        <span class="daily-day">Tue</span>
+        <span class="daily-wind"><span class="daily-wind-range" style="color:var(--wind-strong)">28–67</span> <span class="unit">km/h</span></span>
+      </div>
+      <div class="daily-row">
+        <span class="daily-day">Wed</span>
+        <span class="daily-wind"><span class="daily-wind-range" style="color:var(--wind-strong)">22–54</span> <span class="unit">km/h</span></span>
+      </div>
+      <div class="daily-row">
+        <span class="daily-day">Thu</span>
+        <span class="daily-wind"><span class="daily-wind-range" style="color:var(--wind-moderate)">18–41</span> <span class="unit">km/h</span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- AVALANCHE CONDITIONS CARD -->
+  <section class="avalanche-card">
+    <h3 class="avalanche-card-title">Avalanche Conditions</h3>
+    <div class="avalanche-indicator"><span class="avalanche-indicator-sq" style="background:#FFD700"></span><span class="avalanche-num" style="color:#FFD700">2</span> Moderate · Wind Slab, Cornices</div>
+    <p class="avalanche-card-desc">Moderate avalanche danger above treeline. Recent wind-loading on lee slopes. Avoid steep, wind-loaded terrain.</p>
+    <a href="https://avalanche.ca" class="avalanche-link" target="_blank" rel="noopener">Issued today · avalanche.ca →</a>
+  </section>
+
+  <!-- BOTTOM NAVIGATION -->
+  <nav class="bottom-nav">
+    <a href="forecast.html" class="nav-item active">
+      <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg></span>
+      Location
+    </a>
+    <a href="search.html" class="nav-item">
+      <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg></span>
+      Search
+    </a>
+    <a href="saved.html" class="nav-item">
+      <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" /></svg></span>
+      Saved
+    </a>
+    <a href="#" class="nav-item">
+      <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg></span>
+      Settings
+    </a>
+  </nav>
+
+  <script>
+    (function() {
+      var panel = document.getElementById('model-panel');
+      var toggle = document.getElementById('model-toggle');
+      if (panel && toggle) {
+        toggle.addEventListener('click', function() {
+          panel.classList.toggle('collapsed');
+          toggle.setAttribute('aria-label', panel.classList.contains('collapsed') ? 'Expand' : 'Collapse');
+        });
+      }
+      if (panel) panel.querySelectorAll('.model-row').forEach(function(row) {
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', function() {
+          var name = row.querySelector('.model-name');
+          var model = name ? name.textContent.trim() : '';
+          window.location.href = 'detail.html' + (model ? '?model=' + encodeURIComponent(model) : '');
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

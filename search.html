@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search — gusty.ca</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js"></script>
+  <style>
+    /* ============================================================
+       GUSTY.CA DESIGN TOKENS
+       ============================================================ */
+    :root {
+      --color-bg:          #0B1120;
+      --color-surface:     #111827;
+      --color-surface-elevated: #1A2333;
+      --color-border:      rgba(255, 255, 255, 0.07);
+      --color-border-strong: rgba(255, 255, 255, 0.13);
+
+      --color-text-primary:   #F0F4F8;
+      --color-text-secondary: #8A9BB0;
+      --color-text-muted:     #4A5C72;
+      --color-text-inverse:   #0B1120;
+
+      --color-accent:         #38BDF8;
+      --color-accent-dim:     rgba(56, 189, 248, 0.15);
+      --color-accent-border:  rgba(56, 189, 248, 0.30);
+
+      --font-ui:   'Inter', system-ui, sans-serif;
+      --font-data: 'DM Mono', 'Menlo', monospace;
+
+      --text-xs:   11px;
+      --text-sm:   13px;
+      --text-base: 15px;
+      --text-lg:   18px;
+      --text-xl:   22px;
+
+      --weight-regular:  400;
+      --weight-medium:   500;
+      --weight-semibold: 600;
+
+      --tracking-tight:  -0.025em;
+      --tracking-wide:    0.06em;
+
+      --space-1:  4px;
+      --space-2:  8px;
+      --space-3:  12px;
+      --space-4:  16px;
+      --space-5:  20px;
+      --space-6:  24px;
+      --space-8:  32px;
+      --space-16: 64px;
+
+      --radius-sm:  6px;
+      --radius-md:  10px;
+      --radius-lg:  14px;
+      --radius-full: 999px;
+    }
+
+    /* ============================================================
+       RESET + BASE
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      background: var(--color-bg);
+      color: var(--color-text-primary);
+      font-family: var(--font-ui);
+      font-size: var(--text-base);
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+    body {
+      min-height: 100vh;
+      max-width: 390px;
+      margin: 0 auto;
+      padding: 0;
+      padding-bottom: var(--space-16);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ============================================================
+       TOP BAR
+       ============================================================ */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4);
+      flex-shrink: 0;
+    }
+    .wordmark {
+      font-size: var(--text-lg);
+      font-weight: var(--weight-semibold);
+      letter-spacing: var(--tracking-tight);
+      color: var(--color-text-primary);
+    }
+    .top-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    .icon-btn {
+      background: none;
+      border: none;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      padding: var(--space-2);
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .icon-btn svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+    }
+
+    /* ============================================================
+       SEARCH BAR
+       ============================================================ */
+    .search-bar-wrap {
+      padding: 0 var(--space-4) var(--space-4);
+      flex-shrink: 0;
+    }
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      min-height: 44px;
+    }
+    .search-bar svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--color-text-muted);
+      flex-shrink: 0;
+    }
+    .search-bar-input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--color-text-primary);
+      font-family: var(--font-ui);
+      font-size: var(--text-base);
+      outline: none;
+    }
+    .search-bar-input::placeholder {
+      color: var(--color-text-muted);
+    }
+
+    /* ============================================================
+       SUGGESTIONS LIST
+       ============================================================ */
+    .search-bar-wrap {
+      position: relative;
+    }
+    .suggestions-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: var(--space-2);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      z-index: 30;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+    .suggestions-list.hidden {
+      display: none;
+    }
+    .suggestion-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      color: var(--color-text-primary);
+      font-family: var(--font-ui);
+      font-size: var(--text-base);
+      min-height: 44px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .suggestion-item:last-child {
+      border-bottom: none;
+    }
+    .suggestion-item:hover {
+      background: var(--color-surface-elevated);
+    }
+    .suggestion-item .suggestion-icon {
+      color: var(--color-text-muted);
+      flex-shrink: 0;
+    }
+    .suggestion-item .suggestion-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+    }
+    .suggestion-item .suggestion-name {
+      flex: 1;
+    }
+    .suggestion-item .suggestion-elev {
+      font-family: var(--font-data);
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+    }
+
+    /* ============================================================
+       MAP
+       ============================================================ */
+    .map-placeholder {
+      flex: 1;
+      min-height: 200px;
+      background: var(--color-surface);
+      position: relative;
+      overflow: hidden;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+      min-height: 200px;
+      position: absolute;
+      inset: 0;
+      filter: saturate(0.85) brightness(0.9);
+    }
+    .map-dim-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      pointer-events: none;
+      z-index: 5;
+    }
+    .map-dim-overlay.visible {
+      pointer-events: auto;
+    }
+    /* Pulsing dot marker */
+    .map-pulsing-dot {
+      position: relative;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #38BDF8;
+      box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.6);
+      animation: map-pulse 1.5s ease-out infinite;
+      pointer-events: none;
+    }
+    @keyframes map-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.6); }
+      70% { box-shadow: 0 0 0 12px rgba(56, 189, 248, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+    }
+    .map-zoom-controls {
+      position: absolute;
+      bottom: var(--space-4);
+      right: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .map-zoom-btn {
+      width: 36px;
+      height: 36px;
+      background: #1A2333;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: var(--radius-md);
+      color: #F0F4F8;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-ui);
+      line-height: 1;
+    }
+    .map-zoom-btn:hover {
+      background: var(--color-surface);
+      color: var(--color-text-primary);
+    }
+    /* Mapbox attribution: bottom-left, margin to avoid overlap with zoom controls */
+    .mapboxgl-ctrl-bottom-right {
+      left: 0;
+      right: auto;
+      margin-left: 8px;
+      margin-bottom: 8px;
+    }
+    .mapboxgl-ctrl-attrib {
+      font-size: 10px;
+      opacity: 0.5;
+    }
+    .mapboxgl-ctrl-attrib:hover {
+      opacity: 1;
+    }
+
+    /* ============================================================
+       BOTTOM SHEET (Result Selected)
+       ============================================================ */
+    .bottom-sheet {
+      position: fixed;
+      bottom: var(--space-16);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 390px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-bottom: none;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      overflow: hidden;
+      transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1), max-height 0.3s ease;
+      z-index: 10;
+    }
+    .bottom-sheet.hidden {
+      transform: translateX(-50%) translateY(100%);
+      pointer-events: none;
+    }
+    .bottom-sheet.expanded {
+      max-height: 360px;
+    }
+    .bottom-sheet.peek {
+      max-height: 72px;
+    }
+    .sheet-handle-wrap {
+      display: flex;
+      justify-content: center;
+      padding-top: var(--space-2);
+      padding-bottom: var(--space-1);
+      cursor: pointer;
+    }
+    .sheet-handle {
+      width: 32px;
+      height: 4px;
+      border-radius: var(--radius-full);
+      background: var(--color-text-muted);
+    }
+    .sheet-peek-area {
+      padding: 0 var(--space-6) var(--space-3);
+    }
+    .bottom-sheet.peek .sheet-peek-area {
+      cursor: pointer;
+    }
+    .sheet-body {
+      padding: var(--space-4) var(--space-6) var(--space-8);
+      transition: opacity 0.3s ease;
+    }
+    .bottom-sheet.peek .sheet-body {
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+    .sheet-location-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-2);
+    }
+    .bottom-sheet.peek .sheet-location-row {
+      margin-bottom: 0;
+    }
+    .sheet-location-name {
+      font-size: var(--text-xl);
+      font-weight: var(--weight-semibold);
+      letter-spacing: var(--tracking-tight);
+      color: var(--color-text-primary);
+    }
+    .sheet-elevation-chip {
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      background: var(--color-surface-elevated);
+      border: 1px solid var(--color-border);
+      font-family: var(--font-data);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      color: var(--color-text-secondary);
+    }
+    .sheet-coords {
+      font-size: var(--text-sm);
+      font-family: var(--font-data);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-5);
+    }
+    .sheet-elevation-selector {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-6);
+    }
+    .elevation-chip {
+      padding: 6px var(--space-3);
+      border-radius: var(--radius-full);
+      font-family: var(--font-data);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      cursor: pointer;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface-elevated);
+      color: var(--color-text-secondary);
+    }
+    .elevation-chip.active {
+      background: var(--color-accent-dim);
+      border-color: var(--color-accent-border);
+      color: var(--color-accent);
+    }
+    .sheet-cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      width: 100%;
+      padding: var(--space-4);
+      background: var(--color-accent);
+      color: var(--color-text-inverse);
+      font-family: var(--font-ui);
+      font-size: var(--text-base);
+      font-weight: var(--weight-semibold);
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      text-decoration: none;
+      min-height: 44px;
+    }
+
+    /* ============================================================
+       BOTTOM NAVIGATION
+       ============================================================ */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 390px;
+      height: var(--space-16);
+      background: var(--color-surface);
+      border-top: 1px solid var(--color-border);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 var(--space-4);
+      backdrop-filter: blur(12px);
+      z-index: 20;
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-2);
+      min-width: 44px;
+      min-height: 44px;
+      justify-content: center;
+      text-decoration: none;
+      color: var(--color-text-secondary);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+    }
+    .nav-item.active {
+      color: var(--color-accent);
+    }
+    .nav-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+    }
+    .nav-item.active .nav-icon {
+      background: var(--color-accent-dim);
+      border-radius: 50%;
+      padding: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <header class="top-bar">
+    <span class="wordmark">gusty</span>
+    <div class="top-bar-actions">
+      <button class="icon-btn" aria-label="Settings" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- SEARCH BAR -->
+  <div class="search-bar-wrap">
+    <div class="search-bar" id="search-bar">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+      <input type="text" class="search-bar-input" id="search-input" placeholder="Search a peak, trailhead, or spot…" readonly>
+    </div>
+    <div class="suggestions-list hidden" id="suggestions-list">
+      <button class="suggestion-item" type="button" data-name="Garibaldi Lake TH" data-elev="1,580 m" data-coords="49.3756° N · 123.0378° W" data-lat="49.3756" data-lng="-123.0378">
+        <span class="suggestion-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg></span>
+        <span class="suggestion-name">Garibaldi Lake TH</span>
+        <span class="suggestion-elev">1,580 m</span>
+      </button>
+      <button class="suggestion-item" type="button" data-name="Wedgemount Lake TH" data-elev="1,070 m" data-coords="50.2012° N · 122.5891° W" data-lat="50.2012" data-lng="-122.5891">
+        <span class="suggestion-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg></span>
+        <span class="suggestion-name">Wedgemount Lake TH</span>
+        <span class="suggestion-elev">1,070 m</span>
+      </button>
+      <button class="suggestion-item" type="button" data-name="Mt Seymour Summit" data-elev="1,449 m" data-coords="49.3933° N · 122.9467° W" data-lat="49.3933" data-lng="-122.9467">
+        <span class="suggestion-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg></span>
+        <span class="suggestion-name">Mt Seymour Summit</span>
+        <span class="suggestion-elev">1,449 m</span>
+      </button>
+      <button class="suggestion-item" type="button" data-name="Joffre Lakes TH" data-elev="1,310 m" data-coords="50.3522° N · 122.4728° W" data-lat="50.3522" data-lng="-122.4728">
+        <span class="suggestion-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg></span>
+        <span class="suggestion-name">Joffre Lakes TH</span>
+        <span class="suggestion-elev">1,310 m</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div class="map-placeholder">
+    <div id="map"></div>
+    <div class="map-dim-overlay" id="map-dim-overlay"></div>
+    <div class="map-zoom-controls">
+      <button class="map-zoom-btn" id="map-zoom-in" type="button" aria-label="Zoom in">+</button>
+      <button class="map-zoom-btn" id="map-zoom-out" type="button" aria-label="Zoom out">−</button>
+    </div>
+  </div>
+
+  <!-- BOTTOM SHEET (Result Selected) -->
+  <div class="bottom-sheet hidden expanded" id="bottom-sheet">
+    <div class="sheet-handle-wrap" id="sheet-handle">
+      <div class="sheet-handle"></div>
+    </div>
+    <div class="sheet-peek-area" id="sheet-peek-area">
+      <div class="sheet-location-row">
+        <h2 class="sheet-location-name">Garibaldi Lake TH</h2>
+        <span class="sheet-elevation-chip">1,580 m</span>
+      </div>
+    </div>
+    <div class="sheet-body">
+      <div class="sheet-coords">49.3756° N · 123.0378° W</div>
+      <div class="sheet-elevation-selector">
+        <button class="elevation-chip active">Trailhead</button>
+        <button class="elevation-chip">1,500 m</button>
+        <button class="elevation-chip">Summit</button>
+      </div>
+      <a href="forecast.html" class="sheet-cta">View Forecast →</a>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAVIGATION -->
+  <nav class="bottom-nav">
+    <a href="forecast.html" class="nav-item">
+      <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg></span>
+      Location
+    </a>
+    <a href="search.html" class="nav-item active">
+      <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg></span>
+      Search
+    </a>
+    <a href="saved.html" class="nav-item">
+      <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" /></svg></span>
+      Saved
+    </a>
+    <a href="#" class="nav-item">
+      <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg></span>
+      Settings
+    </a>
+  </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      mapboxgl.accessToken = 'pk.eyJ1IjoiYnJhZG1hY2RvbmFsZCIsImEiOiJjbW1sb281dzExYTFlMndweXd5d3BvNDhoIn0.7qrVAWUic59nGF3rZka3gg';
+
+      var STATES = { DEFAULT: 1, SEARCHING: 2, SELECTED: 3 };
+      var state = STATES.DEFAULT;
+      var selectedLocation = null;
+
+      var sheet = document.getElementById('bottom-sheet');
+      var searchBar = document.getElementById('search-bar');
+      var searchInput = document.getElementById('search-input');
+      var suggestionsList = document.getElementById('suggestions-list');
+      var mapDimOverlay = document.getElementById('map-dim-overlay');
+
+      var defaultCenter = [-122.8, 49.85];
+      var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/outdoors-v12',
+        center: defaultCenter,
+        zoom: 11
+      });
+
+      // Custom pulsing dot marker at default location
+      var markerEl = document.createElement('div');
+      markerEl.className = 'map-pulsing-dot';
+      var marker = new mapboxgl.Marker({ element: markerEl, anchor: 'center' })
+        .setLngLat(defaultCenter)
+        .addTo(map);
+
+      // Zoom controls
+      document.getElementById('map-zoom-in').addEventListener('click', function() {
+        map.zoomIn();
+      });
+      document.getElementById('map-zoom-out').addEventListener('click', function() {
+        map.zoomOut();
+      });
+
+      function flyToLocation(lng, lat) {
+        map.flyTo({
+          center: [lng, lat],
+          zoom: 13,
+          duration: 1200
+        });
+        marker.setLngLat([lng, lat]);
+      }
+
+      function setState(newState) {
+        state = newState;
+        if (state === STATES.DEFAULT) {
+          suggestionsList.classList.add('hidden');
+          sheet.classList.add('hidden');
+          mapDimOverlay.classList.remove('visible');
+          searchInput.value = '';
+          searchInput.placeholder = 'Search a peak, trailhead, or spot…';
+        } else if (state === STATES.SEARCHING) {
+          suggestionsList.classList.remove('hidden');
+          sheet.classList.add('hidden');
+          mapDimOverlay.classList.add('visible');
+          if (selectedLocation) {
+            searchInput.value = selectedLocation.name;
+            searchInput.placeholder = '';
+          } else {
+            searchInput.value = '';
+            searchInput.placeholder = 'Search a peak, trailhead, or spot…';
+          }
+        } else if (state === STATES.SELECTED) {
+          suggestionsList.classList.add('hidden');
+          sheet.classList.remove('hidden');
+          sheet.classList.remove('peek');
+          sheet.classList.add('expanded');
+          mapDimOverlay.classList.remove('visible');
+          searchInput.value = selectedLocation.name;
+          searchInput.placeholder = '';
+          document.querySelector('.sheet-location-name').textContent = selectedLocation.name;
+          document.querySelector('.sheet-elevation-chip').textContent = selectedLocation.elev;
+          document.querySelector('.sheet-coords').textContent = selectedLocation.coords;
+        }
+      }
+
+      function toggleSheetExpand() {
+        if (state !== STATES.SELECTED || sheet.classList.contains('hidden')) return;
+        if (sheet.classList.contains('peek')) {
+          sheet.classList.remove('peek');
+          sheet.classList.add('expanded');
+        } else {
+          sheet.classList.remove('expanded');
+          sheet.classList.add('peek');
+        }
+      }
+
+      function goToSearching() {
+        setState(STATES.SEARCHING);
+      }
+
+      function goToSelected(name, elev, coords, lat, lng) {
+        selectedLocation = { name: name, elev: elev, coords: coords };
+        setState(STATES.SELECTED);
+        if (lat != null && lng != null) {
+          flyToLocation(parseFloat(lng), parseFloat(lat));
+        }
+      }
+
+      function dismissSuggestions() {
+        if (selectedLocation) {
+          setState(STATES.SELECTED);
+        } else {
+          setState(STATES.DEFAULT);
+        }
+      }
+
+      searchBar.addEventListener('click', function() {
+        if (state === STATES.DEFAULT || state === STATES.SELECTED) {
+          goToSearching();
+        }
+      });
+
+      if (suggestionsList) {
+        suggestionsList.querySelectorAll('.suggestion-item').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            goToSelected(
+              btn.dataset.name,
+              btn.dataset.elev,
+              btn.dataset.coords,
+              btn.dataset.lat,
+              btn.dataset.lng
+            );
+          });
+        });
+      }
+
+      mapDimOverlay.addEventListener('click', function() {
+        if (state === STATES.SEARCHING) {
+          dismissSuggestions();
+        }
+      });
+
+      document.addEventListener('click', function(e) {
+        if (state === STATES.SEARCHING &&
+            !searchBar.contains(e.target) && !suggestionsList.contains(e.target)) {
+          dismissSuggestions();
+        }
+      });
+
+      var sheetHandle = document.getElementById('sheet-handle');
+      var sheetPeekArea = document.getElementById('sheet-peek-area');
+      if (sheetHandle) sheetHandle.addEventListener('click', toggleSheetExpand);
+      if (sheetPeekArea) sheetPeekArea.addEventListener('click', function() {
+        if (state === STATES.SELECTED && sheet.classList.contains('peek')) {
+          sheet.classList.remove('peek');
+          sheet.classList.add('expanded');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
