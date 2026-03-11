@@ -596,7 +596,7 @@
   <!-- TOP BAR -->
   <header class="top-bar">
     <h1 class="location-name" id="location-name">Garibaldi Lake TH</h1>
-    <span class="elevation-tag" id="elevation-tag">1,580 m</span>
+    <span class="elevation-tag" id="elevation-tag">—</span>
   </header>
 
   <!-- CONDITION VERDICT -->
@@ -702,17 +702,18 @@
       const params = new URLSearchParams(window.location.search);
       const DEFAULT_LAT = 49.3756;
       const DEFAULT_LON = -123.0378;
-      const DEFAULT_ELEV = 1580;
 
       const lat = parseFloat(params.get('lat')) || DEFAULT_LAT;
       const lng = parseFloat(params.get('lng')) || DEFAULT_LON;
-      const elevation = parseInt(params.get('elevation'), 10) || DEFAULT_ELEV;
+      const elevationParam = params.get('elevation');
+      const elevationFromUrl = elevationParam !== null && elevationParam !== '' ? parseInt(elevationParam, 10) : null;
       const locationName = params.get('name') ? decodeURIComponent(params.get('name')) : 'Garibaldi Lake TH';
+      var apiElevation = null;
 
       const BASE_PARAMS = {
         latitude: lat,
         longitude: lng,
-        elevation: elevation,
+        elevation: elevationFromUrl != null && !isNaN(elevationFromUrl) ? elevationFromUrl : 0,
         wind_speed_unit: 'kmh',
         timezone: 'America/Vancouver',
         forecast_days: 2
@@ -810,8 +811,8 @@
 
       function updateLocationDisplay(apiElevation) {
         document.getElementById('location-name').textContent = locationName;
-        var elev = apiElevation != null ? Math.round(apiElevation) : elevation;
-        document.getElementById('elevation-tag').textContent = elev.toLocaleString() + ' m';
+        var elev = apiElevation != null && !isNaN(apiElevation) ? Math.round(apiElevation) : null;
+        document.getElementById('elevation-tag').textContent = elev != null ? (elev).toLocaleString() + ' m' : '—';
       }
 
       function renderWindHero(data, idx) {
@@ -961,7 +962,8 @@
           renderDailyStrip(main);
           renderModelComparison(main, gfs, gem);
           renderConditionVerdict(main, idx, 12);
-          updateLocationDisplay(main.elevation);
+          apiElevation = main.elevation;
+          updateLocationDisplay(apiElevation);
 
           hideLoading();
         } catch (err) {
@@ -985,7 +987,8 @@
         row.addEventListener('click', function() {
           var nameEl = row.querySelector('.model-name');
           var model = nameEl ? nameEl.textContent.trim() : '';
-          var p = new URLSearchParams({ lat: lat, lng: lng, elevation: elevation, name: locationName });
+          var p = new URLSearchParams({ lat: lat, lng: lng, name: locationName });
+          if (apiElevation != null && !isNaN(apiElevation)) p.set('elevation', Math.round(apiElevation));
           if (model) p.set('model', model);
           window.location.href = 'detail.html?' + p.toString();
         });
