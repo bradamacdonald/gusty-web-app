@@ -157,6 +157,10 @@
     .search-bar-input::placeholder {
       color: var(--color-text-muted);
     }
+    .search-bar.loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
 
     /* ============================================================
        SUGGESTIONS LIST
@@ -215,7 +219,8 @@
     .suggestion-item .suggestion-name {
       flex: 1;
     }
-    .suggestion-item .suggestion-elev {
+    .suggestion-item .suggestion-elev,
+    .suggestion-item .suggestion-region {
       font-family: var(--font-data);
       font-size: var(--text-sm);
       color: var(--color-text-secondary);
@@ -510,30 +515,9 @@
   <div class="search-bar-wrap">
     <div class="search-bar" id="search-bar">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
-      <input type="text" class="search-bar-input" id="search-input" placeholder="Search a peak, trailhead, or spot…" readonly>
+      <input type="text" class="search-bar-input" id="search-input" placeholder="Search a peak, trailhead, or spot…" autocomplete="off">
     </div>
-    <div class="suggestions-list hidden" id="suggestions-list">
-      <button class="suggestion-item" type="button" data-name="Garibaldi Lake TH" data-elev="1,580 m" data-coords="49.3756° N · 123.0378° W" data-lat="49.3756" data-lng="-123.0378">
-        <span class="suggestion-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg></span>
-        <span class="suggestion-name">Garibaldi Lake TH</span>
-        <span class="suggestion-elev">1,580 m</span>
-      </button>
-      <button class="suggestion-item" type="button" data-name="Wedgemount Lake TH" data-elev="1,070 m" data-coords="50.2012° N · 122.5891° W" data-lat="50.2012" data-lng="-122.5891">
-        <span class="suggestion-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg></span>
-        <span class="suggestion-name">Wedgemount Lake TH</span>
-        <span class="suggestion-elev">1,070 m</span>
-      </button>
-      <button class="suggestion-item" type="button" data-name="Mt Seymour Summit" data-elev="1,449 m" data-coords="49.3933° N · 122.9467° W" data-lat="49.3933" data-lng="-122.9467">
-        <span class="suggestion-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg></span>
-        <span class="suggestion-name">Mt Seymour Summit</span>
-        <span class="suggestion-elev">1,449 m</span>
-      </button>
-      <button class="suggestion-item" type="button" data-name="Joffre Lakes TH" data-elev="1,310 m" data-coords="50.3522° N · 122.4728° W" data-lat="50.3522" data-lng="-122.4728">
-        <span class="suggestion-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg></span>
-        <span class="suggestion-name">Joffre Lakes TH</span>
-        <span class="suggestion-elev">1,310 m</span>
-      </button>
-    </div>
+    <div class="suggestions-list hidden" id="suggestions-list"></div>
   </div>
 
   <!-- MAP -->
@@ -595,6 +579,8 @@
       var STATES = { DEFAULT: 1, SEARCHING: 2, SELECTED: 3 };
       var state = STATES.DEFAULT;
       var selectedLocation = null;
+      var debounceTimer = null;
+      var lastRequestId = 0;
 
       var sheet = document.getElementById('bottom-sheet');
       var searchBar = document.getElementById('search-bar');
@@ -634,6 +620,66 @@
         marker.setLngLat([lng, lat]);
       }
 
+      function formatCoords(lng, lat) {
+        var ns = lat >= 0 ? 'N' : 'S';
+        var ew = lng >= 0 ? 'E' : 'W';
+        return Math.abs(lat).toFixed(4) + '° ' + ns + ' · ' + Math.abs(lng).toFixed(4) + '° ' + ew;
+      }
+
+      function getRegionFromContext(context) {
+        if (!context || !Array.isArray(context)) return '';
+        var region = context.find(function(c) { return c.id && c.id.indexOf('region') === 0; });
+        return region ? region.text : '';
+      }
+
+      function fetchGeocode(query) {
+        var requestId = ++lastRequestId;
+        searchBar.classList.add('loading');
+        var url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' + encodeURIComponent(query) + '.json?access_token=' + mapboxgl.accessToken + '&country=CA&types=poi,natural,place&proximity=-123.0,49.9&limit=5';
+        fetch(url)
+          .then(function(res) { return res.json(); })
+          .then(function(data) {
+            if (requestId !== lastRequestId) return;
+            searchBar.classList.remove('loading');
+            renderSuggestions(data.features || []);
+          })
+          .catch(function() {
+            if (requestId !== lastRequestId) return;
+            searchBar.classList.remove('loading');
+            renderSuggestions([]);
+          });
+      }
+
+      function renderSuggestions(features) {
+        suggestionsList.innerHTML = '';
+        features.forEach(function(f) {
+          var coords = f.geometry && f.geometry.coordinates;
+          if (!coords || coords.length < 2) return;
+          var lng = coords[0];
+          var lat = coords[1];
+          var name = f.text || f.place_name || '';
+          var region = getRegionFromContext(f.context);
+          var coordsStr = formatCoords(lng, lat);
+          var btn = document.createElement('button');
+          btn.className = 'suggestion-item';
+          btn.type = 'button';
+          btn.dataset.name = name;
+          btn.dataset.elev = '—';
+          btn.dataset.coords = coordsStr;
+          btn.dataset.lat = lat;
+          btn.dataset.lng = lng;
+          btn.innerHTML = '<span class="suggestion-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg></span><span class="suggestion-name"></span><span class="suggestion-region"></span>';
+          btn.querySelector('.suggestion-name').textContent = name || '';
+          btn.querySelector('.suggestion-region').textContent = region || '';
+          btn.addEventListener('click', function() {
+            goToSelected(btn.dataset.name, btn.dataset.elev, btn.dataset.coords, btn.dataset.lat, btn.dataset.lng);
+            suggestionsList.innerHTML = '';
+            suggestionsList.classList.add('hidden');
+          });
+          suggestionsList.appendChild(btn);
+        });
+      }
+
       function setState(newState) {
         state = newState;
         if (state === STATES.DEFAULT) {
@@ -650,10 +696,11 @@
             searchInput.value = selectedLocation.name;
             searchInput.placeholder = '';
           } else {
-            searchInput.value = '';
+            searchInput.value = searchInput.value || '';
             searchInput.placeholder = 'Search a peak, trailhead, or spot…';
           }
         } else if (state === STATES.SELECTED) {
+          suggestionsList.innerHTML = '';
           suggestionsList.classList.add('hidden');
           sheet.classList.remove('hidden');
           sheet.classList.remove('peek');
@@ -704,19 +751,24 @@
         }
       });
 
-      if (suggestionsList) {
-        suggestionsList.querySelectorAll('.suggestion-item').forEach(function(btn) {
-          btn.addEventListener('click', function() {
-            goToSelected(
-              btn.dataset.name,
-              btn.dataset.elev,
-              btn.dataset.coords,
-              btn.dataset.lat,
-              btn.dataset.lng
-            );
-          });
-        });
-      }
+      searchInput.addEventListener('input', function() {
+        var query = searchInput.value.trim();
+        if (state !== STATES.SEARCHING) goToSearching();
+        clearTimeout(debounceTimer);
+        if (query.length >= 3) {
+          debounceTimer = setTimeout(function() {
+            fetchGeocode(query);
+          }, 300);
+        } else {
+          renderSuggestions([]);
+        }
+      });
+
+      searchInput.addEventListener('focus', function() {
+        if (state === STATES.DEFAULT || state === STATES.SELECTED) {
+          goToSearching();
+        }
+      });
 
       mapDimOverlay.addEventListener('click', function() {
         if (state === STATES.SEARCHING) {
