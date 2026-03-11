@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gusty.ca — Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     GUSTY.CA DESIGN TOKENS
+     Copy these into your CSS :root — these are your source of truth
+     ============================================================ */
+
+  :root {
+
+    /* --- SURFACE HIERARCHY (3 levels) --- */
+    --color-bg:          #0B1120;   /* page canvas */
+    --color-surface:     #111827;   /* cards, panels */
+    --color-surface-elevated: #1A2333; /* raised panels, model comparison */
+    --color-border:      rgba(255, 255, 255, 0.07);
+    --color-border-strong: rgba(255, 255, 255, 0.13);
+
+    /* --- TEXT --- */
+    --color-text-primary:   #F0F4F8;  /* headings, primary values */
+    --color-text-secondary: #8A9BB0;  /* labels, supporting info */
+    --color-text-muted:     #4A5C72;  /* captions, disabled */
+    --color-text-inverse:   #0B1120;  /* text on light accents */
+
+    /* --- ACCENT — Electric Cyan (primary interactive) --- */
+    --color-accent:         #38BDF8;  /* links, active states */
+    --color-accent-dim:     rgba(56, 189, 248, 0.15); /* accent bg tint */
+    --color-accent-border:  rgba(56, 189, 248, 0.30);
+
+    /* --- WIND COLOR RAMP (meteorological convention) --- */
+    --wind-calm:      #34D399;  /* 0–15 km/h  — calm */
+    --wind-light:     #A3E635;  /* 16–30 km/h — light */
+    --wind-moderate:  #FBBF24;  /* 31–50 km/h — moderate */
+    --wind-strong:    #F97316;  /* 51–74 km/h — strong */
+    --wind-severe:    #EF4444;  /* 75–100 km/h — severe */
+    --wind-extreme:   #C026D3;  /* 100+ km/h  — extreme */
+
+    /* --- SEMANTIC STATUS --- */
+    --color-go:       #34D399;  /* favorable conditions */
+    --color-caution:  #FBBF24;  /* marginal conditions */
+    --color-no-go:    #EF4444;  /* unsafe conditions */
+
+    /* --- PRECIPITATION --- */
+    --precip-none:    rgba(255,255,255,0.0);
+    --precip-trace:   rgba(147, 197, 253, 0.25);
+    --precip-light:   rgba(147, 197, 253, 0.55);
+    --precip-heavy:   rgba(96, 165, 250, 0.85);
+    --precip-snow:    rgba(226, 232, 240, 0.70);
+
+    /* --- TYPOGRAPHY SCALE (Major Second ratio × 1.125) --- */
+    /* Inter for UI, DM Mono for data values */
+    --font-ui:   'Inter', system-ui, sans-serif;
+    --font-data: 'DM Mono', 'Menlo', monospace;
+
+    --text-xs:   11px;  /* captions, model labels */
+    --text-sm:   13px;  /* secondary labels, metadata */
+    --text-base: 15px;  /* body, primary UI text */
+    --text-lg:   18px;  /* section headers */
+    --text-xl:   22px;  /* location name */
+    --text-2xl:  28px;  /* hero wind value */
+    --text-3xl:  40px;  /* primary data (large wind display) */
+
+    --weight-regular:  400;
+    --weight-medium:   500;
+    --weight-semibold: 600;
+
+    --leading-tight:  1.15;
+    --leading-normal: 1.45;
+    --leading-loose:  1.65;
+
+    --tracking-tight:  -0.025em;  /* large headings */
+    --tracking-normal:  0em;
+    --tracking-wide:    0.06em;   /* ALL CAPS labels */
+
+    /* --- SPACING (8pt grid) --- */
+    --space-1:  4px;
+    --space-2:  8px;
+    --space-3:  12px;
+    --space-4:  16px;
+    --space-5:  20px;
+    --space-6:  24px;
+    --space-8:  32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+
+    /* --- RADIUS --- */
+    --radius-sm:  6px;   /* chips, small tags */
+    --radius-md:  10px;  /* cards, panels */
+    --radius-lg:  14px;  /* bottom sheets, modals */
+    --radius-full: 999px; /* pills */
+
+    /* --- ELEVATION (dark mode = lighter surface, not shadows) --- */
+    --shadow-sm:  0 1px 3px rgba(0,0,0,0.4);
+    --shadow-md:  0 4px 12px rgba(0,0,0,0.5);
+    --shadow-lg:  0 12px 32px rgba(0,0,0,0.6);
+
+    /* --- MOTION --- */
+    --ease-out:    cubic-bezier(0.0, 0.0, 0.2, 1);
+    --ease-in:     cubic-bezier(0.4, 0.0, 1.0, 1);
+    --ease-inout:  cubic-bezier(0.4, 0.0, 0.2, 1);
+    --duration-fast:   100ms;
+    --duration-base:   200ms;
+    --duration-slow:   350ms;
+  }
+
+  /* ============================================================
+     RESET + BASE
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--color-bg); color: var(--color-text-primary); font-family: var(--font-ui); font-size: var(--text-base); line-height: var(--leading-normal); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100vh; padding: var(--space-8) var(--space-6); max-width: 900px; margin: 0 auto; }
+
+  /* ============================================================
+     DESIGN SYSTEM DOC STYLES
+     ============================================================ */
+  .doc-header { margin-bottom: var(--space-12); border-bottom: 1px solid var(--color-border-strong); padding-bottom: var(--space-6); }
+  .doc-header h1 { font-size: var(--text-2xl); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tight); color: var(--color-text-primary); }
+  .doc-header p { margin-top: var(--space-2); color: var(--color-text-secondary); font-size: var(--text-sm); }
+
+  .section { margin-bottom: var(--space-12); }
+  .section-title {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-5);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  /* ============================================================
+     COLOR SWATCHES
+     ============================================================ */
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--space-3); }
+  .swatch { border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-border); }
+  .swatch-color { height: 56px; }
+  .swatch-info { padding: var(--space-3); background: var(--color-surface); }
+  .swatch-name { font-size: var(--text-xs); font-weight: var(--weight-medium); color: var(--color-text-primary); }
+  .swatch-value { font-size: var(--text-xs); font-family: var(--font-data); color: var(--color-text-secondary); margin-top: 2px; }
+  .swatch-desc { font-size: 10px; color: var(--color-text-muted); margin-top: 3px; line-height: 1.4; }
+
+  /* Wind ramp — full-width bar */
+  .wind-ramp { display: flex; height: 48px; border-radius: var(--radius-md); overflow: hidden; margin-bottom: var(--space-3); }
+  .wind-ramp-seg { flex: 1; display: flex; align-items: flex-end; padding: 6px 8px; }
+  .wind-ramp-label { font-size: 10px; font-family: var(--font-data); font-weight: 500; color: rgba(0,0,0,0.65); }
+
+  .wind-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-2); margin-top: var(--space-3); }
+  .wind-chip { border-radius: var(--radius-sm); padding: var(--space-3) var(--space-2); text-align: center; }
+  .wind-chip-label { font-size: 10px; font-family: var(--font-data); font-weight: 500; color: rgba(0,0,0,0.7); display: block; }
+  .wind-chip-range { font-size: 9px; color: rgba(0,0,0,0.5); display: block; margin-top: 2px; }
+
+  /* ============================================================
+     TYPOGRAPHY SPECIMENS
+     ============================================================ */
+  .type-specimen { margin-bottom: var(--space-5); padding: var(--space-5) var(--space-6); background: var(--color-surface); border-radius: var(--radius-md); border: 1px solid var(--color-border); display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); }
+  .type-meta { flex-shrink: 0; text-align: right; }
+  .type-meta-name { font-size: var(--text-xs); color: var(--color-text-muted); font-family: var(--font-data); }
+  .type-meta-spec { font-size: 10px; color: var(--color-text-muted); margin-top: 2px; }
+
+  /* ============================================================
+     SPACING SCALE
+     ============================================================ */
+  .spacing-row { display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-2); }
+  .spacing-bar-wrap { flex: 1; height: 24px; display: flex; align-items: center; }
+  .spacing-bar { height: 8px; background: var(--color-accent-dim); border: 1px solid var(--color-accent-border); border-radius: 2px; }
+  .spacing-label { font-size: var(--text-xs); font-family: var(--font-data); color: var(--color-text-secondary); width: 48px; flex-shrink: 0; }
+  .spacing-val { font-size: var(--text-xs); font-family: var(--font-data); color: var(--color-text-muted); width: 32px; text-align: right; flex-shrink: 0; }
+
+  /* ============================================================
+     COMPONENT PREVIEWS
+     ============================================================ */
+  .component-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+  @media (max-width: 600px) { .component-grid { grid-template-columns: 1fr; } }
+
+  /* Wind value display */
+  .wind-display { background: var(--color-surface); border-radius: var(--radius-md); border: 1px solid var(--color-border); padding: var(--space-6); }
+  .wind-display-label { font-size: var(--text-xs); font-weight: var(--weight-medium); letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--color-text-muted); }
+  .wind-display-value { font-family: var(--font-data); font-size: var(--text-3xl); font-weight: var(--weight-medium); color: var(--wind-strong); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); margin-top: var(--space-1); }
+  .wind-display-unit { font-family: var(--font-data); font-size: var(--text-base); color: var(--color-text-secondary); margin-left: var(--space-1); }
+  .wind-display-dir { font-size: var(--text-sm); color: var(--color-text-secondary); margin-top: var(--space-2); display: flex; align-items: center; gap: var(--space-2); }
+  .wind-arrow { display: inline-block; font-size: 18px; transform: rotate(45deg); /* NE */ }
+
+  /* Condition badge */
+  .condition-badge { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: var(--weight-medium); letter-spacing: 0.02em; }
+  .badge-go { background: rgba(52, 211, 153, 0.15); color: var(--color-go); border: 1px solid rgba(52, 211, 153, 0.3); }
+  .badge-caution { background: rgba(251, 191, 36, 0.15); color: var(--color-caution); border: 1px solid rgba(251, 191, 36, 0.3); }
+  .badge-no-go { background: rgba(239, 68, 68, 0.15); color: var(--color-no-go); border: 1px solid rgba(239, 68, 68, 0.3); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+  /* Hourly strip cell */
+  .hourly-strip { display: flex; gap: var(--space-2); overflow-x: auto; padding: var(--space-4); background: var(--color-surface); border-radius: var(--radius-md); border: 1px solid var(--color-border); -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .hourly-strip::-webkit-scrollbar { display: none; }
+  .hour-cell { flex-shrink: 0; width: 52px; display: flex; flex-direction: column; align-items: center; gap: var(--space-1); padding: var(--space-2) 0; border-radius: var(--radius-sm); }
+  .hour-cell.active { background: var(--color-surface-elevated); }
+  .hour-time { font-size: 10px; font-family: var(--font-data); color: var(--color-text-muted); }
+  .hour-wind { font-size: var(--text-sm); font-family: var(--font-data); font-weight: var(--weight-medium); }
+  .hour-arrow { font-size: 12px; color: var(--color-text-secondary); }
+  .hour-precip { width: 28px; height: 3px; border-radius: 2px; margin-top: 2px; }
+
+  /* Model tag */
+  .model-tag { display: inline-flex; align-items: center; padding: 3px var(--space-2); border-radius: var(--radius-sm); font-size: 10px; font-family: var(--font-data); font-weight: var(--weight-medium); letter-spacing: 0.04em; background: var(--color-surface-elevated); color: var(--color-text-secondary); border: 1px solid var(--color-border); }
+
+  /* Radius showcase */
+  .radius-row { display: flex; gap: var(--space-4); align-items: flex-end; flex-wrap: wrap; }
+  .radius-swatch { background: var(--color-surface-elevated); border: 1px solid var(--color-border-strong); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-1); }
+  .radius-label { font-size: 10px; font-family: var(--font-data); color: var(--color-text-muted); }
+
+  /* Token table */
+  .token-table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+  .token-table th { text-align: left; font-size: var(--text-xs); font-weight: var(--weight-medium); letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--color-text-muted); padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--color-border-strong); }
+  .token-table td { padding: var(--space-3); border-bottom: 1px solid var(--color-border); vertical-align: middle; }
+  .token-table tr:last-child td { border-bottom: none; }
+  .token-table code { font-family: var(--font-data); font-size: var(--text-xs); color: var(--color-accent); background: var(--color-accent-dim); padding: 2px 6px; border-radius: 4px; }
+  .token-table .val { font-family: var(--font-data); color: var(--color-text-secondary); font-size: var(--text-xs); }
+
+  /* copy hint */
+  .copy-hint { font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-3); font-style: italic; }
+</style>
+</head>
+<body>
+
+<header class="doc-header">
+  <h1>gusty.ca — Design System</h1>
+  <p>Tokens, type scale, color ramp, and component specimens · Inter + DM Mono · Dark-first</p>
+</header>
+
+
+<!-- ============================================================
+     SURFACES
+     ============================================================ -->
+<section class="section">
+  <div class="section-title">Surfaces & Borders</div>
+  <div class="swatch-grid">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#0B1120;border-bottom:1px solid rgba(255,255,255,0.07)"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">--color-bg</div>
+        <div class="swatch-value">#0B1120</div>
+        <div class="swatch-desc">Page canvas</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#111827"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">--color-surface</div>
+        <div class="swatch-value">#111827</div>
+        <div class="swatch-desc">Cards, panels</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#1A2333"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">--color-surface-elevated</div>
+        <div class="swatch-value">#1A2333</div>
+        <div class="swatch-desc">Model comparison, raised panels</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:rgba(255,255,255,0.07)"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">--color-border</div>
+        <div class="swatch-value">rgba(255,255,255,0.07)</div>
+        <div class="swatch-desc">Default borders</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     TEXT
+     ============================================================ -->
+<section class="section">
+  <div class="section-title">Text</div>
+  <div class="swatch-grid">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#F0F4F8"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">--color-text-primary</div>
+        <div class="swatch-value">#F0F4F8</div>
+        <div class="swatch-desc">Headings, primary values</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#8A9BB0"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">--color-text-secondary</div>
+        <div class="swatch-value">#8A9BB0</div>
+        <div class="swatch-desc">Labels, supporting info</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#4A5C72"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">--color-text-muted</div>
+        <div class="swatch-value">#4A5C72</div>
+        <div class="swatch-desc">Captions, disabled</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#38BDF8"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">--color-accent</div>
+        <div class="swatch-value">#38BDF8</div>
+        <div class="swatch-desc">Links, active states, interactive</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     WIND COLOR RAMP
+     ============================================================ -->
+<section class="section">
+  <div class="section-title">Wind Color Ramp</div>
+
+  <div class="wind-ramp">
+    <div class="wind-ramp-seg" style="background:#34D399"><span class="wind-ramp-label">Calm</span></div>
+    <div class="wind-ramp-seg" style="background:#A3E635"><span class="wind-ramp-label">Light</span></div>
+    <div class="wind-ramp-seg" style="background:#FBBF24"><span class="wind-ramp-label">Mod</span></div>
+    <div class="wind-ramp-seg" style="background:#F97316"><span class="wind-ramp-label">Strong</span></div>
+    <div class="wind-ramp-seg" style="background:#EF4444"><span class="wind-ramp-label">Severe</span></div>
+    <div class="wind-ramp-seg" style="background:#C026D3"><span class="wind-ramp-label">Extreme</span></div>
+  </div>
+
+  <div class="wind-grid">
+    <div class="wind-chip" style="background:#34D399">
+      <span class="wind-chip-label">Calm</span>
+      <span class="wind-chip-range">0–15</span>
+    </div>
+    <div class="wind-chip" style="background:#A3E635">
+      <span class="wind-chip-label">Light</span>
+      <span class="wind-chip-range">16–30</span>
+    </div>
+    <div class="wind-chip" style="background:#FBBF24">
+      <span class="wind-chip-label">Mod</span>
+      <span class="wind-chip-range">31–50</span>
+    </div>
+    <div class="wind-chip" style="background:#F97316">
+      <span class="wind-chip-label">Strong</span>
+      <span class="wind-chip-range">51–74</span>
+    </div>
+    <div class="wind-chip" style="background:#EF4444">
+      <span class="wind-chip-label">Severe</span>
+      <span class="wind-chip-range">75–100</span>
+    </div>
+    <div class="wind-chip" style="background:#C026D3">
+      <span class="wind-chip-label">Extreme</span>
+      <span class="wind-chip-range">100+</span>
+    </div>
+  </div>
+
+  <p class="copy-hint">Meteorological Beaufort-aligned convention. Used in hourly strip, model comparison panel, and condition summary.</p>
+</section>
+
+
+<!-- ============================================================
+     SEMANTIC STATUS
+     ============================================================ -->
+<section class="section">
+  <div class="section-title">Semantic Status</div>
+  <div class="swatch-grid">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#34D399"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">--color-go</div>
+        <div class="swatch-value">#34D399</div>
+        <div class="swatch-desc">Favorable conditions</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#FBBF24"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">--color-caution</div>
+        <div class="swatch-value">#FBBF24</div>
+        <div class="swatch-desc">Marginal conditions</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#EF4444"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">--color-no-go</div>
+        <div class="swatch-value">#EF4444</div>
+        <div class="swatch-desc">Unsafe conditions</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     TYPOGRAPHY
+     ============================================================ -->
+<section class="section">
+  <div class="section-title">Type Scale</div>
+
+  <!-- UI type — Inter -->
+  <div style="margin-bottom: var(--space-4);">
+    <div style="font-size:var(--text-xs);color:var(--color-text-muted);font-family:var(--font-data);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:var(--space-3);">Inter — UI text</div>
+
+    <div class="type-specimen">
+      <span style="font-family:var(--font-ui);font-size:var(--text-xl);font-weight:var(--weight-semibold);letter-spacing:var(--tracking-tight);color:var(--color-text-primary)">Garibaldi Lake TH</span>
+      <div class="type-meta">
+        <div class="type-meta-name">--text-xl / semibold</div>
+        <div class="type-meta-spec">22px · −0.025em · location name</div>
+      </div>
+    </div>
+
+    <div class="type-specimen">
+      <span style="font-family:var(--font-ui);font-size:var(--text-lg);font-weight:var(--weight-semibold);color:var(--color-text-primary)">Favorable window 10am–2pm</span>
+      <div class="type-meta">
+        <div class="type-meta-name">--text-lg / semibold</div>
+        <div class="type-meta-spec">18px · section headers, verdict</div>
+      </div>
+    </div>
+
+    <div class="type-specimen">
+      <span style="font-family:var(--font-ui);font-size:var(--text-base);font-weight:var(--weight-regular);color:var(--color-text-secondary)">Partly cloudy with ridge-top winds easing after 11am</span>
+      <div class="type-meta">
+        <div class="type-meta-name">--text-base / regular</div>
+        <div class="type-meta-spec">15px · body, supporting text</div>
+      </div>
+    </div>
+
+    <div class="type-specimen">
+      <span style="font-family:var(--font-ui);font-size:var(--text-xs);font-weight:var(--weight-medium);letter-spacing:var(--tracking-wide);text-transform:uppercase;color:var(--color-text-muted)">Wind Speed · Summit Elevation</span>
+      <div class="type-meta">
+        <div class="type-meta-name">--text-xs / medium / uppercase</div>
+        <div class="type-meta-spec">11px · +0.06em · section labels</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data type — DM Mono -->
+  <div>
+    <div style="font-size:var(--text-xs);color:var(--color-text-muted);font-family:var(--font-data);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:var(--space-3);">DM Mono — data values</div>
+
+    <div class="type-specimen">
+      <span style="font-family:var(--font-data);font-size:var(--text-3xl);font-weight:var(--weight-medium);color:var(--wind-strong);letter-spacing:var(--tracking-tight);line-height:1">67<span style="font-size:var(--text-lg);color:var(--color-text-secondary);"> km/h</span></span>
+      <div class="type-meta">
+        <div class="type-meta-name">--text-3xl / medium</div>
+        <div class="type-meta-spec">40px · hero wind value</div>
+      </div>
+    </div>
+
+    <div class="type-specimen">
+      <span style="font-family:var(--font-data);font-size:var(--text-2xl);font-weight:var(--weight-medium);color:var(--color-text-primary);letter-spacing:var(--tracking-tight)">−12°C</span>
+      <div class="type-meta">
+        <div class="type-meta-name">--text-2xl / medium</div>
+        <div class="type-meta-spec">28px · large data display</div>
+      </div>
+    </div>
+
+    <div class="type-specimen">
+      <span style="font-family:var(--font-data);font-size:var(--text-sm);font-weight:var(--weight-medium);color:var(--color-text-secondary)">2,340 m · GFS · ECMWF · NAM</span>
+      <div class="type-meta">
+        <div class="type-meta-name">--text-sm / medium</div>
+        <div class="type-meta-spec">13px · model labels, metadata</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     COMPONENT SPECIMENS
+     ============================================================ -->
+<section class="section">
+  <div class="section-title">Component Specimens</div>
+  <div class="component-grid">
+
+    <!-- Wind display -->
+    <div class="wind-display">
+      <div class="wind-display-label">Wind Speed</div>
+      <div style="display:flex;align-items:baseline;gap:4px;margin-top:4px;">
+        <span class="wind-display-value">67</span>
+        <span style="font-family:var(--font-data);font-size:var(--text-base);color:var(--color-text-secondary)">km/h</span>
+      </div>
+      <div class="wind-display-dir">
+        <span class="wind-arrow">↗</span>
+        <span>NE · gusts to 89 km/h</span>
+      </div>
+    </div>
+
+    <!-- Condition badges -->
+    <div style="background:var(--color-surface);border-radius:var(--radius-md);border:1px solid var(--color-border);padding:var(--space-6);display:flex;flex-direction:column;gap:var(--space-3);">
+      <div style="font-size:var(--text-xs);font-weight:var(--weight-medium);letter-spacing:var(--tracking-wide);text-transform:uppercase;color:var(--color-text-muted);margin-bottom:var(--space-1);">Condition Badges</div>
+      <div><span class="condition-badge badge-go"><span class="dot"></span>Favorable</span></div>
+      <div><span class="condition-badge badge-caution"><span class="dot"></span>Marginal</span></div>
+      <div><span class="condition-badge badge-no-go"><span class="dot"></span>Unsafe</span></div>
+    </div>
+
+    <!-- Model tags -->
+    <div style="background:var(--color-surface);border-radius:var(--radius-md);border:1px solid var(--color-border);padding:var(--space-6);">
+      <div style="font-size:var(--text-xs);font-weight:var(--weight-medium);letter-spacing:var(--tracking-wide);text-transform:uppercase;color:var(--color-text-muted);margin-bottom:var(--space-4);">Model Tags</div>
+      <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;">
+        <span class="model-tag" style="color:var(--color-accent);background:var(--color-accent-dim);border-color:var(--color-accent-border);">GFS</span>
+        <span class="model-tag">ECMWF</span>
+        <span class="model-tag">NAM</span>
+        <span class="model-tag">HRRR</span>
+      </div>
+    </div>
+
+    <!-- Elevation chip -->
+    <div style="background:var(--color-surface);border-radius:var(--radius-md);border:1px solid var(--color-border);padding:var(--space-6);">
+      <div style="font-size:var(--text-xs);font-weight:var(--weight-medium);letter-spacing:var(--tracking-wide);text-transform:uppercase;color:var(--color-text-muted);margin-bottom:var(--space-4);">Elevation Selector</div>
+      <div style="display:flex;gap:var(--space-2);">
+        <div style="padding:6px 12px;border-radius:var(--radius-full);background:var(--color-accent-dim);border:1px solid var(--color-accent-border);font-size:var(--text-xs);font-family:var(--font-data);color:var(--color-accent);">1,500 m</div>
+        <div style="padding:6px 12px;border-radius:var(--radius-full);background:var(--color-surface-elevated);border:1px solid var(--color-border);font-size:var(--text-xs);font-family:var(--font-data);color:var(--color-text-secondary);">2,100 m</div>
+        <div style="padding:6px 12px;border-radius:var(--radius-full);background:var(--color-surface-elevated);border:1px solid var(--color-border);font-size:var(--text-xs);font-family:var(--font-data);color:var(--color-text-secondary);">Summit</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Hourly strip — full width -->
+  <div style="margin-top:var(--space-4);">
+    <div style="font-size:var(--text-xs);font-weight:var(--weight-medium);letter-spacing:var(--tracking-wide);text-transform:uppercase;color:var(--color-text-muted);margin-bottom:var(--space-3);">Hourly Strip (scroll →)</div>
+    <div class="hourly-strip">
+      <!-- calm -->
+      <div class="hour-cell">
+        <span class="hour-time">6am</span>
+        <span class="hour-arrow">↑</span>
+        <span class="hour-wind" style="color:var(--wind-calm)">18</span>
+        <div class="hour-precip" style="background:var(--precip-none);border:1px solid var(--color-border)"></div>
+      </div>
+      <!-- light -->
+      <div class="hour-cell">
+        <span class="hour-time">7am</span>
+        <span class="hour-arrow">↑</span>
+        <span class="hour-wind" style="color:var(--wind-calm)">22</span>
+        <div class="hour-precip" style="background:var(--precip-trace)"></div>
+      </div>
+      <!-- moderate -->
+      <div class="hour-cell active">
+        <span class="hour-time">8am</span>
+        <span class="hour-arrow" style="color:var(--color-accent)">↗</span>
+        <span class="hour-wind" style="color:var(--wind-light)">28</span>
+        <div class="hour-precip" style="background:var(--precip-trace)"></div>
+      </div>
+      <div class="hour-cell">
+        <span class="hour-time">9am</span>
+        <span class="hour-arrow">↗</span>
+        <span class="hour-wind" style="color:var(--wind-moderate)">37</span>
+        <div class="hour-precip" style="background:var(--precip-light)"></div>
+      </div>
+      <div class="hour-cell">
+        <span class="hour-time">10am</span>
+        <span class="hour-arrow">→</span>
+        <span class="hour-wind" style="color:var(--wind-moderate)">44</span>
+        <div class="hour-precip" style="background:var(--precip-light)"></div>
+      </div>
+      <div class="hour-cell">
+        <span class="hour-time">11am</span>
+        <span class="hour-arrow">→</span>
+        <span class="hour-wind" style="color:var(--wind-strong)">58</span>
+        <div class="hour-precip" style="background:var(--precip-heavy)"></div>
+      </div>
+      <div class="hour-cell">
+        <span class="hour-time">12pm</span>
+        <span class="hour-arrow">↘</span>
+        <span class="hour-wind" style="color:var(--wind-strong)">67</span>
+        <div class="hour-precip" style="background:var(--precip-heavy)"></div>
+      </div>
+      <div class="hour-cell">
+        <span class="hour-time">1pm</span>
+        <span class="hour-arrow">↘</span>
+        <span class="hour-wind" style="color:var(--wind-severe)">79</span>
+        <div class="hour-precip" style="background:var(--precip-snow)"></div>
+      </div>
+      <div class="hour-cell">
+        <span class="hour-time">2pm</span>
+        <span class="hour-arrow">↓</span>
+        <span class="hour-wind" style="color:var(--wind-severe)">83</span>
+        <div class="hour-precip" style="background:var(--precip-snow)"></div>
+      </div>
+      <div class="hour-cell">
+        <span class="hour-time">3pm</span>
+        <span class="hour-arrow">↓</span>
+        <span class="hour-wind" style="color:var(--wind-strong)">61</span>
+        <div class="hour-precip" style="background:var(--precip-trace)"></div>
+      </div>
+      <div class="hour-cell">
+        <span class="hour-time">4pm</span>
+        <span class="hour-arrow">↙</span>
+        <span class="hour-wind" style="color:var(--wind-moderate)">45</span>
+        <div class="hour-precip" style="background:var(--precip-none);border:1px solid var(--color-border)"></div>
+      </div>
+      <div class="hour-cell">
+        <span class="hour-time">5pm</span>
+        <span class="hour-arrow">↙</span>
+        <span class="hour-wind" style="color:var(--wind-light)">31</span>
+        <div class="hour-precip" style="background:var(--precip-none);border:1px solid var(--color-border)"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SPACING
+     ============================================================ -->
+<section class="section">
+  <div class="section-title">Spacing Scale (8pt grid)</div>
+  <div>
+    <div class="spacing-row"><span class="spacing-label">--space-1</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:4px"></div></div><span class="spacing-val">4px</span></div>
+    <div class="spacing-row"><span class="spacing-label">--space-2</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:8px"></div></div><span class="spacing-val">8px</span></div>
+    <div class="spacing-row"><span class="spacing-label">--space-3</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:12px"></div></div><span class="spacing-val">12px</span></div>
+    <div class="spacing-row"><span class="spacing-label">--space-4</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:16px"></div></div><span class="spacing-val">16px</span></div>
+    <div class="spacing-row"><span class="spacing-label">--space-5</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:20px"></div></div><span class="spacing-val">20px</span></div>
+    <div class="spacing-row"><span class="spacing-label">--space-6</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:24px"></div></div><span class="spacing-val">24px</span></div>
+    <div class="spacing-row"><span class="spacing-label">--space-8</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:32px"></div></div><span class="spacing-val">32px</span></div>
+    <div class="spacing-row"><span class="spacing-label">--space-10</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:40px"></div></div><span class="spacing-val">40px</span></div>
+    <div class="spacing-row"><span class="spacing-label">--space-12</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:48px"></div></div><span class="spacing-val">48px</span></div>
+    <div class="spacing-row"><span class="spacing-label">--space-16</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:64px"></div></div><span class="spacing-val">64px</span></div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     RADIUS
+     ============================================================ -->
+<section class="section">
+  <div class="section-title">Border Radius</div>
+  <div class="radius-row">
+    <div>
+      <div class="radius-swatch" style="width:64px;height:48px;border-radius:6px;"></div>
+      <div style="margin-top:var(--space-2)"><div class="radius-label">--radius-sm</div><div class="radius-label">6px · chips, tags</div></div>
+    </div>
+    <div>
+      <div class="radius-swatch" style="width:80px;height:64px;border-radius:10px;"></div>
+      <div style="margin-top:var(--space-2)"><div class="radius-label">--radius-md</div><div class="radius-label">10px · cards</div></div>
+    </div>
+    <div>
+      <div class="radius-swatch" style="width:96px;height:80px;border-radius:14px;"></div>
+      <div style="margin-top:var(--space-2)"><div class="radius-label">--radius-lg</div><div class="radius-label">14px · sheets, modals</div></div>
+    </div>
+    <div>
+      <div class="radius-swatch" style="width:80px;height:32px;border-radius:999px;"></div>
+      <div style="margin-top:var(--space-2)"><div class="radius-label">--radius-full</div><div class="radius-label">999px · pills, badges</div></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     CSS TOKEN REFERENCE
+     ============================================================ -->
+<section class="section">
+  <div class="section-title">CSS Token Reference</div>
+  <table class="token-table">
+    <thead>
+      <tr><th>Token</th><th>Value</th><th>Use</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>--color-bg</code></td><td class="val">#0B1120</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">Page canvas</td></tr>
+      <tr><td><code>--color-surface</code></td><td class="val">#111827</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">Cards, panels</td></tr>
+      <tr><td><code>--color-surface-elevated</code></td><td class="val">#1A2333</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">Model comparison, raised panels</td></tr>
+      <tr><td><code>--color-accent</code></td><td class="val">#38BDF8</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">Active states, interactive</td></tr>
+      <tr><td><code>--wind-calm</code></td><td class="val">#34D399</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">0–15 km/h</td></tr>
+      <tr><td><code>--wind-light</code></td><td class="val">#A3E635</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">16–30 km/h</td></tr>
+      <tr><td><code>--wind-moderate</code></td><td class="val">#FBBF24</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">31–50 km/h</td></tr>
+      <tr><td><code>--wind-strong</code></td><td class="val">#F97316</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">51–74 km/h</td></tr>
+      <tr><td><code>--wind-severe</code></td><td class="val">#EF4444</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">75–100 km/h</td></tr>
+      <tr><td><code>--wind-extreme</code></td><td class="val">#C026D3</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">100+ km/h</td></tr>
+      <tr><td><code>--font-ui</code></td><td class="val">'Inter'</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">All UI text</td></tr>
+      <tr><td><code>--font-data</code></td><td class="val">'DM Mono'</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">All numeric values, model labels</td></tr>
+      <tr><td><code>--text-xs / sm / base / lg / xl / 2xl / 3xl</code></td><td class="val">11–40px</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">Type scale</td></tr>
+    </tbody>
+  </table>
+  <p class="copy-hint">Copy the full :root block from the &lt;style&gt; source of this file into your CSS — it's ready to paste.</p>
+</section>
+
+</body>
+</html>
