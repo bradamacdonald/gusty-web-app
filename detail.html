@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
+  <script src="gusty-settings.js"></script>
+  <script>if(window.GustySettings)GustySettings.applyTheme();</script>
   <style>
     /* ============================================================
        GUSTY.CA DESIGN TOKENS
@@ -65,6 +67,17 @@
 
       --chart-height: 180px;
       --chart-width: 1100px;
+    }
+
+    html.theme-light {
+      --color-bg:          #F5F7FA;
+      --color-surface:     #FFFFFF;
+      --color-surface-elevated: #E8ECF1;
+      --color-border:      rgba(0, 0, 0, 0.08);
+      --color-border-strong: rgba(0, 0, 0, 0.15);
+      --color-text-primary:   #0B1120;
+      --color-text-secondary: #4A5C72;
+      --color-text-muted:     #8A9BB0;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -163,13 +176,12 @@
     .chart-section {
       border-bottom: 1px solid var(--color-border);
     }
-    .time-axis-section {
-      position: sticky;
-      top: 0;
-      z-index: 5;
-      background: var(--color-bg);
+    .date-header {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      font-family: var(--font-data);
+      padding: var(--space-2) 0;
       border-bottom: 1px solid var(--color-border);
-      padding: 0 var(--space-4) var(--space-2);
     }
     .chart-scroll {
       overflow-x: scroll;
@@ -216,7 +228,7 @@
       bottom: 0;
       width: 2px;
       background: var(--color-accent);
-      left: calc((1 / 24) * 100%);
+      left: calc((1 / 48) * 100%);
       transform: translateX(-50%);
     }
 
@@ -228,7 +240,7 @@
     .chart-block:last-child {
       padding-bottom: var(--space-4);
     }
-    .chart-blocks-scroll {
+    .chart-scroll {
       padding: 0 var(--space-4) var(--space-4);
     }
     .chart-blocks-inner {
@@ -247,6 +259,11 @@
       position: relative;
       height: var(--chart-height);
       width: var(--chart-width);
+    }
+    .chart-container canvas {
+      display: block;
+      width: var(--chart-width);
+      height: var(--chart-height);
     }
     .chart-legend-row {
       display: flex;
@@ -398,19 +415,16 @@
   </div>
 
   <div class="chart-section">
-    <div class="time-axis-section">
-      <div class="chart-scroll" id="time-scroll">
+    <div class="chart-scroll" id="chart-scroll">
+      <div class="chart-scroll-inner" style="width: var(--chart-width); min-width: var(--chart-width);">
+        <div class="date-header" id="date-header"></div>
         <div class="time-axis-wrap">
           <div class="time-axis" id="time-axis"></div>
           <div class="time-cursor-wrap">
             <div class="time-cursor"></div>
           </div>
         </div>
-      </div>
-    </div>
-
-    <div class="chart-scroll chart-blocks-scroll" id="charts-scroll">
-      <div class="chart-blocks-inner">
+        <div class="chart-blocks-inner">
         <div class="chart-block">
           <div class="chart-label">Wind & Gusts</div>
           <div class="chart-legend-row">
@@ -419,7 +433,7 @@
             <span class="chart-swatch"><span class="chart-swatch-sq" style="background:var(--wind-calm)"></span>Trailhead</span>
           </div>
           <div class="chart-container">
-            <canvas id="wind-chart"></canvas>
+            <canvas id="wind-chart" width="1100" height="180"></canvas>
           </div>
         </div>
         <div class="chart-block">
@@ -431,7 +445,7 @@
             <span class="chart-swatch" style="color:var(--color-text-muted)"><span class="chart-swatch-line dashed"></span>Freezing Level</span>
           </div>
           <div class="chart-container">
-            <canvas id="temp-chart"></canvas>
+            <canvas id="temp-chart" width="1100" height="180"></canvas>
           </div>
         </div>
         <div class="chart-block">
@@ -441,9 +455,10 @@
             <span class="precip-swatch"><span class="precip-swatch-sq" style="background:rgba(226,232,240,0.70)"></span>Snow</span>
           </div>
           <div class="chart-container">
-            <canvas id="precip-chart"></canvas>
+            <canvas id="precip-chart" width="1100" height="180"></canvas>
           </div>
         </div>
+      </div>
       </div>
     </div>
   </div>
@@ -461,7 +476,7 @@
       <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" /></svg></span>
       Saved
     </a>
-    <a href="#" class="nav-item">
+    <a href="settings.html" class="nav-item">
       <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg></span>
       Settings
     </a>
@@ -487,6 +502,10 @@
       if (urlModel) {
         var mi = MODELS.findIndex(function(m) { return m.name === urlModel; });
         if (mi >= 0) modelIdx = mi;
+      } else if (window.GustySettings) {
+        var defaultModel = GustySettings.getDefaultModel();
+        var dm = MODELS.findIndex(function(m) { return m.name === defaultModel; });
+        if (dm >= 0) modelIdx = dm;
       }
 
       document.querySelector('.location-name').textContent = locationName;
@@ -497,52 +516,77 @@
         backBtn.href = 'forecast.html?' + p.toString();
       }
 
+      var xAxisTicksEvery2 = {
+        grid: { color: 'rgba(255,255,255,0.07)' },
+        ticks: {
+          color: '#4A5C72',
+          font: { size: 10, family: "'DM Mono'" },
+          maxRotation: 0,
+          callback: function(val, index, ticks) {
+            return index % 2 === 0 ? this.getLabelForValue(val) : '';
+          }
+        }
+      };
       var CHART_OPTS = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          x: { grid: { color: 'rgba(255,255,255,0.07)' }, ticks: { color: '#4A5C72', font: { size: 10, family: "'DM Mono'" }, maxRotation: 0 } },
+          x: xAxisTicksEvery2,
           y: { grid: { color: 'rgba(255,255,255,0.07)' }, ticks: { color: '#4A5C72', font: { size: 10, family: "'DM Mono'" } } }
         }
       };
 
-      var labels = ['6am','8am','10am','12pm','2pm','4pm','6pm','8pm','10pm','12am','2am','4am','Tue 6am','Tue 8am','Tue 10am','Tue 12pm','Tue 2pm','Tue 4pm','Tue 6pm','Tue 8pm','Tue 10pm','Tue 12am','Tue 2am','Tue 4am'];
+      var labels = [];
+      for (var li = 0; li < 48; li++) labels.push('');
 
       var timeAxisEl = document.getElementById('time-axis');
       timeAxisEl.innerHTML = '';
-      labels.forEach(function(l) {
+      for (var si = 0; si < 48; si++) {
         var span = document.createElement('span');
         span.className = 'time-tick';
-        span.textContent = l;
+        span.textContent = '';
         timeAxisEl.appendChild(span);
-      });
+      }
 
       var windData = { summit: [], mid: [], trailhead: [], gustsSummit: [], gustsMid: [], gustsTrailhead: [] };
       var tempData = { temp: [], dewPoint: [], freezing: [] };
       var precipData = { cloud: [], rain: [], snow: [] };
 
+      var dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      var dayAbbrev = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+      function formatDateHeader(d) {
+        return dayNames[d.getDay()] + ' · ' + monthNames[d.getMonth()] + ' ' + d.getDate();
+      }
+
       function formatLabel(iso) {
         var d = new Date(iso);
         var h = d.getHours();
-        var day = d.getDate();
-        var prev = new Date(d);
-        prev.setDate(prev.getDate() - 1);
-        var prefix = d.getDate() !== new Date().getDate() ? 'Tue ' : '';
-        return prefix + (h === 0 ? '12am' : h === 12 ? '12pm' : h < 12 ? h + 'am' : (h - 12) + 'pm');
+        var today = new Date();
+        if (d.getDate() !== today.getDate() || d.getMonth() !== today.getMonth() || d.getFullYear() !== today.getFullYear()) {
+          if (h === 0) return dayAbbrev[d.getDay()] + ' ' + d.getDate();
+          return dayAbbrev[d.getDay()] + ' ' + (h === 12 ? '12pm' : h < 12 ? h + 'am' : (h - 12) + 'pm');
+        }
+        return h === 0 ? '12am' : h === 12 ? '12pm' : h < 12 ? h + 'am' : (h - 12) + 'pm';
       }
+
+      var dateHeaderEl = document.getElementById('date-header');
+      if (dateHeaderEl) dateHeaderEl.textContent = formatDateHeader(new Date());
 
       function fetchForecast(modelApi, elev) {
         var p = new URLSearchParams({
           latitude: lat,
           longitude: lng,
-          elevation: elev != null ? elev : (elevation || 0),
           hourly: 'windspeed_10m,windgusts_10m,temperature_2m,dewpoint_2m,precipitation,cloudcover',
           wind_speed_unit: 'kmh',
           timezone: 'America/Vancouver',
           forecast_days: 2,
           models: modelApi
         });
+        var elevVal = elev != null ? elev : (elevation != null && !isNaN(elevation) ? elevation : null);
+        if (elevVal != null && !isNaN(elevVal)) p.set('elevation', elevVal);
         return fetch('https://api.open-meteo.com/v1/forecast?' + p).then(function(r) { return r.json(); });
       }
 
@@ -558,18 +602,23 @@
         selectEl.value = model.name;
         selectEl.disabled = true;
 
-        fetchForecast(model.api, elevation).then(function(mainData) {
+        fetchForecast(model.api, null).then(function(mainData) {
+          if (mainData.error) {
+            console.error('API error:', mainData.reason || mainData);
+            return Promise.reject(new Error(mainData.reason || 'API error'));
+          }
           var baseElev = mainData.elevation != null && !isNaN(mainData.elevation) ? mainData.elevation : (elevation || 0);
-          var elevChip = document.getElementById('elevation-chip');
-          if (elevChip && mainData.elevation != null && !isNaN(mainData.elevation)) {
-            elevChip.textContent = Math.round(mainData.elevation).toLocaleString() + ' m';
+          var elevationChip = document.getElementById('elevation-chip');
+          if (elevationChip && mainData.elevation != null && !isNaN(mainData.elevation)) {
+            console.log(mainData.elevation);
+            elevationChip.textContent = Math.round(mainData.elevation).toLocaleString() + ' m';
             if (backBtn) {
               var p = new URLSearchParams({ lat: lat, lng: lng, name: locationName });
               p.set('elevation', Math.round(mainData.elevation));
               backBtn.href = 'forecast.html?' + p.toString();
             }
-          } else if (elevChip) {
-            elevChip.textContent = '—';
+          } else if (elevationChip) {
+            elevationChip.textContent = '—';
           }
           var elevTrail = baseElev;
           var elevMid = baseElev + 500;
@@ -584,7 +633,7 @@
             var windMid = windResults[1].hourly;
             var windSummit = windResults[2].hourly;
             var main = mainData.hourly;
-            var len = Math.min(24, main.time.length);
+            var len = Math.min(48, main.time.length);
 
             windData.trailhead = extractHourly(windTrail.windspeed_10m, len);
             windData.mid = extractHourly(windMid.windspeed_10m, len);
@@ -607,7 +656,7 @@
             if (main.time && main.time.length >= len) {
               for (var i = 0; i < len; i++) labels[i] = formatLabel(main.time[i]);
               for (var j = 0; j < len && j < timeAxisEl.children.length; j++) {
-                timeAxisEl.children[j].textContent = labels[j];
+                timeAxisEl.children[j].textContent = (j % 2 === 0) ? labels[j] : '';
               }
             }
 
@@ -620,7 +669,7 @@
             tempChart.data.datasets[0].data = tempData.temp;
             tempChart.data.datasets[1].data = tempData.dewPoint;
             tempChart.data.datasets[2].data = tempData.freezing;
-            tempChart.data.labels = labels;
+            tempChart.data.labels = labels.slice(0, len);
             tempChart.update('none');
 
             precipChart.data.datasets[0].data = precipData.cloud;
@@ -659,7 +708,12 @@
                 label: function(ctx) {
                   var i = ctx.dataIndex;
                   var gust = ctx.datasetIndex === 0 ? windData.gustsSummit[i] : ctx.datasetIndex === 1 ? windData.gustsMid[i] : windData.gustsTrailhead[i];
-                  return ctx.dataset.label + ': ' + ctx.formattedValue + ' km/h (gusts ' + (gust != null ? Math.round(gust) : '—') + ')';
+                  var windUnit = window.GustySettings ? GustySettings.getWindUnit() : 'km/h';
+                  var val = ctx.raw;
+                  var gustVal = gust != null ? gust : null;
+                  var valDisp = window.GustySettings ? GustySettings.convertWindForDisplay(val) : (val != null ? Math.round(val) : null);
+                  var gustDisp = window.GustySettings ? GustySettings.convertWindForDisplay(gustVal) : (gustVal != null ? Math.round(gustVal) : null);
+                  return ctx.dataset.label + ': ' + (valDisp != null ? valDisp : '—') + ' ' + windUnit + ' · Gusts ' + (gustDisp != null ? gustDisp : '—') + ' ' + windUnit;
                 }
               },
               usePointStyle: true,
@@ -667,7 +721,7 @@
             }
           },
           scales: {
-            x: { grid: { color: 'rgba(255,255,255,0.07)' }, ticks: { color: '#4A5C72', font: { size: 10, family: "'DM Mono'" }, maxRotation: 0 } },
+            x: xAxisTicksEvery2,
             y: { grid: { color: 'rgba(255,255,255,0.07)' }, ticks: { color: '#4A5C72', font: { size: 10, family: "'DM Mono'" } }, min: 0, max: 120 }
           }
         }
@@ -728,14 +782,6 @@
       }
 
       loadModelData();
-
-      var timeScroll = document.getElementById('time-scroll');
-      var chartsScroll = document.getElementById('charts-scroll');
-      function syncScroll(from, to) {
-        to.scrollLeft = from.scrollLeft;
-      }
-      timeScroll.addEventListener('scroll', function() { syncScroll(timeScroll, chartsScroll); });
-      chartsScroll.addEventListener('scroll', function() { syncScroll(chartsScroll, timeScroll); });
     })();
   </script>
 </body>

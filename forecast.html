@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="gusty-settings.js"></script>
+  <script>if(window.GustySettings)GustySettings.applyTheme();</script>
   <style>
     /* ============================================================
        GUSTY.CA DESIGN TOKENS
@@ -83,6 +85,18 @@
       --radius-full: 999px;
     }
 
+    html.theme-light {
+      --color-bg:          #F5F7FA;
+      --color-surface:     #FFFFFF;
+      --color-surface-elevated: #E8ECF1;
+      --color-border:      rgba(0, 0, 0, 0.08);
+      --color-border-strong: rgba(0, 0, 0, 0.15);
+      --color-text-primary:   #0B1120;
+      --color-text-secondary: #4A5C72;
+      --color-text-muted:     #8A9BB0;
+      --color-text-inverse:   #F0F4F8;
+    }
+
     /* ============================================================
        RESET + BASE
        ============================================================ */
@@ -117,9 +131,11 @@
       font-weight: var(--weight-semibold);
       letter-spacing: var(--tracking-tight);
       color: var(--color-text-primary);
+      white-space: nowrap;
     }
     .elevation-tag {
-      padding: var(--space-1) var(--space-3);
+      padding: 2px 8px;
+      white-space: nowrap;
       border-radius: var(--radius-full);
       background: var(--color-surface-elevated);
       border: 1px solid var(--color-border);
@@ -127,6 +143,30 @@
       font-size: var(--text-xs);
       font-weight: var(--weight-medium);
       color: var(--color-text-secondary);
+    }
+    .save-btn {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      padding: var(--space-2);
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+    }
+    .save-btn:hover {
+      color: var(--color-accent);
+    }
+    .save-btn.saved {
+      color: var(--color-accent);
+    }
+    .save-btn svg {
+      width: 24px;
+      height: 24px;
     }
 
     /* ============================================================
@@ -537,6 +577,7 @@
       transform: translateX(-50%);
     }
     .loading-overlay.hidden { display: none; }
+    .hidden { display: none !important; }
     .loading-spinner {
       width: 40px;
       height: 40px;
@@ -595,8 +636,12 @@
 
   <!-- TOP BAR -->
   <header class="top-bar">
-    <h1 class="location-name" id="location-name">Garibaldi Lake TH</h1>
-    <span class="elevation-tag" id="elevation-tag">—</span>
+    <h1 class="location-name" id="location-name"></h1>
+    <span class="elevation-tag" id="elevation-tag">… m</span>
+    <button type="button" class="save-btn" id="save-btn" aria-label="Save location">
+      <svg id="save-icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" /></svg>
+      <svg id="save-icon-filled" class="hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" /></svg>
+    </button>
   </header>
 
   <!-- CONDITION VERDICT -->
@@ -687,7 +732,7 @@
       <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" /></svg></span>
       Saved
     </a>
-    <a href="#" class="nav-item">
+    <a href="settings.html" class="nav-item">
       <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg></span>
       Settings
     </a>
@@ -705,15 +750,22 @@
 
       const lat = parseFloat(params.get('lat')) || DEFAULT_LAT;
       const lng = parseFloat(params.get('lng')) || DEFAULT_LON;
-      const elevationParam = params.get('elevation');
-      const elevationFromUrl = elevationParam !== null && elevationParam !== '' ? parseInt(elevationParam, 10) : null;
-      const locationName = params.get('name') ? decodeURIComponent(params.get('name')) : 'Garibaldi Lake TH';
+
+      function formatCoordinates(lat, lng) {
+        var latStr = Math.abs(lat).toFixed(4) + '° ' + (lat >= 0 ? 'N' : 'S');
+        var lngStr = Math.abs(lng).toFixed(4) + '° ' + (lng >= 0 ? 'E' : 'W');
+        return latStr + ' · ' + lngStr;
+      }
+
+      const nameParam = params.get('name');
+      const decodedName = nameParam ? decodeURIComponent(nameParam) : null;
+      const locationName = (decodedName && decodedName !== 'Location') ? decodedName : formatCoordinates(lat, lng);
+
       var apiElevation = null;
 
       const BASE_PARAMS = {
         latitude: lat,
         longitude: lng,
-        elevation: elevationFromUrl != null && !isNaN(elevationFromUrl) ? elevationFromUrl : 0,
         wind_speed_unit: 'kmh',
         timezone: 'America/Vancouver',
         forecast_days: 2
@@ -809,15 +861,6 @@
         document.getElementById('forecast-content').style.visibility = '';
       }
 
-      function updateLocationDisplay(apiElevation) {
-        document.getElementById('location-name').textContent = locationName;
-        if (apiElevation != null && !isNaN(apiElevation)) {
-          document.getElementById('elevation-tag').textContent = Math.round(apiElevation).toLocaleString() + ' m';
-        } else {
-          document.getElementById('elevation-tag').textContent = '—';
-        }
-      }
-
       function renderWindHero(data, idx) {
         const h = data.hourly;
         const speed = h.windspeed_10m[idx];
@@ -825,18 +868,24 @@
         const dir = h.winddirection_10m && h.winddirection_10m[idx];
 
         const valEl = document.getElementById('wind-hero-value');
+        const unitEl = document.querySelector('.wind-hero-unit');
         const arrowEl = document.getElementById('wind-hero-arrow');
         const dirEl = document.getElementById('wind-hero-dir-text');
 
-        valEl.textContent = speed != null ? Math.round(speed) : '—';
+        var fmt = window.GustySettings ? GustySettings.formatWindSpeed(speed) : { value: speed != null ? Math.round(speed) : '—', unit: 'km/h' };
+        valEl.textContent = fmt.value;
+        if (unitEl) unitEl.textContent = fmt.unit;
         valEl.style.color = windRampColor(speed || 0);
 
         arrowEl.textContent = '↑';
         arrowEl.style.transform = 'rotate(' + (dir != null ? dir : 0) + 'deg)';
 
-        let dirText = (degreesToCompass(dir) + ' · ' + (dir != null ? dir + '°' : '—'));
-        if (gust != null && gust > 0) dirText += ' · gusts to ' + Math.round(gust) + ' km/h';
-        dirEl.textContent = dirText;
+        var gustStr = '';
+        if (gust != null && gust > 0) {
+          var gFmt = window.GustySettings ? GustySettings.formatWindSpeed(gust) : { value: Math.round(gust), unit: 'km/h' };
+          gustStr = ' · gusts to ' + gFmt.value + ' ' + gFmt.unit;
+        }
+        dirEl.textContent = (degreesToCompass(dir) + ' · ' + (dir != null ? dir + '°' : '—')) + gustStr;
       }
 
       function renderHourlyStrip(data, startIdx, count) {
@@ -862,14 +911,16 @@
           const precipStyle = precip > 0 ? 'height:' + precipH + 'px;background:' + precipBg : 'height:2px;background:transparent;border:1px solid var(--color-border)';
 
           const gust = h.windgusts_10m && h.windgusts_10m[idx];
-          const tooltip = locationName + ': ' + (speed != null ? Math.round(speed) : '—') + ' km/h' + (gust != null && gust > 0 ? ' (gusts ' + Math.round(gust) + ')' : '');
+          var dispSpeed = window.GustySettings ? GustySettings.convertWindForDisplay(speed) : (speed != null ? Math.round(speed) : null);
+          var windUnit = window.GustySettings ? GustySettings.getWindUnit() : 'km/h';
+          const tooltip = locationName + ': ' + (dispSpeed != null ? dispSpeed : '—') + ' ' + windUnit + (gust != null && gust > 0 ? ' (gusts ' + (window.GustySettings ? GustySettings.convertWindForDisplay(gust) : Math.round(gust)) + ')' : '');
 
           const cell = document.createElement('div');
           cell.className = 'hour-cell' + (isActive ? ' active' : '');
           cell.title = tooltip;
           cell.innerHTML = '<span class="hour-time">' + formatHour(time) + '</span>' +
             '<span class="hour-arrow" style="transform:rotate(' + (dir != null ? dir : 0) + 'deg)">↑</span>' +
-            '<span class="hour-wind" style="color:' + windRampColor(speed || 0) + '">' + (speed != null ? Math.round(speed) : '—') + '</span>' +
+            '<span class="hour-wind" style="color:' + windRampColor(speed || 0) + '">' + (dispSpeed != null ? dispSpeed : '—') + '</span>' +
             '<div class="hour-precip-wrap"><div class="hour-precip-bar" style="' + precipStyle + '"></div></div>';
           strip.appendChild(cell);
         }
@@ -885,12 +936,14 @@
           const precip = d.precipitation_sum && d.precipitation_sum[i];
           const precipClass = !precip || precip === 0 ? 'none' : precip < 2 ? 'trace' : precip < 5 ? 'light' : 'heavy';
 
+          var dispWind = window.GustySettings ? GustySettings.convertWindForDisplay(maxWind) : (maxWind != null ? Math.round(maxWind) : null);
+          var windUnit = window.GustySettings ? GustySettings.getWindUnit() : 'km/h';
           const row = document.createElement('div');
           row.className = 'daily-row';
           row.innerHTML = '<span class="daily-day">' + formatDay(d.time[i]) + '</span>' +
             '<span class="daily-wind" style="display:flex;align-items:center;">' +
-            '<span class="daily-wind-range" style="color:' + windRampColor(maxWind || 0) + '">' + (maxWind != null ? Math.round(maxWind) : '—') + '</span> ' +
-            '<span class="unit">km/h</span>' +
+            '<span class="daily-wind-range" style="color:' + windRampColor(maxWind || 0) + '">' + (dispWind != null ? dispWind : '—') + '</span> ' +
+            '<span class="unit">' + windUnit + '</span>' +
             '<span class="daily-precip-dot ' + precipClass + '"></span>' +
             '</span>';
           strip.appendChild(row);
@@ -905,19 +958,24 @@
         const gVal = gfs.hourly.windspeed_10m[Math.min(idx, gLen - 1)];
         const mVal = gem.hourly.windspeed_10m[Math.min(idx, mLen - 1)];
 
-        document.getElementById('model-ecmwf').textContent = (eVal != null ? Math.round(eVal) : '—') + ' km/h';
+        var windUnit = window.GustySettings ? GustySettings.getWindUnit() : 'km/h';
+        var eDisp = window.GustySettings ? GustySettings.convertWindForDisplay(eVal) : (eVal != null ? Math.round(eVal) : null);
+        var gDisp = window.GustySettings ? GustySettings.convertWindForDisplay(gVal) : (gVal != null ? Math.round(gVal) : null);
+        var mDisp = window.GustySettings ? GustySettings.convertWindForDisplay(mVal) : (mVal != null ? Math.round(mVal) : null);
+        document.getElementById('model-ecmwf').textContent = (eDisp != null ? eDisp : '—') + ' ' + windUnit;
         document.getElementById('model-ecmwf').style.color = windRampColor(eVal || 0);
-        document.getElementById('model-gfs').textContent = (gVal != null ? Math.round(gVal) : '—') + ' km/h';
+        document.getElementById('model-gfs').textContent = (gDisp != null ? gDisp : '—') + ' ' + windUnit;
         document.getElementById('model-gfs').style.color = windRampColor(gVal || 0);
-        document.getElementById('model-gem').textContent = (mVal != null ? Math.round(mVal) : '—') + ' km/h';
+        document.getElementById('model-gem').textContent = (mDisp != null ? mDisp : '—') + ' ' + windUnit;
         document.getElementById('model-gem').style.color = windRampColor(mVal || 0);
 
         const vals = [eVal, gVal, mVal].filter(v => v != null);
         const spread = vals.length >= 2 ? Math.round(Math.max(...vals) - Math.min(...vals)) : 0;
+        var spreadDisp = window.GustySettings ? GustySettings.convertWindForDisplay(spread) : spread;
         let conf = '—';
-        if (spread <= 5) conf = 'Models agree within ' + spread + ' km/h — high confidence.';
-        else if (spread <= 15) conf = 'Models agree within ' + spread + ' km/h — moderate confidence.';
-        else conf = 'Models differ by ' + spread + ' km/h — low confidence.';
+        if (spread <= 5) conf = 'Models agree within ' + spreadDisp + ' ' + windUnit + ' — high confidence.';
+        else if (spread <= 15) conf = 'Models agree within ' + spreadDisp + ' ' + windUnit + ' — moderate confidence.';
+        else conf = 'Models differ by ' + spreadDisp + ' ' + windUnit + ' — low confidence.';
         document.getElementById('model-confidence').textContent = conf;
       }
 
@@ -933,16 +991,12 @@
         const textEl = document.getElementById('verdict-text');
         verdict.classList.remove('favorable', 'marginal', 'unfavorable');
 
-        if (maxWind < 30) {
-          textEl.textContent = 'Favorable';
-          verdict.classList.add('favorable');
-        } else if (maxWind <= 60) {
-          textEl.textContent = 'Marginal';
-          verdict.classList.add('marginal');
-        } else {
-          textEl.textContent = 'Unfavorable';
-          verdict.classList.add('unfavorable');
-        }
+        var label = window.GustySettings ? GustySettings.getConditionDisplayLabel(maxWind) : (maxWind < 30 ? 'Favorable' : maxWind <= 60 ? 'Marginal' : 'Unfavorable');
+        textEl.textContent = label;
+
+        if (maxWind < 30) verdict.classList.add('favorable');
+        else if (maxWind <= 60) verdict.classList.add('marginal');
+        else verdict.classList.add('unfavorable');
       }
 
       async function loadForecast() {
@@ -966,8 +1020,11 @@
           renderModelComparison(main, gfs, gem);
           renderConditionVerdict(main, idx, 12);
           apiElevation = main.elevation;
-          console.log('data.elevation:', main.elevation);
-          updateLocationDisplay(apiElevation);
+          console.log('API elevation:', main.elevation);
+          const elevationChip = document.getElementById('elevation-tag');
+          elevationChip.textContent = (main.elevation != null && !isNaN(main.elevation))
+            ? Math.round(main.elevation).toLocaleString() + ' m'
+            : '—';
 
           hideLoading();
         } catch (err) {
@@ -977,6 +1034,66 @@
       }
 
       document.getElementById('retry-btn').addEventListener('click', loadForecast);
+
+      /* ----- Save / Bookmark ----- */
+      const STORAGE_KEY = 'gusty_saved_spots';
+
+      function getSavedSpots() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          return raw ? JSON.parse(raw) : [];
+        } catch (e) { return []; }
+      }
+
+      function setSavedSpots(arr) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+      }
+
+      function spotKey(lat, lng) {
+        return (Math.round(lat * 10000) / 10000) + ',' + (Math.round(lng * 10000) / 10000);
+      }
+
+      function isCurrentSpotSaved() {
+        var spots = getSavedSpots();
+        var key = spotKey(lat, lng);
+        return spots.some(function(s) { return spotKey(s.lat, s.lng) === key; });
+      }
+
+      function updateSaveButtonState() {
+        var btn = document.getElementById('save-btn');
+        var outline = document.getElementById('save-icon-outline');
+        var filled = document.getElementById('save-icon-filled');
+        if (!btn || !outline || !filled) return;
+        var saved = isCurrentSpotSaved();
+        btn.classList.toggle('saved', saved);
+        outline.classList.toggle('hidden', saved);
+        filled.classList.toggle('hidden', !saved);
+        btn.setAttribute('aria-label', saved ? 'Unsave location' : 'Save location');
+      }
+
+      function isCoordinateLike(str) {
+        if (!str || typeof str !== 'string') return true;
+        return str.indexOf('°') >= 0 || /^-?\d+\.?\d*\s*[,·]\s*-?\d+\.?\d*$/.test(str.trim());
+      }
+
+      function toggleSave() {
+        var spots = getSavedSpots();
+        var key = spotKey(lat, lng);
+        var idx = spots.findIndex(function(s) { return spotKey(s.lat, s.lng) === key; });
+        var elev = apiElevation != null && !isNaN(apiElevation) ? Math.round(apiElevation) : null;
+        var nameToSave = isCoordinateLike(locationName) ? formatCoordinates(lat, lng) : locationName;
+        if (idx >= 0) {
+          spots.splice(idx, 1);
+        } else {
+          spots.push({ name: nameToSave, lat: lat, lng: lng, elevation: elev });
+        }
+        setSavedSpots(spots);
+        updateSaveButtonState();
+      }
+
+      var saveBtn = document.getElementById('save-btn');
+      if (saveBtn) saveBtn.addEventListener('click', toggleSave);
+      updateSaveButtonState();
 
       var panel = document.getElementById('model-panel');
       var toggle = document.getElementById('model-toggle');
@@ -997,6 +1114,9 @@
           window.location.href = 'detail.html?' + p.toString();
         });
       });
+
+      document.getElementById('location-name').textContent = locationName;
+      document.title = 'Forecast — ' + locationName;
 
       loadForecast();
     })();
