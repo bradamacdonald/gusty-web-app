@@ -1,4 +1,4 @@
-# gusty.ca — Design System Guidelines
+ # gusty.ca — Design System Guidelines
 
 Always use these values for all generated UI. Do not invent new colors, fonts,
 sizes, or spacing values. If a value isn't listed here, use the closest match
