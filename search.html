@@ -255,16 +255,6 @@
     .map-dim-overlay.visible {
       pointer-events: auto;
     }
-    /* Swoosh pin marker */
-    .map-swoosh-pin {
-      width: 36px;
-      height: 36px;
-      pointer-events: none;
-    }
-    .map-swoosh-pin svg {
-      display: block;
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)) drop-shadow(0 0 6px rgba(56, 189, 248, 0.6));
-    }
     .map-zoom-controls {
       position: absolute;
       bottom: var(--space-4);
@@ -591,10 +581,9 @@
         zoom: 11
       });
 
-      // Custom swoosh pin marker at default location
       var markerEl = document.createElement('div');
-      markerEl.className = 'map-swoosh-pin';
-      markerEl.innerHTML = '<svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><path d="M18 36Q30 34 32 18Q34 4 20 4Q8 6 6 20Q4 32 18 36Z" fill="#38BDF8"/><circle cx="18" cy="34" r="2" fill="white"/></svg>';
+      markerEl.innerHTML = "<svg width='28' height='36' viewBox='0 0 28 36' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M14 0C6.268 0 0 6.268 0 14c0 9.333 14 22 14 22s14-12.667 14-22C28 6.268 21.732 0 14 0z' fill='#F97316'/><circle cx='14' cy='14' r='5' fill='white'/></svg>";
+      markerEl.style.filter = 'drop-shadow(0 2px 4px rgba(0,0,0,0.4))';
       var marker = new mapboxgl.Marker({ element: markerEl, anchor: 'bottom' })
         .setLngLat(defaultCenter)
         .addTo(map);
