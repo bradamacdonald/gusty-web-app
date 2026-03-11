@@ -6,7 +6,7 @@
   <title>Forecast — gusty.ca</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@1,700&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="gusty-settings.js"></script>
   <script>if(window.GustySettings)GustySettings.applyTheme();</script>
   <style>
@@ -125,6 +125,17 @@
       align-items: center;
       gap: var(--space-3);
       margin-bottom: var(--space-4);
+    }
+    .wordmark {
+      font-family: 'Barlow', sans-serif;
+      font-weight: 700;
+      font-style: italic;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      font-size: 22px;
+      color: var(--color-text-primary);
+      text-decoration: none;
+      flex-shrink: 0;
     }
     .location-name {
       font-size: var(--text-xl);
@@ -636,6 +647,7 @@
 
   <!-- TOP BAR -->
   <header class="top-bar">
+    <a href="search.html" class="wordmark">GUSTY</a>
     <h1 class="location-name" id="location-name"></h1>
     <span class="elevation-tag" id="elevation-tag">… m</span>
     <button type="button" class="save-btn" id="save-btn" aria-label="Save location">

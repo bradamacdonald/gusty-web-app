@@ -6,7 +6,7 @@
   <title>Saved Spots — gusty.ca</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@1,700&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="gusty-settings.js"></script>
   <script>if(window.GustySettings)GustySettings.applyTheme();</script>
   <style>
@@ -108,9 +108,19 @@
        ============================================================ */
     .page-header {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      flex-direction: column;
+      align-items: flex-start;
       margin-bottom: var(--space-6);
+    }
+    .wordmark {
+      font-family: 'Barlow', sans-serif;
+      font-weight: 700;
+      font-style: italic;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      font-size: 22px;
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-2);
     }
     .page-title {
       font-size: var(--text-xl);
@@ -384,6 +394,7 @@
 <body>
 
   <header class="page-header">
+    <span class="wordmark">GUSTY</span>
     <h1 class="page-title">Saved Spots</h1>
   </header>
 
