@@ -182,8 +182,9 @@
       max-height: 280px;
       overflow-y: auto;
     }
-    .suggestions-list.hidden {
-      display: none;
+    .suggestions-list.hidden,
+    .suggestions-list:empty {
+      display: none !important;
     }
     .suggestion-item {
       display: flex;
@@ -640,7 +641,7 @@
         fetch(url)
           .then(function(res) { return res.json(); })
           .then(function(data) {
-            console.log(data);
+            console.log(data.features);
             if (requestId !== lastRequestId) return;
             searchBar.classList.remove('loading');
             renderSuggestions(data.features || []);
