@@ -170,34 +170,6 @@
     }
 
     /* ============================================================
-       ELEVATION SELECTOR
-       ============================================================ */
-    .elevation-selector {
-      display: flex;
-      gap: var(--space-2);
-      margin-bottom: var(--space-6);
-    }
-    .elevation-chip {
-      padding: 6px var(--space-3);
-      border-radius: var(--radius-full);
-      font-family: var(--font-data);
-      font-size: var(--text-xs);
-      font-weight: var(--weight-medium);
-      cursor: pointer;
-      min-height: 44px;
-      display: inline-flex;
-      align-items: center;
-      border: 1px solid var(--color-border);
-      background: var(--color-surface-elevated);
-      color: var(--color-text-secondary);
-    }
-    .elevation-chip.active {
-      background: var(--color-accent-dim);
-      border-color: var(--color-accent-border);
-      color: var(--color-accent);
-    }
-
-    /* ============================================================
        WIND HERO
        ============================================================ */
     .wind-hero {
@@ -633,13 +605,6 @@
     <span id="verdict-text">Favorable</span>
   </div>
 
-  <!-- ELEVATION SELECTOR -->
-  <div class="elevation-selector">
-    <button class="elevation-chip active">1,500 m</button>
-    <button class="elevation-chip">2,100 m</button>
-    <button class="elevation-chip">Summit</button>
-  </div>
-
   <!-- WIND HERO -->
   <section class="wind-hero">
     <div class="wind-hero-label">Wind Speed</div>
@@ -843,9 +808,10 @@
         document.getElementById('forecast-content').style.visibility = '';
       }
 
-      function updateLocationDisplay() {
+      function updateLocationDisplay(apiElevation) {
         document.getElementById('location-name').textContent = locationName;
-        document.getElementById('elevation-tag').textContent = elevation.toLocaleString() + ' m';
+        var elev = apiElevation != null ? Math.round(apiElevation) : elevation;
+        document.getElementById('elevation-tag').textContent = elev.toLocaleString() + ' m';
       }
 
       function renderWindHero(data, idx) {
@@ -995,7 +961,7 @@
           renderDailyStrip(main);
           renderModelComparison(main, gfs, gem);
           renderConditionVerdict(main, idx, 12);
-          updateLocationDisplay();
+          updateLocationDisplay(main.elevation);
 
           hideLoading();
         } catch (err) {
