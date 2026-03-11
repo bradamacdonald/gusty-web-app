@@ -565,21 +565,79 @@
         marker.setLngLat([lng, lat]);
       }
 
+      function isRoadOrAddress(name) {
+        if (!name || name.length < 2) return true;
+        var roadRe = /^\d+\s|^\d+$|\b(street|st|ave|avenue|road|rd|blvd|drive|dr|lane|ln|way|court|ct|highway|hwy)\b/i;
+        return roadRe.test(name);
+      }
+
+      function isNaturalFeature(name) {
+        if (!name) return false;
+        var words = ['Lake', 'Peak', 'Mountain', 'Creek', 'Ridge', 'Glacier', 'Pass', 'River', 'Falls', 'Summit', 'Valley', 'Basin'];
+        return words.some(function(w) { return name.indexOf(w) !== -1; });
+      }
+
+      function hasPlaceType(f, type) {
+        var pt = f.place_type || [];
+        return pt.indexOf(type) >= 0;
+      }
+
+      function pickBestName(features1, features2, coordsStr) {
+        var all = (features1 || []).concat(features2 || []);
+        var seen = {};
+
+        function getName(f) {
+          return (f.text || f.place_name || '').trim();
+        }
+
+        for (var i = 0; i < all.length; i++) {
+          var f = all[i];
+          var name = getName(f);
+          if (!name || seen[name]) continue;
+          seen[name] = true;
+          if (hasPlaceType(f, 'poi') && !isRoadOrAddress(name)) return name;
+        }
+
+        for (var i = 0; i < all.length; i++) {
+          var f = all[i];
+          var name = getName(f);
+          if (!name || seen[name]) continue;
+          if (hasPlaceType(f, 'place')) return name;
+        }
+
+        var adminTypes = ['country', 'region', 'postcode', 'district'];
+        var bestNatural = null;
+        var bestOther = null;
+        for (var i = 0; i < (features2 || []).length; i++) {
+          var f = features2[i];
+          var name = getName(f);
+          if (!name) continue;
+          var isAdmin = (f.place_type || []).some(function(t) { return adminTypes.indexOf(t) >= 0; });
+          if (isAdmin) continue;
+          if (isNaturalFeature(name)) bestNatural = name;
+          else if (!bestOther) bestOther = name;
+        }
+        if (bestNatural) return bestNatural;
+        if (bestOther) return bestOther;
+
+        return coordsStr;
+      }
+
       function fetchReverseGeocode(lng, lat, callback) {
-        var url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxgl.accessToken}&limit=1`;
-        fetch(url)
-          .then(function(res) { return res.json(); })
-          .then(function(data) {
-            var name = '';
-            if (data.features && data.features.length > 0) {
-              var f = data.features[0];
-              name = f.text || f.place_name || '';
-            }
-            callback(name || formatCoords(lng, lat) || '');
-          })
-          .catch(function() {
-            callback(formatCoords(lng, lat) || '');
-          });
+        var coordsStr = formatCoords(lng, lat);
+        var url1 = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' + lng + ',' + lat + '.json?access_token=' + mapboxgl.accessToken + '&types=poi,place&limit=5';
+        var url2 = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' + lng + ',' + lat + '.json?access_token=' + mapboxgl.accessToken + '&limit=5';
+        Promise.all([
+          fetch(url1).then(function(r) { return r.json(); }),
+          fetch(url2).then(function(r) { return r.json(); })
+        ]).then(function(results) {
+          var data1 = results[0];
+          var data2 = results[1];
+          var name = pickBestName(data1.features || [], data2.features || [], coordsStr);
+          callback(name);
+        }).catch(function() {
+          callback(coordsStr);
+        });
       }
 
       map.on('click', function(e) {

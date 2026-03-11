@@ -811,8 +811,11 @@
 
       function updateLocationDisplay(apiElevation) {
         document.getElementById('location-name').textContent = locationName;
-        var elev = apiElevation != null && !isNaN(apiElevation) ? Math.round(apiElevation) : null;
-        document.getElementById('elevation-tag').textContent = elev != null ? (elev).toLocaleString() + ' m' : '—';
+        if (apiElevation != null && !isNaN(apiElevation)) {
+          document.getElementById('elevation-tag').textContent = Math.round(apiElevation).toLocaleString() + ' m';
+        } else {
+          document.getElementById('elevation-tag').textContent = '—';
+        }
       }
 
       function renderWindHero(data, idx) {
@@ -963,6 +966,7 @@
           renderModelComparison(main, gfs, gem);
           renderConditionVerdict(main, idx, 12);
           apiElevation = main.elevation;
+          console.log('data.elevation:', main.elevation);
           updateLocationDisplay(apiElevation);
 
           hideLoading();
