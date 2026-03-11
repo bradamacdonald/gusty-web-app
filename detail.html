@@ -393,7 +393,7 @@
 
   <div class="location-row">
     <span class="location-name">Garibaldi Lake TH</span>
-    <span class="elevation-chip">1,580 m</span>
+    <span class="elevation-chip" id="elevation-chip">—</span>
     <span class="location-updated">Updated 2h ago</span>
   </div>
 
@@ -472,7 +472,8 @@
       var params = new URLSearchParams(window.location.search);
       var lat = parseFloat(params.get('lat')) || 49.3756;
       var lng = parseFloat(params.get('lng')) || -123.0378;
-      var elevation = parseInt(params.get('elevation'), 10) || 1580;
+      var elevationFromUrl = params.get('elevation');
+      var elevation = elevationFromUrl !== null && elevationFromUrl !== '' ? parseInt(elevationFromUrl, 10) : null;
       var locationName = params.get('name') ? decodeURIComponent(params.get('name')) : 'Garibaldi Lake TH';
       var urlModel = params.get('model') || '';
 
@@ -489,10 +490,11 @@
       }
 
       document.querySelector('.location-name').textContent = locationName;
-      document.querySelector('.elevation-chip').textContent = elevation.toLocaleString() + ' m';
       var backBtn = document.getElementById('back-btn');
       if (backBtn) {
-        backBtn.href = 'forecast.html?' + new URLSearchParams({ lat: lat, lng: lng, elevation: elevation, name: locationName }).toString();
+        var p = new URLSearchParams({ lat: lat, lng: lng, name: locationName });
+        if (elevation != null && !isNaN(elevation)) p.set('elevation', elevation);
+        backBtn.href = 'forecast.html?' + p.toString();
       }
 
       var CHART_OPTS = {
@@ -534,7 +536,7 @@
         var p = new URLSearchParams({
           latitude: lat,
           longitude: lng,
-          elevation: elev || elevation,
+          elevation: elev != null ? elev : (elevation || 0),
           hourly: 'windspeed_10m,windgusts_10m,temperature_2m,dewpoint_2m,precipitation,cloudcover',
           wind_speed_unit: 'kmh',
           timezone: 'America/Vancouver',
@@ -557,7 +559,18 @@
         selectEl.disabled = true;
 
         fetchForecast(model.api, elevation).then(function(mainData) {
-          var baseElev = mainData.elevation != null && !isNaN(mainData.elevation) ? mainData.elevation : elevation;
+          var baseElev = mainData.elevation != null && !isNaN(mainData.elevation) ? mainData.elevation : (elevation || 0);
+          var elevChip = document.getElementById('elevation-chip');
+          if (elevChip && mainData.elevation != null && !isNaN(mainData.elevation)) {
+            elevChip.textContent = Math.round(mainData.elevation).toLocaleString() + ' m';
+            if (backBtn) {
+              var p = new URLSearchParams({ lat: lat, lng: lng, name: locationName });
+              p.set('elevation', Math.round(mainData.elevation));
+              backBtn.href = 'forecast.html?' + p.toString();
+            }
+          } else if (elevChip) {
+            elevChip.textContent = '—';
+          }
           var elevTrail = baseElev;
           var elevMid = baseElev + 500;
           var elevSummit = baseElev + 1000;
