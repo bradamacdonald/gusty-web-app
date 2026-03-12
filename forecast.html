@@ -113,31 +113,26 @@
       min-height: 100vh;
       margin: 0;
       padding: 0;
-    }
-    .app-frame {
-      margin: 0 auto;
-      max-width: 390px;
-      width: 100%;
-      min-height: 100vh;
-      position: relative;
-      transform: translateZ(0);
-      border-left: 1px solid rgba(255, 255, 255, 0.07);
-      border-right: 1px solid rgba(255, 255, 255, 0.07);
-      padding: var(--space-4);
       padding-bottom: calc(var(--space-16) + var(--space-4));
-    }
-    html.theme-light .app-frame {
-      border-color: rgba(0, 0, 0, 0.08);
     }
 
     /* ============================================================
-       TOP BAR
+       MAIN CONTENT
+       ============================================================ */
+    #forecast-content {
+      padding: 0 16px;
+      padding-bottom: var(--space-4);
+    }
+
+    /* ============================================================
+       TOP BAR (header only — wordmark + actions)
        ============================================================ */
     .top-bar {
       display: flex;
       align-items: center;
-      gap: var(--space-3);
-      margin-bottom: var(--space-4);
+      justify-content: space-between;
+      padding: var(--space-4) 0;
+      margin-bottom: 0;
     }
     .wordmark {
       font-family: 'Barlow', sans-serif;
@@ -150,14 +145,20 @@
       text-decoration: none;
       flex-shrink: 0;
     }
+    .location-row {
+      margin-bottom: var(--space-6);
+      padding-top: var(--space-2);
+    }
     .location-name {
       font-size: var(--text-xl);
       font-weight: var(--weight-semibold);
       letter-spacing: var(--tracking-tight);
       color: var(--color-text-primary);
-      white-space: nowrap;
+      display: block;
+      margin-bottom: var(--space-1);
     }
     .elevation-tag {
+      display: inline-block;
       padding: 2px 8px;
       white-space: nowrap;
       border-radius: var(--radius-full);
@@ -169,7 +170,6 @@
       color: var(--color-text-secondary);
     }
     .save-btn {
-      margin-left: auto;
       background: none;
       border: none;
       color: var(--color-text-muted);
@@ -535,8 +535,8 @@
       position: fixed;
       bottom: 0;
       left: 0;
-      right: 0;
       width: 100%;
+      max-width: 100%;
       height: var(--space-16);
       background: var(--color-surface);
       border-top: 1px solid var(--color-border);
@@ -655,16 +655,20 @@
   <!-- MAIN CONTENT -->
   <div id="forecast-content">
 
-  <!-- TOP BAR -->
+  <!-- TOP BAR (wordmark + save only) -->
   <header class="top-bar">
     <a href="search.html" class="wordmark">GUSTY</a>
-    <h1 class="location-name" id="location-name"></h1>
-    <span class="elevation-tag" id="elevation-tag">… m</span>
     <button type="button" class="save-btn" id="save-btn" aria-label="Save location">
       <svg id="save-icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" /></svg>
       <svg id="save-icon-filled" class="hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" /></svg>
     </button>
   </header>
+
+  <!-- LOCATION (name + elevation on own line) -->
+  <div class="location-row">
+    <h1 class="location-name" id="location-name"></h1>
+    <span class="elevation-tag" id="elevation-tag">… m</span>
+  </div>
 
   <!-- CONDITION VERDICT -->
   <div class="condition-verdict" id="condition-verdict">
@@ -761,8 +765,6 @@
   </nav>
 
   </div><!-- #forecast-content -->
-
-  </div><!-- .app-frame -->
 
   <script>
     (function() {
