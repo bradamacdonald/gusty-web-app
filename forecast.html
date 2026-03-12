@@ -271,6 +271,11 @@
       font-size: var(--text-lg);
       color: var(--color-text-secondary);
     }
+    .wind-hero-temp {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      font-family: var(--font-data);
+    }
     .wind-hero-dir {
       font-size: var(--text-sm);
       color: var(--color-text-secondary);
@@ -754,6 +759,7 @@
     <div class="wind-hero-value-wrap">
       <span class="wind-hero-value" id="wind-hero-value">—</span>
       <span class="wind-hero-unit">km/h</span>
+      <span class="wind-hero-temp" id="wind-hero-temp"></span>
     </div>
     <div class="wind-hero-dir">
       <span class="wind-hero-arrow" id="wind-hero-arrow">↑</span>
@@ -967,7 +973,7 @@
         document.getElementById('forecast-content').style.visibility = '';
       }
 
-      function renderWindHero(data, idx) {
+      function renderWindHero(data, idx, tempC) {
         const h = data.hourly;
         const speed = h.windspeed_10m[idx];
         const gust = h.windgusts_10m && h.windgusts_10m[idx];
@@ -975,6 +981,7 @@
 
         const valEl = document.getElementById('wind-hero-value');
         const unitEl = document.querySelector('.wind-hero-unit');
+        const tempEl = document.getElementById('wind-hero-temp');
         const arrowEl = document.getElementById('wind-hero-arrow');
         const dirEl = document.getElementById('wind-hero-dir-text');
 
@@ -982,6 +989,12 @@
         valEl.textContent = fmt.value;
         if (unitEl) unitEl.textContent = fmt.unit;
         valEl.style.color = windRampColor(speed || 0);
+
+        if (tempEl) {
+          var tempFmt = window.GustySettings ? GustySettings.formatTemp(tempC) : { value: tempC != null ? Math.round(tempC) : '—', unit: '°C' };
+          tempEl.textContent = tempC != null ? ' · ' + tempFmt.value + tempFmt.unit : '';
+          tempEl.style.display = tempC != null ? '' : 'none';
+        }
 
         arrowEl.textContent = '↑';
         arrowEl.style.transform = 'rotate(' + (dir != null ? dir : 0) + 'deg)';
@@ -1054,7 +1067,11 @@
           const bars = [];
           if (rainMm > 0) bars.push('<div class="precip-bar rain" style="height:' + Math.max(2, rainH) + 'px"></div>');
           if (snowMm > 0) bars.push('<div class="precip-bar snow" style="height:' + Math.max(2, snowH) + 'px"></div>');
-          const amountStr = precip > 0 ? (rainMm > 0 ? rainMm.toFixed(1) + 'mm' : snowMm.toFixed(1) + 'mm') : '—';
+          var amountStr = '—';
+          if (precip > 0) {
+            var amt = rainMm > 0 ? rainMm : snowMm;
+            amountStr = amt < 0.05 ? '0' : amt.toFixed(1) + 'mm';
+          }
 
           const cell = document.createElement('div');
           cell.className = 'precip-cell';
@@ -1173,7 +1190,8 @@
 
           const idx = getCurrentHourIndex(main.hourly);
           var heroIdx = Math.min(idx, (heroData.hourly.windspeed_10m.length || 1) - 1);
-          renderWindHero(heroData, heroIdx);
+          var tempC = main.hourly.temperature_2m && main.hourly.temperature_2m[idx];
+          renderWindHero(heroData, heroIdx, tempC);
           renderHourlyStrip(main, idx, 12);
           renderPrecipStrip(main, idx, 12);
           renderDailyStrip(main);
@@ -1263,15 +1281,19 @@
           toggle.setAttribute('aria-label', panel.classList.contains('collapsed') ? 'Expand' : 'Collapse');
         });
       }
+      function buildDetailUrl(model) {
+        var p = new URLSearchParams({ lat: lat, lng: lng, name: locationName });
+        if (apiElevation != null && !isNaN(apiElevation)) p.set('elevation', Math.round(apiElevation));
+        if (model) p.set('model', model);
+        return 'detail.html?' + p.toString();
+      }
       if (panel) panel.querySelectorAll('.model-row').forEach(function(row) {
+        var model = row.getAttribute('data-model');
+        var modelName = model === 'gfs' ? 'GFS' : model === 'ecmwf' ? 'ECMWF' : model === 'gem' ? 'GEM' : '';
         row.style.cursor = 'pointer';
         row.addEventListener('click', function() {
-          var nameEl = row.querySelector('.model-name');
-          var model = nameEl ? nameEl.textContent.trim() : '';
-          var p = new URLSearchParams({ lat: lat, lng: lng, name: locationName });
-          if (apiElevation != null && !isNaN(apiElevation)) p.set('elevation', Math.round(apiElevation));
-          if (model) p.set('model', model);
-          window.location.href = 'detail.html?' + p.toString();
+          if (modelName) localStorage.setItem('gusty_default_model', modelName);
+          window.location.href = buildDetailUrl(modelName);
         });
       });
 

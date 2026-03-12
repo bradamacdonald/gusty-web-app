@@ -531,8 +531,8 @@
       if (urlModel) {
         var mi = MODELS.findIndex(function(m) { return m.name === urlModel; });
         if (mi >= 0) modelIdx = mi;
-      } else if (window.GustySettings) {
-        var defaultModel = GustySettings.getDefaultModel();
+      } else {
+        var defaultModel = (window.GustySettings ? GustySettings.getDefaultModel() : null) || localStorage.getItem('gusty_default_model') || 'ECMWF';
         var dm = MODELS.findIndex(function(m) { return m.name === defaultModel; });
         if (dm >= 0) modelIdx = dm;
       }
@@ -813,6 +813,8 @@
         modelSelect.selectedIndex = modelIdx;
         modelSelect.addEventListener('change', function() {
           modelIdx = modelSelect.selectedIndex;
+          var selectedModel = MODELS[modelIdx] ? MODELS[modelIdx].name : 'ECMWF';
+          localStorage.setItem('gusty_default_model', selectedModel);
           loadModelData();
         });
       }
