@@ -306,16 +306,9 @@
     .hourly-strip {
       display: flex;
       gap: var(--space-2);
-      overflow-x: auto;
       padding: var(--space-4);
-      background: var(--color-surface);
-      border-radius: var(--radius-md);
-      border: 1px solid var(--color-border);
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      margin-bottom: var(--space-6);
+      min-width: min-content;
     }
-    .hourly-strip::-webkit-scrollbar { display: none; }
     .hour-cell {
       flex-shrink: 0;
       width: 52px;
@@ -361,6 +354,66 @@
       max-height: 16px;
       border-radius: 2px;
       align-self: flex-end;
+    }
+
+    /* Precipitation strip (below hourly wind) */
+    .hourly-scroll-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      margin-bottom: var(--space-6);
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+    }
+    .hourly-scroll-wrap::-webkit-scrollbar { display: none; }
+    .precip-strip-label {
+      font-size: 10px;
+      font-weight: var(--weight-medium);
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      padding: 0 var(--space-4) var(--space-1);
+    }
+    .precip-strip {
+      display: flex;
+      gap: var(--space-2);
+      padding: 0 var(--space-4) var(--space-4);
+      min-width: min-content;
+    }
+    .precip-cell {
+      flex-shrink: 0;
+      width: 52px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-2) 0;
+    }
+    .precip-cell .precip-label {
+      font-size: 10px;
+      font-family: var(--font-data);
+      color: var(--color-text-muted);
+    }
+    .precip-cell .precip-bars {
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      gap: 1px;
+      height: 20px;
+      min-width: 24px;
+    }
+    .precip-cell .precip-bar {
+      width: 20px;
+      min-height: 2px;
+      border-radius: 2px;
+    }
+    .precip-cell .precip-bar.rain { background: var(--precip-heavy); }
+    .precip-cell .precip-bar.snow { background: var(--precip-snow); }
+    .precip-cell .precip-amount {
+      font-size: 10px;
+      font-family: var(--font-data);
+      color: var(--color-text-secondary);
     }
 
     /* ============================================================
@@ -409,6 +462,11 @@
     .model-row:last-of-type {
       border-bottom: none;
     }
+    .model-name-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
     .model-name {
       font-family: var(--font-data);
       font-size: var(--text-sm);
@@ -417,6 +475,12 @@
     }
     .model-row.active .model-name {
       color: var(--color-accent);
+    }
+    .model-active-badge {
+      font-size: 10px;
+      font-weight: var(--weight-medium);
+      color: var(--color-accent);
+      letter-spacing: 0.02em;
     }
     .model-value {
       font-family: var(--font-data);
@@ -689,14 +753,20 @@
     </div>
   </section>
 
-  <!-- HOURLY STRIP -->
+  <!-- HOURLY STRIP + PRECIPITATION -->
   <section>
     <div class="section-header">
       <span class="section-label">Hourly</span>
       <a href="#" class="section-link">24h</a>
     </div>
-    <div class="hourly-strip" id="hourly-strip">
-      <!-- Populated by JS -->
+    <div class="hourly-scroll-wrap">
+      <div class="hourly-strip" id="hourly-strip">
+        <!-- Populated by JS -->
+      </div>
+      <div class="precip-strip-label">Precipitation</div>
+      <div class="precip-strip" id="precip-strip">
+        <!-- Populated by JS -->
+      </div>
     </div>
   </section>
 
@@ -710,15 +780,15 @@
     </div>
     <div class="model-panel-body">
       <div class="model-row" data-model="gfs">
-        <span class="model-name">GFS</span>
+        <span class="model-name-wrap"><span class="model-name">GFS</span><span class="model-active-badge hidden" id="active-badge-gfs">Powering forecast</span></span>
         <span class="model-value" id="model-gfs">— km/h</span>
       </div>
-      <div class="model-row active" data-model="ecmwf">
-        <span class="model-name">ECMWF</span>
+      <div class="model-row" data-model="ecmwf">
+        <span class="model-name-wrap"><span class="model-name">ECMWF</span><span class="model-active-badge hidden" id="active-badge-ecmwf">Powering forecast</span></span>
         <span class="model-value" id="model-ecmwf">— km/h</span>
       </div>
       <div class="model-row" data-model="gem">
-        <span class="model-name">GEM</span>
+        <span class="model-name-wrap"><span class="model-name">GEM</span><span class="model-active-badge hidden" id="active-badge-gem">Powering forecast</span></span>
         <span class="model-value" id="model-gem">— km/h</span>
       </div>
       <p class="model-confidence" id="model-confidence">—</p>
@@ -844,7 +914,7 @@
       async function fetchModelWind(model) {
         const params = new URLSearchParams({
           ...BASE_PARAMS,
-          hourly: 'windspeed_10m',
+          hourly: 'windspeed_10m,windgusts_10m,winddirection_10m',
           forecast_days: 2,
           models: model
         });
@@ -952,6 +1022,39 @@
         }
       }
 
+      function renderPrecipStrip(data, startIdx, count) {
+        const h = data.hourly;
+        const strip = document.getElementById('precip-strip');
+        if (!strip) return;
+        strip.innerHTML = '';
+        const maxPrecip = Math.max(0.1, ...h.precipitation.slice(startIdx, startIdx + count).map(v => v || 0));
+        const temps = h.temperature_2m || [];
+
+        for (let i = 0; i < count; i++) {
+          const idx = startIdx + i;
+          const time = h.time[idx];
+          const precip = h.precipitation && h.precipitation[idx] || 0;
+          const temp = temps[idx] != null ? temps[idx] : 0;
+          const rainMm = temp >= 0 ? precip : 0;
+          const snowMm = temp < 0 ? (precip || 0) / 10 : 0;
+
+          const rainH = maxPrecip > 0 ? Math.max(0, (rainMm / maxPrecip) * 20) : 0;
+          const snowH = maxPrecip > 0 ? Math.max(0, (snowMm / maxPrecip) * 20) : 0;
+
+          const bars = [];
+          if (rainMm > 0) bars.push('<div class="precip-bar rain" style="height:' + Math.max(2, rainH) + 'px"></div>');
+          if (snowMm > 0) bars.push('<div class="precip-bar snow" style="height:' + Math.max(2, snowH) + 'px"></div>');
+          const amountStr = precip > 0 ? (rainMm > 0 ? rainMm.toFixed(1) + 'mm' : snowMm.toFixed(1) + 'mm') : '—';
+
+          const cell = document.createElement('div');
+          cell.className = 'precip-cell';
+          cell.innerHTML = '<span class="precip-label">' + formatHour(time) + '</span>' +
+            '<div class="precip-bars">' + (bars.length ? bars.join('') : '<div class="precip-bar" style="height:2px;background:transparent;border:1px solid var(--color-border)"></div>') + '</div>' +
+            '<span class="precip-amount">' + amountStr + '</span>';
+          strip.appendChild(cell);
+        }
+      }
+
       function renderDailyStrip(data) {
         const d = data.daily;
         const strip = document.getElementById('daily-strip');
@@ -976,7 +1079,11 @@
         }
       }
 
-      function renderModelComparison(ecmwf, gfs, gem) {
+      function getPreferredModel() {
+        return (window.GustySettings ? GustySettings.getDefaultModel() : null) || localStorage.getItem('gusty_default_model') || 'ECMWF';
+      }
+
+      function renderModelComparison(ecmwf, gfs, gem, activeModelKey) {
         const idx = getCurrentHourIndex(ecmwf.hourly);
         const gLen = gfs.hourly.windspeed_10m.length;
         const mLen = gem.hourly.windspeed_10m.length;
@@ -994,6 +1101,15 @@
         document.getElementById('model-gfs').style.color = windRampColor(gVal || 0);
         document.getElementById('model-gem').textContent = (mDisp != null ? mDisp : '—') + ' ' + windUnit;
         document.getElementById('model-gem').style.color = windRampColor(mVal || 0);
+
+        ['gfs', 'ecmwf', 'gem'].forEach(function(key) {
+          var row = document.querySelector('.model-row[data-model="' + key + '"]');
+          var badge = document.getElementById('active-badge-' + key);
+          if (row && badge) {
+            row.classList.toggle('active', key === activeModelKey);
+            badge.classList.toggle('hidden', key !== activeModelKey);
+          }
+        });
 
         const vals = [eVal, gVal, mVal].filter(v => v != null);
         const spread = vals.length >= 2 ? Math.round(Math.max(...vals) - Math.min(...vals)) : 0;
@@ -1039,12 +1155,20 @@
           console.log('Open-Meteo API response (GFS):', gfs);
           console.log('Open-Meteo API response (GEM):', gem);
 
+          var preferred = getPreferredModel();
+          var heroData = main;
+          var activeKey = 'ecmwf';
+          if (preferred === 'GFS') { heroData = gfs; activeKey = 'gfs'; }
+          else if (preferred === 'GEM') { heroData = gem; activeKey = 'gem'; }
+
           const idx = getCurrentHourIndex(main.hourly);
-          renderWindHero(main, idx);
+          var heroIdx = Math.min(idx, (heroData.hourly.windspeed_10m.length || 1) - 1);
+          renderWindHero(heroData, heroIdx);
           renderHourlyStrip(main, idx, 12);
+          renderPrecipStrip(main, idx, 12);
           renderDailyStrip(main);
-          renderModelComparison(main, gfs, gem);
-          renderConditionVerdict(main, idx, 12);
+          renderModelComparison(main, gfs, gem, activeKey);
+          renderConditionVerdict(heroData, idx, 12);
           apiElevation = main.elevation;
           console.log('API elevation:', main.elevation);
           const elevationChip = document.getElementById('elevation-tag');

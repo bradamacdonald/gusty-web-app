@@ -479,6 +479,7 @@
           <div class="precip-legend">
             <span class="precip-swatch"><span class="precip-swatch-sq" style="background:rgba(96,165,250,0.85)"></span>Rain</span>
             <span class="precip-swatch"><span class="precip-swatch-sq" style="background:rgba(226,232,240,0.70)"></span>Snow</span>
+            <span class="precip-swatch" style="color:var(--color-accent)"><span class="chart-swatch-line solid"></span>Cumulative</span>
           </div>
           <div class="chart-container">
             <canvas id="precip-chart" width="1100" height="180"></canvas>
@@ -579,7 +580,7 @@
 
       var windData = { summit: [], mid: [], trailhead: [], gustsSummit: [], gustsMid: [], gustsTrailhead: [] };
       var tempData = { temp: [], dewPoint: [], freezing: [] };
-      var precipData = { cloud: [], rain: [], snow: [] };
+      var precipData = { cloud: [], rain: [], snow: [], cumulative: [] };
 
       var dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
       var dayAbbrev = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -680,6 +681,8 @@
             var precip = extractHourly(main.precipitation, len);
             precipData.rain = tempData.temp.map(function(t, i) { return t >= 0 ? (precip[i] || 0) : 0; });
             precipData.snow = tempData.temp.map(function(t, i) { return t < 0 ? (precip[i] || 0) / 10 : 0; });
+            var cum = 0;
+            precipData.cumulative = precip.map(function(p) { cum += p || 0; return cum; });
 
             if (main.time && main.time.length >= len) {
               for (var i = 0; i < len; i++) labels[i] = formatLabel(main.time[i]);
@@ -703,7 +706,10 @@
             precipChart.data.datasets[0].data = precipData.cloud;
             precipChart.data.datasets[1].data = precipData.rain;
             precipChart.data.datasets[2].data = precipData.snow;
+            precipChart.data.datasets[3].data = precipData.cumulative;
             precipChart.data.labels = labels;
+            var maxCum = precipData.cumulative.length ? Math.max.apply(null, precipData.cumulative) : 0;
+            precipChart.options.scales.yCumulative.max = Math.max(5, Math.ceil(maxCum * 1.2));
             precipChart.update('none');
           });
         }).catch(function(err) {
@@ -784,7 +790,8 @@
           datasets: [
             { label: 'Cloud', data: precipData.cloud, type: 'line', borderColor: 'rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.04)', fill: true, tension: 0.3, pointRadius: 0, yAxisID: 'yCloud', order: 0 },
             { label: 'Rain', data: precipData.rain, backgroundColor: 'rgba(96, 165, 250, 0.85)', borderWidth: 0, stack: 'precip', order: 2 },
-            { label: 'Snow', data: precipData.snow, backgroundColor: 'rgba(226, 232, 240, 0.70)', borderWidth: 0, stack: 'precip', order: 1 }
+            { label: 'Snow', data: precipData.snow, backgroundColor: 'rgba(226, 232, 240, 0.70)', borderWidth: 0, stack: 'precip', order: 1 },
+            { label: 'Cumulative', data: precipData.cumulative, type: 'line', borderColor: '#38BDF8', backgroundColor: 'transparent', borderWidth: 2, tension: 0, stepped: true, pointRadius: 0, yAxisID: 'yCumulative', order: 3 }
           ]
         },
         options: {
@@ -794,7 +801,8 @@
           scales: {
             x: CHART_OPTS.scales.x,
             y: { ...CHART_OPTS.scales.y, position: 'left', stacked: true, min: 0, max: 2 },
-            yCloud: { ...CHART_OPTS.scales.y, position: 'right', min: 0, max: 100, grid: { drawOnChartArea: false } }
+            yCloud: { ...CHART_OPTS.scales.y, position: 'right', min: 0, max: 100, grid: { drawOnChartArea: false } },
+            yCumulative: { ...CHART_OPTS.scales.y, position: 'right', min: 0, max: 50, grid: { drawOnChartArea: false } }
           },
           datasets: { bar: { barPercentage: 0.8, categoryPercentage: 0.9 } }
         }
