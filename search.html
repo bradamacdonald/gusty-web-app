@@ -88,12 +88,26 @@
     }
     body {
       min-height: 100vh;
-      max-width: 390px;
-      margin: 0 auto;
+      margin: 0;
       padding: 0;
-      padding-bottom: var(--space-16);
       display: flex;
       flex-direction: column;
+    }
+    .app-frame {
+      margin: 0 auto;
+      max-width: 390px;
+      width: 100%;
+      min-height: 100vh;
+      position: relative;
+      transform: translateZ(0);
+      border-left: 1px solid rgba(255, 255, 255, 0.07);
+      border-right: 1px solid rgba(255, 255, 255, 0.07);
+      display: flex;
+      flex-direction: column;
+      padding-bottom: var(--space-16);
+    }
+    html.theme-light .app-frame {
+      border-color: rgba(0, 0, 0, 0.08);
     }
 
     /* ============================================================
@@ -321,10 +335,9 @@
     .bottom-sheet {
       position: fixed;
       bottom: var(--space-16);
-      left: 50%;
-      transform: translateX(-50%);
+      left: 0;
+      right: 0;
       width: 100%;
-      max-width: 390px;
       background: var(--color-surface);
       border: 1px solid var(--color-border);
       border-bottom: none;
@@ -334,7 +347,7 @@
       z-index: 10;
     }
     .bottom-sheet.hidden {
-      transform: translateX(-50%) translateY(100%);
+      transform: translateY(100%);
       pointer-events: none;
     }
     .bottom-sheet.expanded {
@@ -417,10 +430,9 @@
     .bottom-nav {
       position: fixed;
       bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
+      left: 0;
+      right: 0;
       width: 100%;
-      max-width: 390px;
       height: var(--space-16);
       background: var(--color-surface);
       border-top: 1px solid var(--color-border);
@@ -467,8 +479,11 @@
       padding: 4px;
     }
   </style>
+  <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
+
+  <div class="app-frame">
 
   <!-- TOP BAR -->
   <header class="top-bar">
@@ -534,6 +549,8 @@
       Settings
     </a>
   </nav>
+
+  </div><!-- .app-frame -->
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {

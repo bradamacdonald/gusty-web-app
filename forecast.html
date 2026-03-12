@@ -111,10 +111,23 @@
     }
     body {
       min-height: 100vh;
-      max-width: 390px;
+      margin: 0;
+      padding: 0;
+    }
+    .app-frame {
       margin: 0 auto;
+      max-width: 390px;
+      width: 100%;
+      min-height: 100vh;
+      position: relative;
+      transform: translateZ(0);
+      border-left: 1px solid rgba(255, 255, 255, 0.07);
+      border-right: 1px solid rgba(255, 255, 255, 0.07);
       padding: var(--space-4);
       padding-bottom: calc(var(--space-16) + var(--space-4));
+    }
+    html.theme-light .app-frame {
+      border-color: rgba(0, 0, 0, 0.08);
     }
 
     /* ============================================================
@@ -521,10 +534,9 @@
     .bottom-nav {
       position: fixed;
       bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
+      left: 0;
+      right: 0;
       width: 100%;
-      max-width: 390px;
       height: var(--space-16);
       background: var(--color-surface);
       border-top: 1px solid var(--color-border);
@@ -583,9 +595,6 @@
       justify-content: center;
       gap: var(--space-4);
       z-index: 100;
-      max-width: 390px;
-      left: 50%;
-      transform: translateX(-50%);
     }
     .loading-overlay.hidden { display: none; }
     .hidden { display: none !important; }
@@ -625,6 +634,7 @@
       background: rgba(56, 189, 248, 0.25);
     }
   </style>
+  <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
@@ -751,6 +761,8 @@
   </nav>
 
   </div><!-- #forecast-content -->
+
+  </div><!-- .app-frame -->
 
   <script>
     (function() {

@@ -195,10 +195,14 @@
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--text-muted);
+      text-align: center;
       white-space: nowrap;
       opacity: 0;
-      animation: fadeUp 0.8s ease 0.9s forwards;
+      animation: fadeUpCaption 0.8s ease 0.9s forwards;
       z-index: 3;
+    }
+    @keyframes fadeUpCaption {
+      to { opacity: 1; transform: translate(-50%, 0); }
     }
 
     /* ── ANIMATED WIND PATHS ── */
@@ -242,6 +246,7 @@
       .stat-value { font-size: 18px; }
     }
   </style>
+  <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
