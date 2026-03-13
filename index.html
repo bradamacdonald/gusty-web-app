@@ -19,6 +19,8 @@
       --text-muted: #3A4F66;
       --text-secondary: #6B84A0;
       --wind-calm: #34D399;
+      --color-border: rgba(255, 255, 255, 0.06);
+      --radius-full: 999px;
     }
 
     html, body {
@@ -143,46 +145,43 @@
       color: var(--text-muted);
     }
 
-    /* ── CTA BUTTON ── */
+    /* ── SEARCH INPUT ── */
     .cta-wrap {
       opacity: 0;
       animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.55s forwards;
+      width: 100%;
+      max-width: 360px;
     }
 
-    .cta-btn {
-      display: inline-flex;
+    .search-form {
+      display: flex;
       align-items: center;
-      gap: 10px;
-      background: var(--accent);
-      color: #080E1A;
-      font-family: 'Barlow', sans-serif;
-      font-weight: 700;
-      font-style: italic;
-      font-size: 16px;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      text-decoration: none;
-      padding: 16px 36px;
-      border-radius: 999px;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-      box-shadow: 0 0 40px rgba(56, 189, 248, 0.25);
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-full);
+      padding: 12px 20px;
     }
 
-    .cta-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 60px rgba(56, 189, 248, 0.4);
-      background: #7DD3F8;
-    }
-
-    .cta-btn svg {
-      width: 18px;
-      height: 18px;
+    .search-form svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--text-muted);
       flex-shrink: 0;
-      transition: transform 0.15s ease;
     }
 
-    .cta-btn:hover svg {
-      transform: translateX(3px);
+    .search-form-input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-family: 'Barlow', sans-serif;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .search-form-input::placeholder {
+      color: var(--text-muted);
     }
 
     .bmc-nudge {
@@ -329,12 +328,10 @@
     </div>
 
     <div class="cta-wrap">
-      <a href="forecast.html" class="cta-btn">
-        Check the wind
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-        </svg>
-      </a>
+      <form action="search.html" method="get" class="search-form">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+        <input type="text" name="q" class="search-form-input" placeholder="Search a peak, trailhead, or spot…" autocomplete="off">
+      </form>
       <p class="bmc-nudge">Enjoying gusty? <a href="https://buymeacoffee.com/gustyapp" target="_blank">Buy me a coffee</a></p>
     </div>
 

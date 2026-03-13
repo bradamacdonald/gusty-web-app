@@ -823,7 +823,7 @@
   </section>
 
   <!-- AVALANCHE CONDITIONS CARD -->
-  <section class="avalanche-card">
+  <section class="avalanche-card" id="avalanche-card">
     <h3 class="avalanche-card-title">Avalanche Conditions</h3>
     <div class="avalanche-indicator"><span class="avalanche-indicator-sq" style="background:#FFD700"></span><span class="avalanche-num" style="color:#FFD700">2</span> Moderate · Wind Slab, Cornices</div>
     <p class="avalanche-card-desc">Moderate avalanche danger above treeline. Recent wind-loading on lee slopes. Avoid steep, wind-loaded terrain.</p>
@@ -1203,6 +1203,12 @@
           elevationChip.textContent = (main.elevation != null && !isNaN(main.elevation))
             ? Math.round(main.elevation).toLocaleString() + ' m'
             : '—';
+
+          const avalancheCard = document.getElementById('avalanche-card');
+          if (avalancheCard) {
+            const elev = main.elevation;
+            avalancheCard.style.display = (elev != null && !isNaN(elev) && elev >= 1000) ? '' : 'none';
+          }
 
           hideLoading();
         } catch (err) {

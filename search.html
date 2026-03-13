@@ -968,6 +968,18 @@
           sheet.classList.add('expanded');
         }
       });
+
+      // Check for ?q= URL param and auto-populate + trigger search
+      var urlParams = new URLSearchParams(window.location.search);
+      var q = urlParams.get('q');
+      if (q && typeof q === 'string') {
+        var query = q.trim();
+        searchInput.value = query;
+        goToSearching();
+        if (query.length >= 3) {
+          fetchGeocode(query);
+        }
+      }
     });
   </script>
 </body>
