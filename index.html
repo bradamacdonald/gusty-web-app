@@ -170,6 +170,10 @@
       padding: 12px 20px;
     }
 
+    .search-form.dropdown-open {
+      border-radius: var(--radius-full) var(--radius-full) 0 0;
+    }
+
     .search-form svg {
       width: 20px;
       height: 20px;
@@ -196,10 +200,9 @@
       top: 100%;
       left: 0;
       right: 0;
-      margin-top: -1px;
+      margin-top: 4px;
       background: var(--color-surface);
       border: 1px solid var(--color-border);
-      border-top: none;
       border-radius: 0 0 var(--radius-md) var(--radius-md);
       overflow: hidden;
       z-index: 30;
@@ -420,9 +423,20 @@
     (function() {
       var MAPBOX_TOKEN = 'pk.eyJ1IjoiYnJhZG1hY2RvbmFsZCIsImEiOiJjbW1sb281dzExYTFlMndweXd5d3BvNDhoIn0.7qrVAWUic59nGF3rZka3gg';
       var searchInput = document.getElementById('index-search-input');
+      var searchForm = document.querySelector('.search-form');
       var dropdown = document.getElementById('index-search-dropdown');
       var debounceTimer = null;
       var lastRequestId = 0;
+
+      function showDropdown() {
+        dropdown.classList.remove('hidden');
+        if (searchForm) searchForm.classList.add('dropdown-open');
+      }
+
+      function hideDropdown() {
+        dropdown.classList.add('hidden');
+        if (searchForm) searchForm.classList.remove('dropdown-open');
+      }
 
       function getRegionFromContext(context) {
         if (!context || !Array.isArray(context)) return '';
@@ -437,7 +451,7 @@
       function fetchGeocode(query) {
         if (!query || query.trim().length < 3) {
           dropdown.innerHTML = '';
-          dropdown.classList.add('hidden');
+          hideDropdown();
           return;
         }
         var requestId = ++lastRequestId;
@@ -451,17 +465,17 @@
           .catch(function() {
             if (requestId !== lastRequestId) return;
             dropdown.innerHTML = '';
-            dropdown.classList.add('hidden');
+            hideDropdown();
           });
       }
 
       function renderSuggestions(features) {
         dropdown.innerHTML = '';
         if (!features || features.length === 0) {
-          dropdown.classList.add('hidden');
+          hideDropdown();
           return;
         }
-        dropdown.classList.remove('hidden');
+        showDropdown();
         features.forEach(function(f) {
           var coords = f.geometry && f.geometry.coordinates;
           if (!coords || coords.length < 2) return;
@@ -490,14 +504,14 @@
           debounceTimer = setTimeout(function() { fetchGeocode(query); }, 300);
         } else {
           dropdown.innerHTML = '';
-          dropdown.classList.add('hidden');
+          hideDropdown();
         }
       });
 
       searchInput.addEventListener('focus', function() {
         var query = searchInput.value.trim();
         if (dropdown.children.length > 0) {
-          dropdown.classList.remove('hidden');
+          showDropdown();
         } else if (query.length >= 3) {
           fetchGeocode(query);
         }
@@ -506,7 +520,7 @@
       document.addEventListener('click', function(e) {
         var wrap = document.querySelector('.search-wrap');
         if (wrap && !wrap.contains(e.target)) {
-          dropdown.classList.add('hidden');
+          hideDropdown();
         }
       });
     })();
