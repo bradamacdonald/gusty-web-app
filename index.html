@@ -166,12 +166,8 @@
       gap: 12px;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--color-border);
-      border-radius: var(--radius-full);
+      border-radius: var(--radius-md);
       padding: 12px 20px;
-    }
-
-    .search-form.dropdown-open {
-      border-radius: var(--radius-full) var(--radius-full) 0 0;
     }
 
     .search-form svg {
@@ -423,19 +419,16 @@
     (function() {
       var MAPBOX_TOKEN = 'pk.eyJ1IjoiYnJhZG1hY2RvbmFsZCIsImEiOiJjbW1sb281dzExYTFlMndweXd5d3BvNDhoIn0.7qrVAWUic59nGF3rZka3gg';
       var searchInput = document.getElementById('index-search-input');
-      var searchForm = document.querySelector('.search-form');
       var dropdown = document.getElementById('index-search-dropdown');
       var debounceTimer = null;
       var lastRequestId = 0;
 
       function showDropdown() {
         dropdown.classList.remove('hidden');
-        if (searchForm) searchForm.classList.add('dropdown-open');
       }
 
       function hideDropdown() {
         dropdown.classList.add('hidden');
-        if (searchForm) searchForm.classList.remove('dropdown-open');
       }
 
       function getRegionFromContext(context) {
