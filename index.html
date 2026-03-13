@@ -480,7 +480,7 @@
             var features = data.features || [];
             var needsFallback = features.length === 0 || onlyStreetOrAddress(features);
             if (needsFallback) {
-              var geoNamesUrl = 'http://api.geonames.org/searchJSON?q=' + encodeURIComponent(query) + '&featureClass=T&country=CA&country=US&maxRows=5&username=bradmacdonald';
+              var geoNamesUrl = 'https://secure.geonames.org/searchJSON?q=' + encodeURIComponent(query) + '&featureClass=T&country=CA&country=US&maxRows=5&username=bradmacdonald';
               fetch(geoNamesUrl)
                 .then(function(r) { return r.json(); })
                 .then(function(gn) {
@@ -497,7 +497,7 @@
           })
           .catch(function() {
             if (requestId !== lastRequestId) return;
-            var geoNamesUrl = 'http://api.geonames.org/searchJSON?q=' + encodeURIComponent(query) + '&featureClass=T&country=CA&country=US&maxRows=5&username=bradmacdonald';
+            var geoNamesUrl = 'https://secure.geonames.org/searchJSON?q=' + encodeURIComponent(query) + '&featureClass=T&country=CA&country=US&maxRows=5&username=bradmacdonald';
             fetch(geoNamesUrl)
               .then(function(r) { return r.json(); })
               .then(function(gn) {
