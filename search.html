@@ -289,11 +289,12 @@
     }
     .map-zoom-controls {
       position: absolute;
-      bottom: var(--space-4);
-      right: var(--space-4);
+      top: 16px;
+      right: 16px;
       display: flex;
       flex-direction: column;
       gap: 1px;
+      z-index: 15;
     }
     .map-zoom-btn {
       width: 36px;
@@ -403,7 +404,22 @@
       font-size: var(--text-sm);
       font-family: var(--font-data);
       color: var(--color-text-muted);
+      margin-bottom: var(--space-3);
+    }
+    .sheet-weather-preview {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
       margin-bottom: var(--space-5);
+      font-family: var(--font-data);
+      font-size: var(--text-sm);
+    }
+    .sheet-weather-wind {
+      color: var(--color-accent);
+      font-weight: var(--weight-medium);
+    }
+    .sheet-weather-temp {
+      color: var(--color-text-secondary);
     }
     .sheet-cta {
       display: flex;
@@ -521,6 +537,10 @@
     </div>
     <div class="sheet-body">
       <div class="sheet-coords">49.3756° N · 123.0378° W</div>
+      <div class="sheet-weather-preview" id="sheet-weather-preview">
+        <span class="sheet-weather-wind" id="sheet-weather-wind">—</span>
+        <span class="sheet-weather-temp" id="sheet-weather-temp">—</span>
+      </div>
       <a href="forecast.html" class="sheet-cta" id="sheet-cta">View Forecast →</a>
     </div>
   </div>
@@ -676,7 +696,8 @@
         marker.setLngLat([lng, lat]);
         fetchReverseGeocode(lng, lat, function(name) {
           var coordsStr = formatCoords(lng, lat);
-          goToSelected(name, '—', coordsStr, lat, lng);
+          var displayName = isCoordinateLike(name) ? 'Dropped Pin' : name;
+          goToSelected(displayName, '—', coordsStr, lat, lng);
         });
       });
 
@@ -739,7 +760,9 @@
           btn.querySelector('.suggestion-name').textContent = name || '';
           btn.querySelector('.suggestion-region').textContent = region || '';
           btn.addEventListener('click', function() {
-            goToSelected(btn.dataset.name, btn.dataset.elev, btn.dataset.coords, btn.dataset.lat, btn.dataset.lng);
+            var name = btn.dataset.name;
+            var displayName = (name && !isCoordinateLike(name)) ? name : 'Dropped Pin';
+            goToSelected(displayName, btn.dataset.elev, btn.dataset.coords, btn.dataset.lat, btn.dataset.lng);
             suggestionsList.innerHTML = '';
             suggestionsList.classList.add('hidden');
           });
@@ -796,11 +819,59 @@
         setState(STATES.SEARCHING);
       }
 
+      function degreesToCompass(deg) {
+        if (deg == null) return '—';
+        var dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+        var i = Math.round(((deg % 360) / 22.5)) % 16;
+        return dirs[i];
+      }
+
+      function fetchCurrentWeather(lat, lng) {
+        var windEl = document.getElementById('sheet-weather-wind');
+        var tempEl = document.getElementById('sheet-weather-temp');
+        if (windEl) windEl.textContent = '—';
+        if (tempEl) tempEl.textContent = '—';
+        var params = new URLSearchParams({
+          latitude: lat,
+          longitude: lng,
+          wind_speed_unit: 'kmh',
+          timezone: 'America/Vancouver',
+          forecast_days: 2,
+          hourly: 'windspeed_10m,winddirection_10m,temperature_2m'
+        });
+        fetch('https://api.open-meteo.com/v1/forecast?' + params.toString())
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            var h = data.hourly;
+            if (!h || !h.time || h.time.length === 0) return;
+            var now = new Date();
+            var idx = 0;
+            for (var i = 0; i < h.time.length; i++) {
+              if (new Date(h.time[i]) > now) { idx = Math.max(0, i - 1); break; }
+              idx = i;
+            }
+            var speed = h.windspeed_10m && h.windspeed_10m[idx];
+            var dir = h.winddirection_10m && h.winddirection_10m[idx];
+            var tempC = h.temperature_2m && h.temperature_2m[idx];
+            var windFmt = window.GustySettings ? GustySettings.formatWindSpeed(speed) : { value: speed != null ? Math.round(speed) : '—', unit: 'km/h' };
+            var tempFmt = window.GustySettings ? GustySettings.formatTemp(tempC) : { value: tempC != null ? Math.round(tempC) : '—', unit: '°C' };
+            var windStr = windFmt.value !== '—' ? windFmt.value + ' ' + windFmt.unit + ' ' + degreesToCompass(dir) : '—';
+            var tempStr = tempFmt.value !== '—' ? tempFmt.value + tempFmt.unit : '—';
+            if (windEl) windEl.textContent = windStr;
+            if (tempEl) tempEl.textContent = tempStr;
+          })
+          .catch(function() {
+            if (windEl) windEl.textContent = '—';
+            if (tempEl) tempEl.textContent = '—';
+          });
+      }
+
       function goToSelected(name, elev, coords, lat, lng) {
         selectedLocation = { name: name, elev: elev, coords: coords, lat: lat, lng: lng };
         setState(STATES.SELECTED);
         if (lat != null && lng != null) {
           flyToLocation(parseFloat(lng), parseFloat(lat));
+          fetchCurrentWeather(parseFloat(lat), parseFloat(lng));
         }
       }
 
