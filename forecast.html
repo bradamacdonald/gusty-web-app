@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@1,700&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="gusty-settings.js"></script>
   <script>if(window.GustySettings)GustySettings.applyTheme();</script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
   <style>
     /* ============================================================
        GUSTY.CA DESIGN TOKENS
@@ -157,19 +158,6 @@
       letter-spacing: var(--tracking-tight);
       color: var(--color-text-primary);
       display: block;
-      margin-bottom: var(--space-1);
-    }
-    .elevation-tag {
-      display: inline-block;
-      padding: 2px 8px;
-      white-space: nowrap;
-      border-radius: var(--radius-full);
-      background: var(--color-surface-elevated);
-      border: 1px solid var(--color-border);
-      font-family: var(--font-data);
-      font-size: var(--text-xs);
-      font-weight: var(--weight-medium);
-      color: var(--color-text-secondary);
     }
     .save-btn {
       background: none;
@@ -196,9 +184,16 @@
     }
 
     /* ============================================================
-       CONDITION VERDICT
+       WIND HERO
        ============================================================ */
-    .condition-verdict {
+    .wind-hero {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      padding: var(--space-6);
+      margin-bottom: var(--space-6);
+    }
+    .wind-hero-verdict {
       display: inline-flex;
       align-items: center;
       gap: var(--space-2);
@@ -210,53 +205,34 @@
       background: rgba(52, 211, 153, 0.15);
       color: var(--color-go);
       border: 1px solid rgba(52, 211, 153, 0.3);
-      margin-bottom: var(--space-6);
+      margin-bottom: var(--space-4);
     }
-    .condition-verdict .dot {
+    .wind-hero-verdict .dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
       background: currentColor;
       flex-shrink: 0;
     }
-    .condition-verdict.favorable {
+    .wind-hero-verdict.favorable {
       background: rgba(52, 211, 153, 0.15);
       color: var(--color-go);
       border-color: rgba(52, 211, 153, 0.3);
     }
-    .condition-verdict.marginal {
+    .wind-hero-verdict.marginal {
       background: rgba(251, 191, 36, 0.15);
       color: var(--color-caution);
       border-color: rgba(251, 191, 36, 0.3);
     }
-    .condition-verdict.unfavorable {
+    .wind-hero-verdict.unfavorable {
       background: rgba(239, 68, 68, 0.15);
       color: var(--color-no-go);
       border-color: rgba(239, 68, 68, 0.3);
-    }
-
-    /* ============================================================
-       WIND HERO
-       ============================================================ */
-    .wind-hero {
-      background: var(--color-surface);
-      border-radius: var(--radius-md);
-      border: 1px solid var(--color-border);
-      padding: var(--space-6);
-      margin-bottom: var(--space-6);
-    }
-    .wind-hero-label {
-      font-size: var(--text-xs);
-      font-weight: var(--weight-medium);
-      letter-spacing: var(--tracking-wide);
-      text-transform: uppercase;
-      color: var(--color-text-muted);
     }
     .wind-hero-value-wrap {
       display: flex;
       align-items: baseline;
       gap: var(--space-1);
-      margin-top: var(--space-1);
     }
     .wind-hero-value {
       font-family: var(--font-data);
@@ -271,22 +247,61 @@
       font-size: var(--text-lg);
       color: var(--color-text-secondary);
     }
-    .wind-hero-temp {
-      font-size: var(--text-sm);
-      color: var(--color-text-secondary);
-      font-family: var(--font-data);
+    .wind-hero-elev {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-top: var(--space-1);
     }
-    .wind-hero-dir {
+    .wind-hero-elev-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 2px 8px;
+      white-space: nowrap;
+      border-radius: var(--radius-full);
+      background: var(--color-surface-elevated);
+      border: 1px solid var(--color-border);
+      font-family: var(--font-data);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      color: var(--color-text-secondary);
+    }
+    .wind-hero-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--color-text-muted);
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .wind-hero-icon svg {
+      width: 16px;
+      height: 16px;
+      stroke-width: 1.5;
+      stroke: currentColor;
+    }
+    .wind-hero-rows {
+      margin-top: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+    .wind-hero-row {
       font-size: var(--text-sm);
       color: var(--color-text-secondary);
-      margin-top: var(--space-2);
       display: flex;
       align-items: center;
       gap: var(--space-2);
     }
-    .wind-hero-arrow {
-      font-size: 18px;
-      transform: rotate(45deg);
+    .wind-hero-row .wind-hero-icon {
+      flex-shrink: 0;
+    }
+    .wind-hero-compass-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     /* ============================================================
@@ -741,29 +756,42 @@
     </button>
   </header>
 
-  <!-- LOCATION (name + elevation on own line) -->
+  <!-- LOCATION (name or coordinates only) -->
   <div class="location-row">
     <h1 class="location-name" id="location-name"></h1>
-    <span class="elevation-tag" id="elevation-tag">… m</span>
-  </div>
-
-  <!-- CONDITION VERDICT -->
-  <div class="condition-verdict" id="condition-verdict">
-    <span class="dot"></span>
-    <span id="verdict-text">Favorable</span>
   </div>
 
   <!-- WIND HERO -->
   <section class="wind-hero">
-    <div class="wind-hero-label">Wind Speed</div>
+    <div class="wind-hero-verdict" id="wind-hero-verdict">
+      <span class="dot"></span>
+      <span id="verdict-text">Favorable</span>
+    </div>
     <div class="wind-hero-value-wrap">
       <span class="wind-hero-value" id="wind-hero-value">—</span>
       <span class="wind-hero-unit">km/h</span>
-      <span class="wind-hero-temp" id="wind-hero-temp"></span>
     </div>
-    <div class="wind-hero-dir">
-      <span class="wind-hero-arrow" id="wind-hero-arrow">↑</span>
-      <span id="wind-hero-dir-text">—</span>
+    <div class="wind-hero-elev">
+      <span class="wind-hero-elev-tag" id="wind-hero-elev">
+        <i data-lucide="mountain" class="wind-hero-icon"></i>
+        <span id="wind-hero-elev-text">—</span>
+      </span>
+    </div>
+    <div class="wind-hero-rows">
+      <div class="wind-hero-row">
+        <span class="wind-hero-compass-wrap" id="wind-hero-compass-wrap">
+          <i data-lucide="compass" class="wind-hero-icon"></i>
+        </span>
+        <span id="wind-hero-dir-text">—</span>
+      </div>
+      <div class="wind-hero-row" id="wind-hero-gust-row" style="display:none">
+        <i data-lucide="wind" class="wind-hero-icon"></i>
+        <span id="wind-hero-gust-text">—</span>
+      </div>
+      <div class="wind-hero-row" id="wind-hero-temp-row" style="display:none">
+        <i data-lucide="thermometer" class="wind-hero-icon"></i>
+        <span id="wind-hero-temp-text">—</span>
+      </div>
     </div>
   </section>
 
@@ -981,30 +1009,36 @@
 
         const valEl = document.getElementById('wind-hero-value');
         const unitEl = document.querySelector('.wind-hero-unit');
-        const tempEl = document.getElementById('wind-hero-temp');
-        const arrowEl = document.getElementById('wind-hero-arrow');
+        const compassWrap = document.getElementById('wind-hero-compass-wrap');
         const dirEl = document.getElementById('wind-hero-dir-text');
+        const gustRow = document.getElementById('wind-hero-gust-row');
+        const gustText = document.getElementById('wind-hero-gust-text');
+        const tempRow = document.getElementById('wind-hero-temp-row');
+        const tempText = document.getElementById('wind-hero-temp-text');
 
         var fmt = window.GustySettings ? GustySettings.formatWindSpeed(speed) : { value: speed != null ? Math.round(speed) : '—', unit: 'km/h' };
         valEl.textContent = fmt.value;
         if (unitEl) unitEl.textContent = fmt.unit;
         valEl.style.color = windRampColor(speed || 0);
 
-        if (tempEl) {
-          var tempFmt = window.GustySettings ? GustySettings.formatTemp(tempC) : { value: tempC != null ? Math.round(tempC) : '—', unit: '°C' };
-          tempEl.textContent = tempC != null ? ' · ' + tempFmt.value + tempFmt.unit : '';
-          tempEl.style.display = tempC != null ? '' : 'none';
-        }
+        if (compassWrap) compassWrap.style.transform = 'rotate(' + (dir != null ? dir : 0) + 'deg)';
+        dirEl.textContent = degreesToCompass(dir) + (dir != null ? ' · ' + dir + '°' : '');
 
-        arrowEl.textContent = '↑';
-        arrowEl.style.transform = 'rotate(' + (dir != null ? dir : 0) + 'deg)';
-
-        var gustStr = '';
         if (gust != null && gust > 0) {
           var gFmt = window.GustySettings ? GustySettings.formatWindSpeed(gust) : { value: Math.round(gust), unit: 'km/h' };
-          gustStr = ' · gusts to ' + gFmt.value + ' ' + gFmt.unit;
+          gustText.textContent = 'Gusts to ' + gFmt.value + ' ' + gFmt.unit;
+          gustRow.style.display = '';
+        } else {
+          gustRow.style.display = 'none';
         }
-        dirEl.textContent = (degreesToCompass(dir) + ' · ' + (dir != null ? dir + '°' : '—')) + gustStr;
+
+        if (tempC != null) {
+          var tempFmt = window.GustySettings ? GustySettings.formatTemp(tempC) : { value: Math.round(tempC), unit: '°C' };
+          tempText.textContent = tempFmt.value + tempFmt.unit;
+          tempRow.style.display = '';
+        } else {
+          tempRow.style.display = 'none';
+        }
       }
 
       function renderHourlyStrip(data, startIdx, count) {
@@ -1156,8 +1190,9 @@
           if (v != null && v > maxWind) maxWind = v;
         }
 
-        const verdict = document.getElementById('condition-verdict');
+        const verdict = document.getElementById('wind-hero-verdict');
         const textEl = document.getElementById('verdict-text');
+        if (!verdict || !textEl) return;
         verdict.classList.remove('favorable', 'marginal', 'unfavorable');
 
         var label = window.GustySettings ? GustySettings.getConditionDisplayLabel(maxWind) : (maxWind < 30 ? 'Favorable' : maxWind <= 60 ? 'Marginal' : 'Unfavorable');
@@ -1199,8 +1234,8 @@
           renderConditionVerdict(heroData, idx, 12);
           apiElevation = main.elevation;
           console.log('API elevation:', main.elevation);
-          const elevationChip = document.getElementById('elevation-tag');
-          elevationChip.textContent = (main.elevation != null && !isNaN(main.elevation))
+          const elevText = document.getElementById('wind-hero-elev-text');
+          if (elevText) elevText.textContent = (main.elevation != null && !isNaN(main.elevation))
             ? Math.round(main.elevation).toLocaleString() + ' m'
             : '—';
 
@@ -1305,6 +1340,10 @@
 
       document.getElementById('location-name').textContent = locationName;
       document.title = 'Forecast — ' + locationName;
+
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons({ attrs: { 'stroke-width': 1.5 } });
+      }
 
       loadForecast();
     })();

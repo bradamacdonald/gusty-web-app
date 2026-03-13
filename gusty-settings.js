@@ -23,7 +23,7 @@
   function getHairLabel(kmh) {
     if (kmh == null) return '—';
     var v = Number(kmh);
-    if (v <= 15) return 'Helmet Hair';
+    if (v <= 15) return 'Zero Drama';
     if (v <= 30) return 'Messy Bun Situation';
     if (v <= 50) return 'Full Chaos';
     if (v <= 74) return "Don't Even Bother";
