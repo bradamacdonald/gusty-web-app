@@ -447,22 +447,6 @@
         return parts.join(', ');
       }
 
-      function isRoadOrAddress(name) {
-        if (!name || name.length < 2) return true;
-        var roadRe = /^\d+\s|^\d+$|\b(street|st|ave|avenue|road|rd|blvd|drive|dr|lane|ln|way|court|ct|highway|hwy)\b/i;
-        return roadRe.test(name);
-      }
-
-      function onlyStreetOrAddress(features) {
-        if (!features || features.length === 0) return true;
-        return features.every(function(f) {
-          var pt = f.place_type || [];
-          var isAddress = pt.indexOf('address') >= 0;
-          var name = (f.text || f.place_name || '').trim();
-          return isAddress || isRoadOrAddress(name);
-        });
-      }
-
       var mountainIconSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 18 9-11 4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" /></svg>';
 
       function fetchGeocode(query) {
@@ -472,44 +456,18 @@
           return;
         }
         var requestId = ++lastRequestId;
-        var url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' + encodeURIComponent(query) + '.json?access_token=' + MAPBOX_TOKEN + '&country=CA&proximity=-123.0%2C49.9&types=poi,place,locality,region&language=en&limit=5';
-        fetch(url)
-          .then(function(r) { return r.json(); })
-          .then(function(data) {
-            if (requestId !== lastRequestId) return;
-            var features = data.features || [];
-            var needsFallback = features.length === 0 || onlyStreetOrAddress(features);
-            if (needsFallback) {
-              var geoNamesUrl = 'https://secure.geonames.org/searchJSON?q=' + encodeURIComponent(query) + '&featureClass=T&country=CA&country=US&maxRows=5&username=bradmacdonald';
-              fetch(geoNamesUrl)
-                .then(function(r) { return r.json(); })
-                .then(function(gn) {
-                  if (requestId !== lastRequestId) return;
-                  renderSuggestions(features, gn.geonames || []);
-                })
-                .catch(function() {
-                  if (requestId !== lastRequestId) return;
-                  renderSuggestions(features, []);
-                });
-            } else {
-              renderSuggestions(features, []);
-            }
-          })
-          .catch(function() {
-            if (requestId !== lastRequestId) return;
-            var geoNamesUrl = 'https://secure.geonames.org/searchJSON?q=' + encodeURIComponent(query) + '&featureClass=T&country=CA&country=US&maxRows=5&username=bradmacdonald';
-            fetch(geoNamesUrl)
-              .then(function(r) { return r.json(); })
-              .then(function(gn) {
-                if (requestId !== lastRequestId) return;
-                renderSuggestions([], gn.geonames || []);
-              })
-              .catch(function() {
-                if (requestId !== lastRequestId) return;
-                dropdown.innerHTML = '';
-                hideDropdown();
-              });
-          });
+        var mapboxUrl = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' + encodeURIComponent(query) + '.json?access_token=' + MAPBOX_TOKEN + '&country=CA&proximity=-123.0%2C49.9&types=poi,place,locality,region&language=en&limit=5';
+        var geoNamesUrl = 'https://secure.geonames.org/searchJSON?q=' + encodeURIComponent(query) + '&featureClass=T&country=CA&country=US&maxRows=5&username=bradmacdonald';
+
+        Promise.all([
+          fetch(mapboxUrl).then(function(r) { return r.json(); }).catch(function() { return {}; }),
+          fetch(geoNamesUrl).then(function(r) { return r.json(); }).catch(function() { return {}; })
+        ]).then(function(results) {
+          if (requestId !== lastRequestId) return;
+          var features = (results[0] && results[0].features) ? results[0].features : [];
+          var geonames = (results[1] && results[1].geonames) ? results[1].geonames : [];
+          renderSuggestions(features, geonames);
+        });
       }
 
       function renderSuggestions(features, geonames) {
