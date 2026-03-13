@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <title>Forecast — gusty.ca</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -179,6 +183,34 @@
       color: var(--color-accent);
     }
     .save-btn svg {
+      width: 24px;
+      height: 24px;
+    }
+    .top-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+    .share-btn {
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      padding: var(--space-2);
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+    }
+    .share-btn:hover {
+      color: var(--color-accent);
+    }
+    .share-btn.copied {
+      color: var(--color-go);
+    }
+    .share-btn svg {
       width: 24px;
       height: 24px;
     }
@@ -795,13 +827,19 @@
   <!-- MAIN CONTENT -->
   <div id="forecast-content">
 
-  <!-- TOP BAR (wordmark + save only) -->
+  <!-- TOP BAR (wordmark + actions) -->
   <header class="top-bar">
     <a href="search.html" class="wordmark">GUSTY</a>
-    <button type="button" class="save-btn" id="save-btn" aria-label="Save location">
-      <svg id="save-icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" /></svg>
-      <svg id="save-icon-filled" class="hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" /></svg>
-    </button>
+    <div class="top-bar-actions">
+      <button type="button" class="share-btn" id="share-btn" aria-label="Share link">
+        <svg id="share-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+        <svg id="share-icon-check" class="hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+      </button>
+      <button type="button" class="save-btn" id="save-btn" aria-label="Save location">
+        <svg id="save-icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" /></svg>
+        <svg id="save-icon-filled" class="hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" /></svg>
+      </button>
+    </div>
   </header>
 
   <!-- LOCATION (name or coordinates only) -->
@@ -1407,6 +1445,29 @@
       var saveBtn = document.getElementById('save-btn');
       if (saveBtn) saveBtn.addEventListener('click', toggleSave);
       updateSaveButtonState();
+
+      var shareBtn = document.getElementById('share-btn');
+      var shareIcon = document.getElementById('share-icon');
+      var shareIconCheck = document.getElementById('share-icon-check');
+      var shareCopiedTimer = null;
+      if (shareBtn && shareIcon && shareIconCheck) {
+        shareBtn.addEventListener('click', function() {
+          navigator.clipboard.writeText(window.location.href).then(function() {
+            shareIcon.classList.add('hidden');
+            shareIconCheck.classList.remove('hidden');
+            shareBtn.classList.add('copied');
+            shareBtn.setAttribute('aria-label', 'Copied!');
+            if (shareCopiedTimer) clearTimeout(shareCopiedTimer);
+            shareCopiedTimer = setTimeout(function() {
+              shareIcon.classList.remove('hidden');
+              shareIconCheck.classList.add('hidden');
+              shareBtn.classList.remove('copied');
+              shareBtn.setAttribute('aria-label', 'Share link');
+              shareCopiedTimer = null;
+            }, 2000);
+          }).catch(function() {});
+        });
+      }
 
       var panel = document.getElementById('model-panel');
       var toggle = document.getElementById('model-toggle');
