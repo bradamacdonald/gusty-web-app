@@ -499,11 +499,21 @@
       flex-direction: column;
       gap: 2px;
     }
+    .model-name-row {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-2);
+    }
     .model-name {
       font-family: var(--font-data);
       font-size: var(--text-sm);
       font-weight: var(--weight-medium);
       color: var(--color-text-secondary);
+    }
+    .model-run-time {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      font-weight: var(--weight-regular);
     }
     .model-row.active .model-name {
       color: var(--color-accent);
@@ -830,15 +840,15 @@
     </div>
     <div class="model-panel-body">
       <div class="model-row" data-model="gfs">
-        <span class="model-name-wrap"><span class="model-name">GFS</span><span class="model-active-badge hidden" id="active-badge-gfs">Powering forecast</span></span>
+        <span class="model-name-wrap"><span class="model-name-row"><span class="model-name">GFS</span><span class="model-run-time" id="model-run-gfs"></span></span><span class="model-active-badge hidden" id="active-badge-gfs">Powering forecast</span></span>
         <span class="model-value" id="model-gfs">— km/h</span>
       </div>
       <div class="model-row" data-model="ecmwf">
-        <span class="model-name-wrap"><span class="model-name">ECMWF</span><span class="model-active-badge hidden" id="active-badge-ecmwf">Powering forecast</span></span>
+        <span class="model-name-wrap"><span class="model-name-row"><span class="model-name">ECMWF</span><span class="model-run-time" id="model-run-ecmwf"></span></span><span class="model-active-badge hidden" id="active-badge-ecmwf">Powering forecast</span></span>
         <span class="model-value" id="model-ecmwf">— km/h</span>
       </div>
       <div class="model-row" data-model="gem">
-        <span class="model-name-wrap"><span class="model-name">GEM</span><span class="model-active-badge hidden" id="active-badge-gem">Powering forecast</span></span>
+        <span class="model-name-wrap"><span class="model-name-row"><span class="model-name">GEM</span><span class="model-run-time" id="model-run-gem"></span></span><span class="model-active-badge hidden" id="active-badge-gem">Powering forecast</span></span>
         <span class="model-value" id="model-gem">— km/h</span>
       </div>
       <p class="model-confidence" id="model-confidence">—</p>
@@ -1150,6 +1160,40 @@
         return (window.GustySettings ? GustySettings.getDefaultModel() : null) || localStorage.getItem('gusty_default_model') || 'ECMWF';
       }
 
+      /** Model run schedules (UTC): GFS 00/06/12/18 every 6h, ECMWF/GEM 00/12 every 12h, HRRR every 1h */
+      function getModelRunTimeAgo(model) {
+        const now = new Date();
+        const y = now.getUTCFullYear();
+        const m = now.getUTCMonth();
+        const d = now.getUTCDate();
+        const h = now.getUTCHours();
+
+        let lastRun;
+        if (model === 'gfs') {
+          const gfsHours = [0, 6, 12, 18];
+          const prev = gfsHours.filter(function(x) { return x <= h; }).pop();
+          if (prev !== undefined) {
+            lastRun = new Date(Date.UTC(y, m, d, prev, 0, 0));
+          } else {
+            lastRun = new Date(Date.UTC(y, m, d - 1, 18, 0, 0));
+          }
+        } else if (model === 'ecmwf' || model === 'gem') {
+          if (h >= 12) lastRun = new Date(Date.UTC(y, m, d, 12, 0, 0));
+          else lastRun = new Date(Date.UTC(y, m, d, 0, 0, 0));
+        } else if (model === 'hrrr') {
+          lastRun = new Date(Date.UTC(y, m, d, h, 0, 0));
+        } else {
+          return '';
+        }
+
+        const diffMs = now - lastRun;
+        const diffMin = Math.floor(diffMs / 60000);
+        const diffHr = Math.floor(diffMs / 3600000);
+        if (diffMin < 1) return 'run just now';
+        if (diffHr < 1) return 'run ' + diffMin + 'm ago';
+        return 'run ' + diffHr + 'h ago';
+      }
+
       function renderModelComparison(ecmwf, gfs, gem, activeModelKey) {
         const idx = getCurrentHourIndex(ecmwf.hourly);
         const gLen = gfs.hourly.windspeed_10m.length;
@@ -1172,10 +1216,12 @@
         ['gfs', 'ecmwf', 'gem'].forEach(function(key) {
           var row = document.querySelector('.model-row[data-model="' + key + '"]');
           var badge = document.getElementById('active-badge-' + key);
+          var runEl = document.getElementById('model-run-' + key);
           if (row && badge) {
             row.classList.toggle('active', key === activeModelKey);
             badge.classList.toggle('hidden', key !== activeModelKey);
           }
+          if (runEl) runEl.textContent = getModelRunTimeAgo(key);
         });
 
         const vals = [eVal, gVal, mVal].filter(v => v != null);
