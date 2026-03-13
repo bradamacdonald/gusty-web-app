@@ -409,6 +409,7 @@
     .sheet-weather-preview {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: var(--space-4);
       margin-bottom: var(--space-5);
       font-family: var(--font-data);
@@ -420,6 +421,10 @@
     }
     .sheet-weather-temp {
       color: var(--color-text-secondary);
+    }
+    .sheet-weather-elev {
+      color: var(--color-text-muted);
+      font-size: var(--text-xs);
     }
     .sheet-cta {
       display: flex;
@@ -540,6 +545,7 @@
       <div class="sheet-weather-preview" id="sheet-weather-preview">
         <span class="sheet-weather-wind" id="sheet-weather-wind">—</span>
         <span class="sheet-weather-temp" id="sheet-weather-temp">—</span>
+        <span class="sheet-weather-elev" id="sheet-weather-elev"></span>
       </div>
       <a href="forecast.html" class="sheet-cta" id="sheet-cta">View Forecast →</a>
     </div>
@@ -829,8 +835,10 @@
       function fetchCurrentWeather(lat, lng) {
         var windEl = document.getElementById('sheet-weather-wind');
         var tempEl = document.getElementById('sheet-weather-temp');
+        var elevEl = document.getElementById('sheet-weather-elev');
         if (windEl) windEl.textContent = '—';
         if (tempEl) tempEl.textContent = '—';
+        if (elevEl) elevEl.textContent = '';
         var params = new URLSearchParams({
           latitude: lat,
           longitude: lng,
@@ -857,12 +865,16 @@
             var tempFmt = window.GustySettings ? GustySettings.formatTemp(tempC) : { value: tempC != null ? Math.round(tempC) : '—', unit: '°C' };
             var windStr = windFmt.value !== '—' ? windFmt.value + ' ' + windFmt.unit + ' ' + degreesToCompass(dir) : '—';
             var tempStr = tempFmt.value !== '—' ? tempFmt.value + tempFmt.unit : '—';
+            var elev = data.elevation;
+            var elevStr = (elev != null && !isNaN(elev)) ? Math.round(elev).toLocaleString() + ' m' : '';
             if (windEl) windEl.textContent = windStr;
             if (tempEl) tempEl.textContent = tempStr;
+            if (elevEl) elevEl.textContent = elevStr;
           })
           .catch(function() {
             if (windEl) windEl.textContent = '—';
             if (tempEl) tempEl.textContent = '—';
+            if (elevEl) elevEl.textContent = '';
           });
       }
 
