@@ -707,8 +707,20 @@
         marker.setLngLat([lng, lat]);
         fetchReverseGeocode(lng, lat, function(name) {
           var coordsStr = formatCoords(lng, lat);
-          var displayName = isCoordinateLike(name) ? 'Dropped Pin' : name;
-          goToSelected(displayName, '—', coordsStr, lat, lng);
+          if (!isCoordinateLike(name)) {
+            goToSelected(name, '—', coordsStr, lat, lng);
+            return;
+          }
+          var geoNamesUrl = 'https://secure.geonames.org/findNearbyJSON?lat=' + lat + '&lng=' + lng + '&featureClass=T&maxRows=1&username=bradmacdonald';
+          fetch(geoNamesUrl)
+            .then(function(r) { return r.json(); })
+            .then(function(gn) {
+              var displayName = (gn.geonames && gn.geonames.length > 0 && gn.geonames[0].name) ? gn.geonames[0].name : 'Dropped Pin';
+              goToSelected(displayName, '—', coordsStr, lat, lng);
+            })
+            .catch(function() {
+              goToSelected('Dropped Pin', '—', coordsStr, lat, lng);
+            });
         });
       });
 
