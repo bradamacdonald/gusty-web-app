@@ -744,8 +744,8 @@
             if (requestId !== lastRequestId) return;
             var features = data.features || [];
             var needsFallback = features.length === 0 || onlyStreetOrAddress(features);
-            if (needsFallback) {
-              var geoNamesUrl = 'https://secure.geonames.org/searchJSON?name_startsWith=' + encodeURIComponent(query) + '&featureClass=T&country=CA&country=US&maxRows=5&username=bradmacdonald';
+            if (needsFallback && query.trim().length >= 4) {
+              var geoNamesUrl = 'https://secure.geonames.org/searchJSON?name_startsWith=' + encodeURIComponent(query) + '&featureClass=T&adminCode1=BC&country=CA&maxRows=5&username=bradmacdonald';
               fetch(geoNamesUrl)
                 .then(function(r) { return r.json(); })
                 .then(function(gn) {
@@ -765,7 +765,12 @@
           })
           .catch(function() {
             if (requestId !== lastRequestId) return;
-            var geoNamesUrl = 'https://secure.geonames.org/searchJSON?name_startsWith=' + encodeURIComponent(query) + '&featureClass=T&country=CA&country=US&maxRows=5&username=bradmacdonald';
+            if (query.trim().length < 4) {
+              searchBar.classList.remove('loading');
+              renderSuggestions([], []);
+              return;
+            }
+            var geoNamesUrl = 'https://secure.geonames.org/searchJSON?name_startsWith=' + encodeURIComponent(query) + '&featureClass=T&adminCode1=BC&country=CA&maxRows=5&username=bradmacdonald';
             fetch(geoNamesUrl)
               .then(function(r) { return r.json(); })
               .then(function(gn) {

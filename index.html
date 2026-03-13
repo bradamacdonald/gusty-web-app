@@ -457,15 +457,20 @@
         }
         var requestId = ++lastRequestId;
         var mapboxUrl = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' + encodeURIComponent(query) + '.json?access_token=' + MAPBOX_TOKEN + '&country=CA&proximity=-123.0%2C49.9&types=poi,place,locality,region&language=en&limit=5';
-        var geoNamesUrl = 'https://secure.geonames.org/searchJSON?name_startsWith=' + encodeURIComponent(query) + '&featureClass=T&country=CA&country=US&maxRows=5&username=bradmacdonald';
+        var geoNamesUrl = 'https://secure.geonames.org/searchJSON?name_startsWith=' + encodeURIComponent(query) + '&featureClass=T&adminCode1=BC&country=CA&maxRows=5&username=bradmacdonald';
+        var fetchGeoNames = query.trim().length >= 4;
 
-        Promise.all([
-          fetch(mapboxUrl).then(function(r) { return r.json(); }).catch(function() { return {}; }),
-          fetch(geoNamesUrl).then(function(r) { return r.json(); }).catch(function() { return {}; })
-        ]).then(function(results) {
+        var fetches = [fetch(mapboxUrl).then(function(r) { return r.json(); }).catch(function() { return {}; })];
+        if (fetchGeoNames) {
+          fetches.push(fetch(geoNamesUrl).then(function(r) { return r.json(); }).catch(function() { return {}; }));
+        } else {
+          fetches.push(Promise.resolve({}));
+        }
+
+        Promise.all(fetches).then(function(results) {
           if (requestId !== lastRequestId) return;
           var features = (results[0] && results[0].features) ? results[0].features : [];
-          var geonames = (results[1] && results[1].geonames) ? results[1].geonames : [];
+          var geonames = fetchGeoNames && results[1] && results[1].geonames ? results[1].geonames : [];
           renderSuggestions(features, geonames);
         });
       }
