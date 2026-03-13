@@ -562,11 +562,23 @@
       font-weight: var(--weight-medium);
       color: var(--color-text-primary);
     }
+    .daily-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    .daily-arrow {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      flex-shrink: 0;
+    }
     .daily-wind {
       font-family: var(--font-data);
       font-size: var(--text-sm);
       font-weight: var(--weight-medium);
-      color: var(--wind-strong);
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
     }
     .daily-wind .unit {
       color: var(--color-text-secondary);
@@ -575,13 +587,35 @@
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      margin-left: var(--space-2);
       flex-shrink: 0;
     }
     .daily-precip-dot.none { background: transparent; border: 1px solid var(--color-border); }
     .daily-precip-dot.trace { background: var(--precip-trace); }
     .daily-precip-dot.light { background: var(--precip-light); }
     .daily-precip-dot.heavy { background: var(--precip-heavy); }
+    .daily-condition-badge {
+      font-size: 10px;
+      font-weight: var(--weight-medium);
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .daily-condition-badge.favorable {
+      background: rgba(52, 211, 153, 0.15);
+      color: var(--color-go);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+    .daily-condition-badge.marginal {
+      background: rgba(251, 191, 36, 0.15);
+      color: var(--color-caution);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+    .daily-condition-badge.unfavorable {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--color-no-go);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
 
     /* ============================================================
        AVALANCHE CONDITIONS CARD
@@ -924,7 +958,7 @@
         longitude: lng,
         wind_speed_unit: 'kmh',
         timezone: 'America/Vancouver',
-        forecast_days: 2
+        forecast_days: 5
       };
 
       function windRampColor(kmh) {
@@ -961,7 +995,7 @@
         const params = new URLSearchParams({
           ...BASE_PARAMS,
           hourly: 'windspeed_10m,windgusts_10m,winddirection_10m,temperature_2m,dewpoint_2m,precipitation,cloudcover',
-          daily: 'windspeed_10m_max,windgusts_10m_max,precipitation_sum',
+          daily: 'windspeed_10m_max,windgusts_10m_max,wind_direction_10m_dominant,precipitation_sum',
           models: models || 'ecmwf_ifs025'
         });
         const url = 'https://api.open-meteo.com/v1/forecast?' + params.toString();
@@ -1139,18 +1173,26 @@
 
         for (let i = 0; i < d.time.length; i++) {
           const maxWind = d.windspeed_10m_max[i];
+          const windDir = d.wind_direction_10m_dominant && d.wind_direction_10m_dominant[i];
           const precip = d.precipitation_sum && d.precipitation_sum[i];
           const precipClass = !precip || precip === 0 ? 'none' : precip < 2 ? 'trace' : precip < 5 ? 'light' : 'heavy';
 
           var dispWind = window.GustySettings ? GustySettings.convertWindForDisplay(maxWind) : (maxWind != null ? Math.round(maxWind) : null);
           var windUnit = window.GustySettings ? GustySettings.getWindUnit() : 'km/h';
+          var condLabel = window.GustySettings ? GustySettings.getConditionDisplayLabel(maxWind) : (maxWind < 30 ? 'Favorable' : maxWind <= 60 ? 'Marginal' : 'Unfavorable');
+          var condClass = (maxWind != null && maxWind < 30) ? 'favorable' : (maxWind != null && maxWind <= 60) ? 'marginal' : 'unfavorable';
+
           const row = document.createElement('div');
           row.className = 'daily-row';
           row.innerHTML = '<span class="daily-day">' + formatDay(d.time[i]) + '</span>' +
-            '<span class="daily-wind" style="display:flex;align-items:center;">' +
+            '<span class="daily-right">' +
+            '<span class="daily-arrow" style="transform:rotate(' + (windDir != null ? windDir : 0) + 'deg)">↑</span>' +
+            '<span class="daily-wind">' +
             '<span class="daily-wind-range" style="color:' + windRampColor(maxWind || 0) + '">' + (dispWind != null ? dispWind : '—') + '</span> ' +
             '<span class="unit">' + windUnit + '</span>' +
             '<span class="daily-precip-dot ' + precipClass + '"></span>' +
+            '</span>' +
+            '<span class="daily-condition-badge ' + condClass + '">' + condLabel + '</span>' +
             '</span>';
           strip.appendChild(row);
         }

@@ -273,24 +273,43 @@
       text-decoration: none;
     }
 
-    /* ── BOTTOM CAPTION ── */
-    .caption {
+    /* ── BOTTOM FOOTER ── */
+    .footer-wrap {
       position: fixed;
       bottom: 28px;
       left: 50%;
       transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      text-align: center;
+      z-index: 3;
+    }
+    .caption {
       font-size: 11px;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--text-muted);
-      text-align: center;
       white-space: nowrap;
       opacity: 0;
       animation: fadeUpCaption 0.8s ease 0.9s forwards;
-      z-index: 3;
+    }
+    .footer-legal {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      opacity: 0;
+      animation: fadeUpCaption 0.8s ease 0.9s forwards;
+    }
+    .footer-legal a {
+      color: var(--color-text-muted);
+      text-decoration: none;
+    }
+    .footer-legal a:hover {
+      color: var(--accent);
     }
     @keyframes fadeUpCaption {
-      to { opacity: 1; transform: translate(-50%, 0); }
+      to { opacity: 1; }
     }
 
     /* ── ANIMATED WIND PATHS ── */
@@ -419,7 +438,10 @@
 
   </main>
 
-  <p class="caption">gusty.ca &nbsp;·&nbsp; BC backcountry &nbsp;·&nbsp; open-meteo powered</p>
+  <div class="footer-wrap">
+    <p class="caption">gusty.ca &nbsp;·&nbsp; BC backcountry &nbsp;·&nbsp; open-meteo powered</p>
+    <p class="footer-legal">© 2026 Everyday Designer &nbsp;·&nbsp; <a href="terms.html">Terms of Use</a> &nbsp;·&nbsp; <a href="privacy.html">Privacy Policy</a></p>
+  </div>
 
   <script>
     (function() {
