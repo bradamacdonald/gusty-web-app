@@ -1192,8 +1192,8 @@
           var heroIdx = Math.min(idx, (heroData.hourly.windspeed_10m.length || 1) - 1);
           var tempC = main.hourly.temperature_2m && main.hourly.temperature_2m[idx];
           renderWindHero(heroData, heroIdx, tempC);
-          renderHourlyStrip(main, idx, 12);
-          renderPrecipStrip(main, idx, 12);
+          renderHourlyStrip(main, idx, 24);
+          renderPrecipStrip(main, idx, 24);
           renderDailyStrip(main);
           renderModelComparison(main, gfs, gem, activeKey);
           renderConditionVerdict(heroData, idx, 12);
