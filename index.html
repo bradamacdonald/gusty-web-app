@@ -22,6 +22,7 @@
       --color-border: rgba(255, 255, 255, 0.06);
       --color-surface: #0F1A2E;
       --color-text-muted: #3A4F66;
+      --color-text-secondary: #6B84A0;
       --radius-full: 999px;
       --radius-md: 10px;
     }
@@ -308,6 +309,74 @@
     .footer-legal a:hover {
       color: var(--accent);
     }
+    .footer-legal a.legal-link {
+      cursor: pointer;
+    }
+
+    /* ── LEGAL BOTTOM SHEETS ── */
+    .legal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .legal-backdrop.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .legal-sheet {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--color-surface);
+      border-radius: 16px 16px 0 0;
+      max-height: 80vh;
+      overflow-y: auto;
+      z-index: 101;
+      transform: translateY(100%);
+      transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .legal-sheet.visible {
+      transform: translateY(0);
+    }
+    .legal-sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 20px 16px;
+      flex-shrink: 0;
+    }
+    .legal-sheet-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .legal-sheet-close {
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .legal-sheet-close svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+    }
+    .legal-sheet-body {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--color-text-secondary);
+      padding: 0 20px 40px;
+    }
+
     @keyframes fadeUpCaption {
       to { opacity: 1; }
     }
@@ -440,7 +509,34 @@
 
   <div class="footer-wrap">
     <p class="caption">gusty.ca &nbsp;·&nbsp; BC backcountry &nbsp;·&nbsp; open-meteo powered</p>
-    <p class="footer-legal">© 2026 Everyday Designer &nbsp;·&nbsp; <a href="terms.html">Terms of Use</a> &nbsp;·&nbsp; <a href="privacy.html">Privacy Policy</a></p>
+    <p class="footer-legal">© 2026 Everyday Designer &nbsp;·&nbsp; <a href="#" class="legal-link" data-sheet="terms">Terms of Use</a> &nbsp;·&nbsp; <a href="#" class="legal-link" data-sheet="privacy">Privacy Policy</a></p>
+  </div>
+
+  <!-- Legal bottom sheets -->
+  <div class="legal-backdrop" id="legal-backdrop"></div>
+
+  <div class="legal-sheet" id="legal-sheet-terms">
+    <div class="legal-sheet-header">
+      <h2 class="legal-sheet-title">Terms of Use</h2>
+      <button type="button" class="legal-sheet-close" id="legal-close-terms" aria-label="Close">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+      </button>
+    </div>
+    <div class="legal-sheet-body">
+      Gusty is provided by Everyday Designer as a free planning tool for informational purposes only. Forecasts are sourced from third-party weather models and are not guaranteed to be accurate. Do not rely solely on Gusty for safety-critical decisions including avalanche risk assessment. Everyday Designer is not liable for any loss, injury, or damage arising from use of this application. By using Gusty, you agree to these terms. We reserve the right to modify or discontinue the service at any time.
+    </div>
+  </div>
+
+  <div class="legal-sheet" id="legal-sheet-privacy">
+    <div class="legal-sheet-header">
+      <h2 class="legal-sheet-title">Privacy Policy</h2>
+      <button type="button" class="legal-sheet-close" id="legal-close-privacy" aria-label="Close">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+      </button>
+    </div>
+    <div class="legal-sheet-body">
+      Gusty does not collect or store personal information on any server. Saved locations and settings are stored locally on your device using browser localStorage and are never transmitted to Everyday Designer. Gusty uses Vercel Analytics to collect anonymous page view data including device type, country, and pages visited. No personally identifiable information is collected. Third-party services used: Open-Meteo, Mapbox, GeoNames, Buy Me a Coffee — each governed by their own privacy policies.
+    </div>
   </div>
 
   <script>
@@ -571,6 +667,36 @@
           hideDropdown();
         }
       });
+
+      /* Legal bottom sheets */
+      var backdrop = document.getElementById('legal-backdrop');
+      var termsSheet = document.getElementById('legal-sheet-terms');
+      var privacySheet = document.getElementById('legal-sheet-privacy');
+
+      function closeLegalSheets() {
+        backdrop.classList.remove('visible');
+        termsSheet.classList.remove('visible');
+        privacySheet.classList.remove('visible');
+      }
+
+      function openLegalSheet(sheetId) {
+        closeLegalSheets();
+        backdrop.classList.add('visible');
+        var sheet = document.getElementById('legal-sheet-' + sheetId);
+        if (sheet) sheet.classList.add('visible');
+      }
+
+      document.querySelectorAll('.legal-link').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          var sheet = link.getAttribute('data-sheet');
+          if (sheet) openLegalSheet(sheet);
+        });
+      });
+
+      backdrop.addEventListener('click', closeLegalSheets);
+      document.getElementById('legal-close-terms').addEventListener('click', closeLegalSheets);
+      document.getElementById('legal-close-privacy').addEventListener('click', closeLegalSheets);
     })();
   </script>
 </body>
