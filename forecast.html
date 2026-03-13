@@ -1189,9 +1189,9 @@
         const diffMs = now - lastRun;
         const diffMin = Math.floor(diffMs / 60000);
         const diffHr = Math.floor(diffMs / 3600000);
-        if (diffMin < 1) return 'run just now';
-        if (diffHr < 1) return 'run ' + diffMin + 'm ago';
-        return 'run ' + diffHr + 'h ago';
+        if (diffMin < 1) return 'Updated just now';
+        if (diffHr < 1) return 'Updated ' + diffMin + 'm ago';
+        return 'Updated ' + diffHr + 'h ago';
       }
 
       function renderModelComparison(ecmwf, gfs, gem, activeModelKey) {
