@@ -265,6 +265,48 @@
       color: var(--color-no-go);
       border-color: rgba(239, 68, 68, 0.3);
     }
+    .wind-hero-verdict-wrap {
+      position: relative;
+      display: inline-flex;
+    }
+    .wind-hero-verdict-wrap .wind-hero-verdict {
+      cursor: pointer;
+    }
+    .condition-popover {
+      position: absolute;
+      right: 0;
+      top: 100%;
+      margin-top: var(--space-2);
+      min-width: 220px;
+      max-width: 280px;
+      padding: var(--space-3);
+      background: var(--color-surface-elevated);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-md);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      z-index: 50;
+      display: none;
+    }
+    .condition-popover.visible {
+      display: block;
+    }
+    .condition-popover-name {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-1);
+    }
+    .condition-popover-wind {
+      font-family: var(--font-data);
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-2);
+    }
+    .condition-popover-oneliner {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      line-height: 1.4;
+    }
     .wind-hero-value-wrap {
       display: flex;
       align-items: baseline;
@@ -854,9 +896,16 @@
         <span class="wind-hero-value" id="wind-hero-value">—</span>
         <span class="wind-hero-unit">km/h</span>
       </div>
-      <div class="wind-hero-verdict" id="wind-hero-verdict">
-        <span class="dot"></span>
-        <span id="verdict-text">Favorable</span>
+      <div class="wind-hero-verdict-wrap">
+        <div class="wind-hero-verdict" id="wind-hero-verdict" role="button" tabindex="0" aria-haspopup="dialog" aria-expanded="false">
+          <span class="dot"></span>
+          <span id="verdict-text">Favorable</span>
+        </div>
+        <div class="condition-popover" id="condition-popover" role="dialog" aria-label="Condition details">
+          <div class="condition-popover-name" id="popover-name">—</div>
+          <div class="condition-popover-wind" id="popover-wind">—</div>
+          <div class="condition-popover-oneliner" id="popover-oneliner">—</div>
+        </div>
       </div>
     </div>
     <div class="wind-hero-elev">
@@ -990,6 +1039,33 @@
       const locationName = (decodedName && decodedName !== 'Location') ? decodedName : formatCoordinates(lat, lng);
 
       var apiElevation = null;
+      var _popoverCurrentWind = null;
+      var _popoverMaxWind = null;
+
+      function isHairMode() {
+        return localStorage.getItem('hairMode') === 'true' || localStorage.getItem('gusty_hair_mode') === 'true';
+      }
+
+      function getHairTier(kmh) {
+        if (kmh == null) return { name: '—', oneliner: '' };
+        var v = Number(kmh);
+        if (v <= 5) return { name: 'No Drama', oneliner: 'Barely a whisper. Hair is completely safe.' };
+        if (v <= 19) return { name: 'Hair Aware', oneliner: 'A gentle reminder that air exists.' };
+        if (v <= 28) return { name: 'Windswept', oneliner: 'Romantic movie hair. Slightly chaotic.' };
+        if (v <= 38) return { name: 'Character Building', oneliner: 'A toque is not optional.' };
+        if (v <= 49) return { name: 'Absolutely Feral', oneliner: 'Your hair has filed for independence.' };
+        if (v <= 61) return { name: 'Unhinged', oneliner: 'Forward progress is now a negotiation.' };
+        if (v <= 74) return { name: 'Beyond Help', oneliner: 'You ARE the weather event.' };
+        return { name: 'Do Not Go Outside', oneliner: 'gusty agrees with your hair on this one.' };
+      }
+
+      function getStandardTierTooltip(kmh) {
+        if (kmh == null) return '';
+        var v = Number(kmh);
+        if (v < 30) return 'Winds under 30 km/h.';
+        if (v <= 60) return 'Winds 30–60 km/h.';
+        return 'Winds over 60 km/h.';
+      }
 
       const BASE_PARAMS = {
         latitude: lat,
@@ -1092,6 +1168,7 @@
       function renderWindHero(data, idx, tempC) {
         const h = data.hourly;
         const speed = h.windspeed_10m[idx];
+        _popoverCurrentWind = speed;
         const gust = h.windgusts_10m && h.windgusts_10m[idx];
         const dir = h.winddirection_10m && h.winddirection_10m[idx];
 
@@ -1321,6 +1398,7 @@
           const v = h.windspeed_10m[i];
           if (v != null && v > maxWind) maxWind = v;
         }
+        _popoverMaxWind = maxWind;
 
         const verdict = document.getElementById('wind-hero-verdict');
         const textEl = document.getElementById('verdict-text');
@@ -1475,6 +1553,69 @@
         toggle.addEventListener('click', function() {
           panel.classList.toggle('collapsed');
           toggle.setAttribute('aria-label', panel.classList.contains('collapsed') ? 'Expand' : 'Collapse');
+        });
+      }
+
+      /* ----- Condition chip popover ----- */
+      var verdictEl = document.getElementById('wind-hero-verdict');
+      var popoverEl = document.getElementById('condition-popover');
+      var popoverName = document.getElementById('popover-name');
+      var popoverWind = document.getElementById('popover-wind');
+      var popoverOneliner = document.getElementById('popover-oneliner');
+
+      function updatePopoverContent() {
+        var wind = _popoverCurrentWind != null ? _popoverCurrentWind : _popoverMaxWind;
+        var maxWind = _popoverMaxWind;
+        var windUnit = window.GustySettings ? GustySettings.getWindUnit() : 'km/h';
+        var windDisp = window.GustySettings ? GustySettings.convertWindForDisplay(wind) : (wind != null ? Math.round(wind) : null);
+        if (isHairMode()) {
+          var tier = getHairTier(maxWind != null ? maxWind : wind);
+          popoverName.textContent = tier.name;
+          popoverWind.textContent = (windDisp != null ? windDisp : '—') + ' ' + windUnit;
+          popoverOneliner.textContent = tier.oneliner;
+        } else {
+          var label = window.GustySettings ? GustySettings.getConditionLabel(maxWind != null ? maxWind : wind) : (maxWind != null && maxWind < 30 ? 'Favorable' : maxWind != null && maxWind <= 60 ? 'Marginal' : 'Unfavorable');
+          popoverName.textContent = label;
+          popoverWind.textContent = (windDisp != null ? windDisp : '—') + ' ' + windUnit;
+          popoverOneliner.textContent = getStandardTierTooltip(maxWind != null ? maxWind : wind);
+        }
+      }
+
+      function showPopover() {
+        updatePopoverContent();
+        popoverEl.classList.add('visible');
+        verdictEl.setAttribute('aria-expanded', 'true');
+        setTimeout(function() {
+          document.addEventListener('click', handleOutsideClick);
+        }, 0);
+      }
+
+      function hidePopover() {
+        popoverEl.classList.remove('visible');
+        verdictEl.setAttribute('aria-expanded', 'false');
+        document.removeEventListener('click', handleOutsideClick);
+      }
+
+      function handleOutsideClick(e) {
+        if (!popoverEl.contains(e.target) && !verdictEl.contains(e.target)) {
+          hidePopover();
+        }
+      }
+
+      if (verdictEl && popoverEl) {
+        verdictEl.addEventListener('click', function(e) {
+          e.stopPropagation();
+          if (popoverEl.classList.contains('visible')) {
+            hidePopover();
+          } else {
+            showPopover();
+          }
+        });
+        verdictEl.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            verdictEl.click();
+          }
         });
       }
       function buildDetailUrl(model) {
