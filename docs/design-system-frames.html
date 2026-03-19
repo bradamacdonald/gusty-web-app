@@ -1,0 +1,982 @@
+<!-- 
+  EXPORT TO FIGMA INSTRUCTIONS
+  
+  1. Open this file in Chrome at 1440px viewport width
+  2. Use GoFullPage extension OR browser print → Save as PDF
+  3. To get individual frames:
+     - Open Chrome DevTools
+     - Set viewport to 1440px wide
+     - Use the "Capture node screenshot" on each section div
+     Or use a tool like Playwright to screenshot each section 
+     automatically (see script below)
+  4. Import PNG files into Figma as frames
+  5. Or use html.to.design Figma plugin to import the whole file
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gusty — Design System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,700;1,700&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+      background: #FFFFFF;
+    }
+    body { color: #0B1120; }
+
+    .frame {
+      width: 1440px;
+      margin: 0 auto;
+      padding: 80px;
+      background: #FFFFFF;
+      border-bottom: 1px solid #EEEEEE;
+    }
+    .section-header {
+      font-family: 'DM Mono', 'Menlo', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 48px;
+    }
+    .token-name {
+      font-family: 'DM Mono', 'Menlo', monospace;
+      font-size: 11px;
+      color: #888;
+      margin-top: 8px;
+    }
+
+    /* Cover */
+    .cover-frame {
+      min-height: 60vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .cover-wordmark {
+      font-family: 'Barlow', sans-serif;
+      font-weight: 700;
+      font-style: italic;
+      font-size: 120px;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      color: #0B1120;
+      line-height: 0.9;
+    }
+    .cover-wordmark span { color: #38BDF8; }
+    .cover-tagline {
+      font-size: 18px;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #888;
+      margin-top: 24px;
+    }
+    .cover-sub {
+      font-size: 13px;
+      color: #888;
+      margin-top: 64px;
+    }
+
+    /* Colour swatches */
+    .colour-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 32px;
+    }
+    .colour-group { margin-bottom: 48px; }
+    .colour-group-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 24px;
+    }
+    .colour-swatch {
+      width: 120px;
+      height: 120px;
+      border-radius: 10px;
+      border: 1px solid #EEEEEE;
+      margin-bottom: 8px;
+    }
+    .colour-swatch + .token-name { margin-top: 4px; }
+    .contrast-sample {
+      font-size: 12px;
+      margin-top: 8px;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .contrast-dark { background: #0B1120; color: #F0F4F8; }
+    .contrast-light { background: #F0F4F8; color: #0B1120; }
+
+    /* Typography */
+    .type-scale { display: flex; flex-direction: column; gap: 32px; }
+    .type-sample {
+      padding-bottom: 16px;
+      border-bottom: 1px solid #EEEEEE;
+    }
+    .type-sample:last-child { border-bottom: none; }
+    .type-label {
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      color: #888;
+      margin-top: 8px;
+    }
+
+    /* Spacing */
+    .spacing-row {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 16px;
+    }
+    .spacing-block {
+      height: 24px;
+      background: #38BDF8;
+      opacity: 0.3;
+      border-radius: 4px;
+    }
+    .spacing-label { font-family: 'DM Mono', monospace; font-size: 13px; color: #888; min-width: 80px; }
+
+    /* Radius */
+    .radius-grid { display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-end; }
+    .radius-sample {
+      width: 80px;
+      height: 80px;
+      background: #F5F7FA;
+      border: 1px solid #E8ECF1;
+    }
+
+    /* Shadows */
+    .shadow-grid { display: flex; gap: 32px; flex-wrap: wrap; }
+    .shadow-card {
+      width: 160px;
+      height: 100px;
+      background: #FFFFFF;
+      border-radius: 10px;
+      border: 1px solid #EEEEEE;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #888;
+    }
+
+    /* Icons */
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 24px;
+    }
+    .icon-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .icon-cell svg { stroke: #0B1120; }
+
+    /* Buttons */
+    .btn-grid { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+    .btn-group { margin-bottom: 32px; }
+    .btn-group-label { font-size: 11px; color: #888; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
+    .btn {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-weight: 500;
+      border-radius: 10px;
+      cursor: default;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-primary { background: #38BDF8; color: #0B1120; }
+    .btn-secondary { background: rgba(56,189,248,0.15); color: #38BDF8; border: 1px solid rgba(56,189,248,0.3); }
+    .btn-ghost { background: transparent; color: #0B1120; border: 1px solid rgba(0,0,0,0.08); }
+    .btn-destructive { background: rgba(239,68,68,0.15); color: #EF4444; border: 1px solid rgba(239,68,68,0.3); }
+    .btn-link { background: none; color: #38BDF8; }
+    .btn-sm { padding: 8px 16px; font-size: 13px; }
+    .btn-md { padding: 12px 20px; font-size: 15px; min-height: 44px; }
+    .btn-lg { padding: 16px 24px; font-size: 16px; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Form elements */
+    .form-grid { display: flex; flex-direction: column; gap: 32px; max-width: 400px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 10px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 15px;
+    }
+    .form-input:focus { outline: none; border-color: rgba(56,189,248,0.3); box-shadow: 0 0 0 2px rgba(56,189,248,0.15); }
+    .form-input.error { border-color: #EF4444; }
+    .form-input:disabled { background: #F5F7FA; color: #888; }
+    .form-helper { font-size: 11px; color: #888; margin-top: 4px; }
+    .toggle-wrap { display: flex; align-items: center; gap: 16px; }
+    .toggle {
+      width: 48px; height: 28px;
+      background: #E8ECF1;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 999px;
+      position: relative;
+    }
+    .toggle.on { background: rgba(56,189,248,0.15); border-color: rgba(56,189,248,0.3); }
+    .toggle-knob {
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 22px; height: 22px;
+      background: #8A9BB0;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .toggle.on .toggle-knob { transform: translateX(20px); background: #38BDF8; }
+    .checkbox-wrap, .radio-wrap { display: flex; align-items: center; gap: 12px; }
+    .select-wrap select {
+      padding: 8px 12px;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      background: #F5F7FA;
+      min-width: 120px;
+    }
+
+    /* Chips & Badges */
+    .chip-grid { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .chip-go { background: rgba(52,211,153,0.15); color: #34D399; border: 1px solid rgba(52,211,153,0.3); }
+    .chip-caution { background: rgba(251,191,36,0.15); color: #FBBF24; border: 1px solid rgba(251,191,36,0.3); }
+    .chip-no-go { background: rgba(239,68,68,0.15); color: #EF4444; border: 1px solid rgba(239,68,68,0.3); }
+    .chip-neutral { background: #E8ECF1; color: #4A5C72; border: 1px solid rgba(0,0,0,0.08); }
+    .chip-accent { background: rgba(56,189,248,0.15); color: #38BDF8; border: 1px solid rgba(56,189,248,0.3); }
+    .chip .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* Cards */
+    .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .card {
+      background: #FFFFFF;
+      border: 1px solid #E8ECF1;
+      border-radius: 10px;
+      padding: 24px;
+    }
+    .card-elevated { background: #E8ECF1; }
+    .card-title { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+    .card-desc { font-size: 13px; color: #4A5C72; line-height: 1.5; }
+
+    /* Navigation */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: #FFFFFF;
+      border: 1px solid #E8ECF1;
+      border-radius: 10px;
+    }
+    .nav-wordmark { font-family: 'Barlow', sans-serif; font-weight: 700; font-style: italic; font-size: 22px; }
+    .nav-items { display: flex; gap: 8px; }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 16px;
+      text-decoration: none;
+      color: #8A9BB0;
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: 10px;
+    }
+    .nav-item.active { color: #38BDF8; background: rgba(56,189,248,0.15); }
+    .nav-item:hover { color: #0B1120; }
+    .bottom-nav {
+      display: flex;
+      justify-content: space-around;
+      padding: 16px 24px;
+      background: #FFFFFF;
+      border: 1px solid #E8ECF1;
+      border-radius: 0 0 14px 14px;
+    }
+
+    /* Feedback */
+    .alert { padding: 16px 20px; border-radius: 10px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 12px; }
+    .alert-info { background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); color: #0B1120; }
+    .alert-success { background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.3); color: #0B1120; }
+    .alert-warning { background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.3); color: #0B1120; }
+    .alert-error { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #0B1120; }
+    .empty-state { text-align: center; padding: 48px 24px; color: #8A9BB0; font-size: 15px; }
+    .skeleton { height: 20px; background: linear-gradient(90deg, #E8ECF1 25%, #F5F7FA 50%, #E8ECF1 75%); background-size: 200% 100%; animation: skeleton 1.5s infinite; border-radius: 4px; }
+    @keyframes skeleton { to { background-position: 200% 0; } }
+    .spinner { width: 40px; height: 40px; border: 3px solid #E8ECF1; border-top-color: #38BDF8; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Organisms */
+    .wind-hero {
+      background: #FFFFFF;
+      border: 1px solid #E8ECF1;
+      border-radius: 10px;
+      padding: 24px;
+      max-width: 400px;
+    }
+    .wind-hero-value { font-family: 'DM Mono', monospace; font-size: 40px; font-weight: 500; color: #F97316; }
+    .sheet-cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 16px;
+      background: #38BDF8;
+      color: #0B1120;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      text-decoration: none;
+    }
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      background: #F5F7FA;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 10px;
+      max-width: 360px;
+    }
+    .search-bar svg { stroke: #4A5C72; flex-shrink: 0; }
+    .search-bar input { flex: 1; border: none; background: none; font-size: 15px; outline: none; }
+  </style>
+</head>
+<body>
+
+<!-- [00] COVER -->
+<section class="frame cover-frame">
+  <div class="section-header">00 · COVER</div>
+  <h1 class="cover-wordmark">GUST<span>Y</span></h1>
+  <p class="cover-tagline">Design System</p>
+  <p class="cover-sub">gusty.ca · Mountain wind forecasts · March 2026</p>
+  <p class="token-name">Barlow 700 italic · Inter 400 · 1440×80 frame</p>
+</section>
+
+<!-- [01] FOUNDATIONS — COLOUR -->
+<section class="frame">
+  <div class="section-header">01 · FOUNDATIONS — COLOUR</div>
+  
+  <div class="colour-group">
+    <div class="colour-group-title">Brand</div>
+    <div class="colour-grid">
+      <div>
+        <div class="colour-swatch" style="background:#38BDF8"></div>
+        <p class="token-name">--color-accent</p>
+        <p class="token-name">#38BDF8</p>
+        <div class="contrast-sample contrast-dark">Dark text</div>
+      </div>
+      <div>
+        <div class="colour-swatch" style="background:rgba(56,189,248,0.15)"></div>
+        <p class="token-name">--color-accent-dim</p>
+        <p class="token-name">rgba(56,189,248,0.15)</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="colour-group">
+    <div class="colour-group-title">Neutral</div>
+    <div class="colour-grid">
+      <div>
+        <div class="colour-swatch" style="background:#0B1120"></div>
+        <p class="token-name">--color-bg</p>
+        <p class="token-name">#0B1120</p>
+        <div class="contrast-sample contrast-light">Light text</div>
+      </div>
+      <div>
+        <div class="colour-swatch" style="background:#111827"></div>
+        <p class="token-name">--color-surface</p>
+        <p class="token-name">#111827</p>
+      </div>
+      <div>
+        <div class="colour-swatch" style="background:#1A2333"></div>
+        <p class="token-name">--color-surface-elevated</p>
+        <p class="token-name">#1A2333</p>
+      </div>
+      <div>
+        <div class="colour-swatch" style="background:#F0F4F8"></div>
+        <p class="token-name">--color-text-primary</p>
+        <p class="token-name">#F0F4F8</p>
+        <div class="contrast-sample contrast-dark">Dark text</div>
+      </div>
+      <div>
+        <div class="colour-swatch" style="background:#8A9BB0"></div>
+        <p class="token-name">--color-text-secondary</p>
+        <p class="token-name">#8A9BB0</p>
+      </div>
+      <div>
+        <div class="colour-swatch" style="background:#4A5C72"></div>
+        <p class="token-name">--color-text-muted</p>
+        <p class="token-name">#4A5C72</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="colour-group">
+    <div class="colour-group-title">Feedback (Wind / Condition)</div>
+    <div class="colour-grid">
+      <div>
+        <div class="colour-swatch" style="background:#34D399"></div>
+        <p class="token-name">--wind-calm / --color-go</p>
+        <p class="token-name">#34D399</p>
+      </div>
+      <div>
+        <div class="colour-swatch" style="background:#A3E635"></div>
+        <p class="token-name">--wind-light</p>
+        <p class="token-name">#A3E635</p>
+      </div>
+      <div>
+        <div class="colour-swatch" style="background:#FBBF24"></div>
+        <p class="token-name">--wind-moderate / --color-caution</p>
+        <p class="token-name">#FBBF24</p>
+      </div>
+      <div>
+        <div class="colour-swatch" style="background:#F97316"></div>
+        <p class="token-name">--wind-strong</p>
+        <p class="token-name">#F97316</p>
+      </div>
+      <div>
+        <div class="colour-swatch" style="background:#EF4444"></div>
+        <p class="token-name">--wind-severe / --color-no-go</p>
+        <p class="token-name">#EF4444</p>
+      </div>
+      <div>
+        <div class="colour-swatch" style="background:#C026D3"></div>
+        <p class="token-name">--wind-extreme</p>
+        <p class="token-name">#C026D3</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="colour-group">
+    <div class="colour-group-title">Precipitation</div>
+    <div class="colour-grid">
+      <div>
+        <div class="colour-swatch" style="background:rgba(147,197,253,0.55)"></div>
+        <p class="token-name">--precip-light</p>
+        <p class="token-name">rgba(147,197,253,0.55)</p>
+      </div>
+      <div>
+        <div class="colour-swatch" style="background:rgba(96,165,250,0.85)"></div>
+        <p class="token-name">--precip-heavy</p>
+        <p class="token-name">rgba(96,165,250,0.85)</p>
+      </div>
+      <div>
+        <div class="colour-swatch" style="background:rgba(226,232,240,0.70)"></div>
+        <p class="token-name">--precip-snow</p>
+        <p class="token-name">rgba(226,232,240,0.70)</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- [02] FOUNDATIONS — TYPOGRAPHY -->
+<section class="frame">
+  <div class="section-header">02 · FOUNDATIONS — TYPOGRAPHY</div>
+  
+  <p style="font-family:'Barlow',sans-serif;font-size:28px;font-weight:700;font-style:italic;margin-bottom:32px;">Barlow — Display / Wordmark</p>
+  <p style="font-family:'Inter',system-ui,sans-serif;font-size:28px;margin-bottom:8px;">Inter — UI</p>
+  <p style="font-family:'DM Mono',monospace;font-size:28px;margin-bottom:48px;">DM Mono — Data</p>
+
+  <div class="type-scale">
+    <div class="type-sample">
+      <p style="font-family:'Inter';font-size:40px;font-weight:500;line-height:1.15;">The quick brown fox</p>
+      <p class="type-label">--text-3xl · 40px · weight 500 · leading 1.15 · hero wind value</p>
+    </div>
+    <div class="type-sample">
+      <p style="font-family:'Inter';font-size:28px;font-weight:500;">The quick brown fox</p>
+      <p class="type-label">--text-2xl · 28px · weight 500 · large data</p>
+    </div>
+    <div class="type-sample">
+      <p style="font-family:'Inter';font-size:22px;font-weight:600;letter-spacing:-0.025em;">The quick brown fox</p>
+      <p class="type-label">--text-xl · 22px · weight 600 · location name</p>
+    </div>
+    <div class="type-sample">
+      <p style="font-family:'Inter';font-size:18px;font-weight:600;">The quick brown fox</p>
+      <p class="type-label">--text-lg · 18px · weight 600 · section headers</p>
+    </div>
+    <div class="type-sample">
+      <p style="font-family:'Inter';font-size:15px;font-weight:400;">The quick brown fox jumps over the lazy dog</p>
+      <p class="type-label">--text-base · 15px · weight 400 · body</p>
+    </div>
+    <div class="type-sample">
+      <p style="font-family:'Inter';font-size:13px;font-weight:500;">The quick brown fox</p>
+      <p class="type-label">--text-sm · 13px · weight 500 · secondary labels</p>
+    </div>
+    <div class="type-sample">
+      <p style="font-family:'Inter';font-size:11px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;">The quick brown fox</p>
+      <p class="type-label">--text-xs · 11px · weight 500 · section labels</p>
+    </div>
+  </div>
+
+  <p class="token-name" style="margin-top:24px;">Weights in use: 300 (Barlow light), 400, 500, 600, 700 (Barlow bold italic)</p>
+</section>
+
+<!-- [03] FOUNDATIONS — SPACING & RADIUS -->
+<section class="frame">
+  <div class="section-header">03 · FOUNDATIONS — SPACING & RADIUS</div>
+  
+  <h4 style="font-size:13px;font-weight:600;margin-bottom:24px;">Spacing scale</h4>
+  <div class="spacing-row">
+    <span class="spacing-label">--space-1</span>
+    <div class="spacing-block" style="width:4px"></div>
+    <span class="token-name">4px</span>
+  </div>
+  <div class="spacing-row">
+    <span class="spacing-label">--space-2</span>
+    <div class="spacing-block" style="width:8px"></div>
+    <span class="token-name">8px</span>
+  </div>
+  <div class="spacing-row">
+    <span class="spacing-label">--space-3</span>
+    <div class="spacing-block" style="width:12px"></div>
+    <span class="token-name">12px</span>
+  </div>
+  <div class="spacing-row">
+    <span class="spacing-label">--space-4</span>
+    <div class="spacing-block" style="width:16px"></div>
+    <span class="token-name">16px</span>
+  </div>
+  <div class="spacing-row">
+    <span class="spacing-label">--space-5</span>
+    <div class="spacing-block" style="width:20px"></div>
+    <span class="token-name">20px</span>
+  </div>
+  <div class="spacing-row">
+    <span class="spacing-label">--space-6</span>
+    <div class="spacing-block" style="width:24px"></div>
+    <span class="token-name">24px</span>
+  </div>
+  <div class="spacing-row">
+    <span class="spacing-label">--space-8</span>
+    <div class="spacing-block" style="width:32px"></div>
+    <span class="token-name">32px</span>
+  </div>
+  <div class="spacing-row">
+    <span class="spacing-label">--space-16</span>
+    <div class="spacing-block" style="width:64px"></div>
+    <span class="token-name">64px</span>
+  </div>
+
+  <h4 style="font-size:13px;font-weight:600;margin:48px 0 24px;">Border radius</h4>
+  <div class="radius-grid">
+    <div>
+      <div class="radius-sample" style="border-radius:6px"></div>
+      <p class="token-name">--radius-sm · 6px</p>
+    </div>
+    <div>
+      <div class="radius-sample" style="border-radius:10px"></div>
+      <p class="token-name">--radius-md · 10px</p>
+    </div>
+    <div>
+      <div class="radius-sample" style="border-radius:14px"></div>
+      <p class="token-name">--radius-lg · 14px</p>
+    </div>
+    <div>
+      <div class="radius-sample" style="width:100px;height:36px;border-radius:999px"></div>
+      <p class="token-name">--radius-full · 999px</p>
+    </div>
+  </div>
+</section>
+
+<!-- [04] FOUNDATIONS — SHADOWS & ELEVATION -->
+<section class="frame">
+  <div class="section-header">04 · FOUNDATIONS — SHADOWS & ELEVATION</div>
+  
+  <div class="shadow-grid">
+    <div>
+      <div class="shadow-card" style="box-shadow:0 1px 2px rgba(0,0,0,0.1)">Segmented active</div>
+      <p class="token-name">0 1px 2px rgba(0,0,0,0.1)</p>
+    </div>
+    <div>
+      <div class="shadow-card" style="box-shadow:0 1px 3px rgba(0,0,0,0.4)">--shadow-sm</div>
+      <p class="token-name">0 1px 3px rgba(0,0,0,0.4)</p>
+    </div>
+    <div>
+      <div class="shadow-card" style="box-shadow:0 4px 12px rgba(0,0,0,0.5)">--shadow-md</div>
+      <p class="token-name">0 4px 12px rgba(0,0,0,0.5)</p>
+    </div>
+    <div>
+      <div class="shadow-card" style="box-shadow:0 8px 24px rgba(0,0,0,0.3)">Condition popover</div>
+      <p class="token-name">0 8px 24px rgba(0,0,0,0.3)</p>
+    </div>
+    <div>
+      <div class="shadow-card" style="box-shadow:0 12px 32px rgba(0,0,0,0.6)">--shadow-lg</div>
+      <p class="token-name">0 12px 32px rgba(0,0,0,0.6)</p>
+    </div>
+  </div>
+</section>
+
+<!-- [05] ATOMS — ICONS -->
+<section class="frame">
+  <div class="section-header">05 · ATOMS — ICONS</div>
+  
+  <p class="token-name" style="margin-bottom:24px;">Heroicons (stroke 1.5) · 24×24 default</p>
+  <div class="icon-grid">
+    <div class="icon-cell">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+      <span class="token-name">search</span>
+    </div>
+    <div class="icon-cell">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0 1 15 0Z"/></svg>
+      <span class="token-name">location</span>
+    </div>
+    <div class="icon-cell">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z"/></svg>
+      <span class="token-name">bookmark</span>
+    </div>
+    <div class="icon-cell">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+      <span class="token-name">settings</span>
+    </div>
+    <div class="icon-cell">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
+      <span class="token-name">back</span>
+    </div>
+    <div class="icon-cell">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+      <span class="token-name">share</span>
+    </div>
+    <div class="icon-cell">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+      <span class="token-name">close</span>
+    </div>
+    <div class="icon-cell">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 18 9-11 4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"/></svg>
+      <span class="token-name">mountain</span>
+    </div>
+    <div class="icon-cell">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v9m0 0a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm-9 9a9 9 0 1 1 18 0 9 9 0 0 1-18 0Z"/></svg>
+      <span class="token-name">compass (16px)</span>
+    </div>
+    <div class="icon-cell">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"/></svg>
+      <span class="token-name">wind (16px)</span>
+    </div>
+    <div class="icon-cell">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"/></svg>
+      <span class="token-name">thermometer (16px)</span>
+    </div>
+    <div class="icon-cell">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg>
+      <span class="token-name">chevron-up</span>
+    </div>
+    <div class="icon-cell">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" width="24" height="24"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
+      <span class="token-name">drag-handle</span>
+    </div>
+    <div class="icon-cell">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
+      <span class="token-name">trash</span>
+    </div>
+    <div class="icon-cell">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+      <span class="token-name">check</span>
+    </div>
+  </div>
+</section>
+
+<!-- [06] ATOMS — BUTTONS -->
+<section class="frame">
+  <div class="section-header">06 · ATOMS — BUTTONS</div>
+  
+  <div class="btn-group">
+    <div class="btn-group-label">Primary · sizes</div>
+    <div class="btn-grid">
+      <div>
+        <button class="btn btn-primary btn-sm">View Forecast →</button>
+        <p class="token-name">btn-primary · sm</p>
+      </div>
+      <div>
+        <button class="btn btn-primary btn-md">View Forecast →</button>
+        <p class="token-name">btn-primary · md</p>
+      </div>
+      <div>
+        <button class="btn btn-primary btn-lg">View Forecast →</button>
+        <p class="token-name">btn-primary · lg</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <div class="btn-group-label">Variants</div>
+    <div class="btn-grid">
+      <button class="btn btn-primary btn-md">Primary</button>
+      <button class="btn btn-secondary btn-md">Secondary</button>
+      <button class="btn btn-ghost btn-md">Ghost</button>
+      <button class="btn btn-destructive btn-md">Destructive</button>
+      <button class="btn btn-link btn-md">Link</button>
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <div class="btn-group-label">States</div>
+    <div class="btn-grid">
+      <button class="btn btn-primary btn-md">Default</button>
+      <button class="btn btn-secondary btn-md">Retry (accent outline)</button>
+      <button class="btn btn-primary btn-md" disabled>Disabled</button>
+    </div>
+  </div>
+  <p class="token-name" style="margin-top:16px;">Icon buttons: 44×44 min touch target · back, share, save, settings, close</p>
+</section>
+
+<!-- [07] ATOMS — FORM ELEMENTS -->
+<section class="frame">
+  <div class="section-header">07 · ATOMS — FORM ELEMENTS</div>
+  
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Text input · default</label>
+      <input type="text" class="form-input" placeholder="Search a peak, trailhead, or spot…" value="">
+      <p class="form-helper">--radius-md · 12px 20px padding</p>
+    </div>
+    <div class="form-group">
+      <label>Text input · focus</label>
+      <input type="text" class="form-input" placeholder="Focused state" value="Garibaldi Lake" style="border-color:rgba(56,189,248,0.3);box-shadow:0 0 0 2px rgba(56,189,248,0.15)">
+      <p class="token-name">--color-accent-border focus ring</p>
+    </div>
+    <div class="form-group">
+      <label>Text input · error</label>
+      <input type="text" class="form-input error" placeholder="Error state" value="Invalid">
+      <p class="token-name">border-color: --color-no-go</p>
+    </div>
+    <div class="form-group">
+      <label>Text input · disabled</label>
+      <input type="text" class="form-input" disabled placeholder="Disabled" value="">
+    </div>
+    <div class="form-group">
+      <label>Select / dropdown</label>
+      <div class="select-wrap">
+        <select>
+          <option>ECMWF</option>
+          <option>GFS</option>
+          <option>GEM</option>
+          <option>HRRR</option>
+        </select>
+      </div>
+      <p class="token-name">model-select · --font-data · --text-sm</p>
+    </div>
+    <div class="form-group">
+      <label>Toggle · off / on</label>
+      <div class="toggle-wrap">
+        <div class="toggle"><span class="toggle-knob"></span></div>
+        <span>Off</span>
+      </div>
+      <div class="toggle-wrap" style="margin-top:8px">
+        <div class="toggle on"><span class="toggle-knob"></span></div>
+        <span>On (Hair Mode)</span>
+      </div>
+      <p class="token-name">48×28 · --radius-full · knob 22px</p>
+    </div>
+    <div class="form-group">
+      <label>Segmented control</label>
+      <div style="display:flex;background:#E8ECF1;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:4px;gap:4px;max-width:280px">
+        <button style="flex:1;padding:8px 12px;background:#FFFFFF;border:1px solid rgba(0,0,0,0.08);border-radius:6px;font-size:13px;font-weight:500;color:#38BDF8;box-shadow:0 1px 2px rgba(0,0,0,0.1)">Metric</button>
+        <button style="flex:1;padding:8px 12px;background:transparent;border:none;border-radius:6px;font-size:13px;font-weight:500;color:#8A9BB0">Imperial</button>
+      </div>
+      <p class="token-name">segmented-option · active state</p>
+    </div>
+  </div>
+</section>
+
+<!-- [08] ATOMS — CHIPS & BADGES -->
+<section class="frame">
+  <div class="section-header">08 · ATOMS — CHIPS & BADGES</div>
+  
+  <div class="chip-grid">
+    <span class="chip chip-go"><span class="dot"></span>Favorable</span>
+    <span class="chip chip-caution"><span class="dot"></span>Marginal</span>
+    <span class="chip chip-no-go"><span class="dot"></span>Unfavorable</span>
+    <span class="chip chip-neutral">1,580 m</span>
+    <span class="chip chip-accent">GFS</span>
+    <span class="chip chip-go">No Drama</span>
+    <span class="chip chip-caution">Windswept</span>
+    <span class="chip chip-no-go">Do Not Go Outside</span>
+  </div>
+  <p class="token-name" style="margin-top:24px;">condition-badge · elevation-chip · model-tag · wind-hero-verdict · --radius-full</p>
+</section>
+
+<!-- [09] MOLECULES — CARDS -->
+<section class="frame">
+  <div class="section-header">09 · MOLECULES — CARDS</div>
+  
+  <div class="card-grid">
+    <div class="card">
+      <h3 class="card-title">Wind Hero</h3>
+      <p class="card-desc">67 km/h · NE · gusts to 89 km/h</p>
+      <span class="chip chip-caution" style="margin-top:12px"><span class="dot"></span>Marginal</span>
+      <p class="token-name" style="margin-top:12px">wind-hero · --radius-md</p>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Spot Card</h3>
+      <p class="card-desc">Garibaldi Lake TH · 1,580 m · WSW</p>
+      <span class="chip chip-go" style="margin-top:8px"><span class="dot"></span>Favorable</span>
+      <p style="font-family:'DM Mono';font-size:18px;font-weight:500;color:#34D399;margin-top:8px">18 km/h</p>
+      <p class="token-name" style="margin-top:12px">spot-card · drag handle</p>
+    </div>
+    <div class="card card-elevated">
+      <h3 class="card-title">Model Panel</h3>
+      <p class="card-desc">GFS 42 · ECMWF 38 · GEM 45 km/h</p>
+      <p class="token-name" style="margin-top:12px">model-panel · --color-surface-elevated</p>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Avalanche Card</h3>
+      <p class="card-desc">Moderate · Wind Slab, Cornices. Avoid steep, wind-loaded terrain.</p>
+      <a href="#" style="font-size:11px;color:#4A5C72">avalanche.ca →</a>
+      <p class="token-name" style="margin-top:12px">avalanche-card</p>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Daily Row</h3>
+      <p class="card-desc">Mon · 58 km/h · ↑ · ●</p>
+      <span class="chip chip-caution" style="margin-top:8px">Marginal</span>
+      <p class="token-name" style="margin-top:12px">daily-strip · daily-row</p>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Bottom Sheet (peek)</h3>
+      <p class="card-desc">Garibaldi Lake TH · View Forecast →</p>
+      <p class="token-name" style="margin-top:12px">bottom-sheet · sheet-cta</p>
+    </div>
+  </div>
+</section>
+
+<!-- [10] MOLECULES — NAVIGATION -->
+<section class="frame">
+  <div class="section-header">10 · MOLECULES — NAVIGATION</div>
+  
+  <div class="nav-bar" style="margin-bottom:24px">
+    <span class="nav-wordmark">GUSTY</span>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost btn-sm">←</button>
+      <select style="padding:6px 12px;border:1px solid rgba(0,0,0,0.13);border-radius:10px;background:#1A2333;color:#F0F4F8;font-family:'DM Mono';font-size:13px">
+        <option>ECMWF</option>
+      </select>
+    </div>
+  </div>
+  <p class="token-name" style="margin-bottom:32px">top-bar · back-btn · model-select (detail page)</p>
+
+  <div class="nav-bar" style="margin-bottom:24px">
+    <span class="nav-wordmark">GUSTY</span>
+    <div class="nav-items">
+      <a href="#" class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0 1 15 0Z"/></svg>Location</a>
+      <a href="#" class="nav-item active"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>Search</a>
+      <a href="#" class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z"/></svg>Saved</a>
+      <a href="#" class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>Settings</a>
+    </div>
+  </div>
+  <p class="token-name">bottom-nav · nav-item · active: --color-accent + --color-accent-dim bg</p>
+</section>
+
+<!-- [11] MOLECULES — FEEDBACK -->
+<section class="frame">
+  <div class="section-header">11 · MOLECULES — FEEDBACK</div>
+  
+  <div class="alert alert-info">Forecast updated 2h ago. Models agree within 5 km/h.</div>
+  <p class="token-name">alert-info</p>
+  <div class="alert alert-success">Location saved to your spots.</div>
+  <p class="token-name">alert-success</p>
+  <div class="alert alert-warning">Marginal conditions — winds 30–60 km/h expected.</div>
+  <p class="token-name">alert-warning</p>
+  <div class="alert alert-error">Failed to load forecast. Check connection and retry.</div>
+  <p class="token-name">alert-error</p>
+
+  <div class="empty-state" style="margin-top:32px">
+    No saved spots yet — search for a location to get started.
+  </div>
+  <p class="token-name">empty-state</p>
+
+  <div style="margin-top:32px;display:flex;align-items:center;gap:24px">
+    <div class="spinner"></div>
+    <span style="font-size:13px;color:#8A9BB0">Loading forecast…</span>
+  </div>
+  <p class="token-name">loading-spinner · loading-text</p>
+
+  <div style="margin-top:32px;display:flex;flex-direction:column;gap:12px;max-width:300px">
+    <div class="skeleton" style="width:60%"></div>
+    <div class="skeleton" style="width:100%"></div>
+    <div class="skeleton" style="width:80%"></div>
+  </div>
+  <p class="token-name">skeleton (no explicit component in codebase; pattern for loading)</p>
+</section>
+
+<!-- [12] ORGANISMS -->
+<section class="frame">
+  <div class="section-header">12 · ORGANISMS</div>
+  
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start">
+    <div>
+      <h4 style="font-size:11px;color:#888;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.1em">Wind Hero + CTA</h4>
+      <div class="wind-hero">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <span class="wind-hero-value">67</span>
+            <span style="font-family:'DM Mono';font-size:18px;color:#8A9BB0"> km/h</span>
+          </div>
+          <span class="chip chip-caution"><span class="dot"></span>Marginal</span>
+        </div>
+        <p style="font-size:13px;color:#8A9BB0;margin-top:12px">NE · gusts to 89 km/h</p>
+        <p style="font-size:11px;color:#4A5C72;margin-top:8px">1,580 m</p>
+        <a href="#" class="sheet-cta" style="margin-top:20px">View Forecast →</a>
+      </div>
+      <p class="token-name">wind-hero · wind-hero-verdict · sheet-cta</p>
+    </div>
+    <div>
+      <h4 style="font-size:11px;color:#888;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.1em">Search bar + dropdown</h4>
+      <div class="search-bar">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+        <input type="text" placeholder="Search a peak, trailhead, or spot…" style="border:none;background:none;font-size:15px;outline:none">
+      </div>
+      <div style="margin-top:4px;background:#FFFFFF;border:1px solid #E8ECF1;border-radius:0 0 10px 10px;padding:8px 0;max-width:360px">
+        <div style="padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="20" height="20" style="color:#4A5C72"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0 1 15 0Z"/></svg>
+          <span>Garibaldi Lake TH</span>
+          <span style="margin-left:auto;font-size:13px;color:#4A5C72">BC</span>
+        </div>
+      </div>
+      <p class="token-name">search-bar · suggestions-list · suggestion-item</p>
+    </div>
+  </div>
+
+  <div style="margin-top:48px">
+    <h4 style="font-size:11px;color:#888;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.1em">Legal bottom sheet</h4>
+    <div style="background:#FFFFFF;border:1px solid #E8ECF1;border-radius:14px 14px 0 0;padding:20px;max-width:400px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h3 style="font-size:18px;font-weight:600">Terms of Use</h3>
+        <button style="background:none;border:none;padding:8px;cursor:pointer">✕</button>
+      </div>
+      <p style="font-size:14px;line-height:1.7;color:#8A9BB0">Gusty is provided by Everyday Designer as a free planning tool…</p>
+    </div>
+    <p class="token-name">legal-sheet · legal-backdrop · 350ms cubic-bezier(0.4,0,0.2,1)</p>
+  </div>
+</section>
+
+</body>
+</html>
