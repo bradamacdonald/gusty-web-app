@@ -1,6 +1,0 @@
-This favicon was generated using the following font:
-
-- Font Title: Barlow
-- Font Author: undefined
-- Font Source: https://fonts.gstatic.com/s/barlow/v12/7cHsv4kjgoGqM7E_CfOc5loptzsrd6m9.ttf
-- Font License: undefined)
