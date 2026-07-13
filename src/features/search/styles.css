@@ -1,5 +1,15 @@
 @import '../../styles/shared.css';
 
+/* Full-height frame so the map can flex-fill remaining space */
+.app-frame {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+}
 
 /* TOP BAR */
 .top-bar {
@@ -151,8 +161,9 @@
 
 /* MAP */
 .map-placeholder {
-      flex: 1;
-      min-height: 200px;
+      flex: 1 1 auto;
+      min-height: 0;
+      align-self: stretch;
       background: var(--color-surface);
       position: relative;
       overflow: hidden;
@@ -160,7 +171,6 @@
     #map {
       width: 100%;
       height: 100%;
-      min-height: 200px;
       position: absolute;
       inset: 0;
       filter: saturate(1.25) brightness(1.15);
