@@ -20,9 +20,20 @@
 <!-- Topographic background -->
   <div class="topo-bg">
     <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <!-- Single wind filament — stroke only, short dash travels the path -->
+      <defs>
+        <!-- Brightness travels along the full stroke; line stays continuously visible -->
+        <linearGradient id="wind-flow" gradientUnits="userSpaceOnUse" x1="-200" y1="390" x2="400" y2="368">
+          <stop offset="0%" stop-color="rgba(56,189,248,0.18)" />
+          <stop offset="38%" stop-color="rgba(56,189,248,0.18)" />
+          <stop offset="50%" stop-color="rgba(56,189,248,0.48)" />
+          <stop offset="62%" stop-color="rgba(56,189,248,0.18)" />
+          <stop offset="100%" stop-color="rgba(56,189,248,0.18)" />
+          <animate attributeName="x1" values="-200;1240;-200" dur="11s" repeatCount="indefinite" />
+          <animate attributeName="x2" values="400;1840;400" dur="11s" repeatCount="indefinite" />
+        </linearGradient>
+      </defs>
       <path class="w"
-        stroke="rgba(56,189,248,0.38)"
+        stroke="url(#wind-flow)"
         stroke-width="1"
         stroke-linecap="round"
         vector-effect="non-scaling-stroke"

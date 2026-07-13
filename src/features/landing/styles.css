@@ -374,19 +374,18 @@
     }
 
     /* ── ANIMATED WIND LINE ── */
-    /* Short dash + long gap = thin filament traveling the path, not a lit band */
+    /* Full path always visible; gradient shimmer suggests flow along the curve */
     .topo-bg svg path.w {
       fill: none;
-      stroke-dasharray: 72 1728;
-      stroke-dashoffset: 0;
-      animation: flowWind 8s linear infinite;
     }
 
-    @keyframes flowWind {
-      0%   { stroke-dashoffset: 0; opacity: 0; }
-      8%   { opacity: 1; }
-      88%  { opacity: 1; }
-      100% { stroke-dashoffset: -1800; opacity: 0; }
+    @media (prefers-reduced-motion: reduce) {
+      .topo-bg svg path.w {
+        stroke: rgba(56, 189, 248, 0.32);
+      }
+      .topo-bg svg #wind-flow animate {
+        display: none;
+      }
     }
 
     @keyframes fadeUp {
