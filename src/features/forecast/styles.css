@@ -446,7 +446,8 @@ body {
     }
     .model-name-row {
       display: flex;
-      align-items: baseline;
+      align-items: center;
+      flex-wrap: wrap;
       gap: var(--space-2);
     }
     .model-name {
@@ -455,12 +456,26 @@ body {
       font-weight: var(--weight-medium);
       color: var(--color-text-secondary);
     }
+    .model-role {
+      font-size: 10px;
+      font-weight: var(--weight-medium);
+      letter-spacing: 0.02em;
+      color: var(--color-text-muted);
+      padding: 1px 6px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+    }
     .model-run-time {
       font-size: var(--text-xs);
       color: var(--color-text-muted);
       font-weight: var(--weight-regular);
     }
     .model-row.active .model-name {
+      color: var(--color-accent);
+    }
+    .model-row.active .model-role {
+      border-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
       color: var(--color-accent);
     }
     .model-active-badge {
@@ -480,6 +495,134 @@ body {
       color: var(--color-text-muted);
       margin-top: var(--space-3);
       line-height: 1.4;
+    }
+
+/* PLAN MODE */
+.plan-mode {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      padding: var(--space-5);
+      margin-bottom: var(--space-6);
+    }
+    .plan-mode[hidden] { display: none !important; }
+    .plan-mode .section-header {
+      margin-bottom: var(--space-3);
+    }
+    .plan-elev-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+    }
+    .plan-field-label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: 6px;
+    }
+    .plan-field-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      background: var(--color-surface-elevated);
+      border: 1px solid var(--color-border-field);
+      border-radius: var(--radius-sm);
+      padding: 0 var(--space-3);
+      min-height: 44px;
+    }
+    .plan-elev-input {
+      flex: 1;
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--color-text-primary);
+      font-family: var(--font-data);
+      font-size: var(--text-base);
+      font-weight: var(--weight-medium);
+      outline: none;
+      min-width: 0;
+    }
+    .plan-elev-input::-webkit-outer-spin-button,
+    .plan-elev-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .plan-elev-input[type='number'] {
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+    .plan-elev-unit {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      font-family: var(--font-data);
+    }
+    .plan-presets {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-4);
+    }
+    .plan-preset {
+      appearance: none;
+      background: var(--color-surface-elevated);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-secondary);
+      border-radius: var(--radius-full);
+      padding: 6px 12px;
+      font-family: var(--font-data);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      cursor: pointer;
+      min-height: 32px;
+    }
+    .plan-preset:hover {
+      border-color: var(--color-accent-border);
+      color: var(--color-accent);
+    }
+    .plan-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+    }
+    .plan-compare-card {
+      background: var(--color-surface-elevated);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: var(--space-3);
+    }
+    .plan-compare-label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+    }
+    .plan-compare-value {
+      display: block;
+      font-family: var(--font-data);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-medium);
+      color: var(--color-text-primary);
+      margin-bottom: 2px;
+    }
+    .plan-compare-meta {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+    }
+    .plan-fzl {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      margin: 0 0 var(--space-2);
+      line-height: 1.4;
+    }
+    .plan-note {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      margin: 0;
     }
 
 /* DAILY STRIP */

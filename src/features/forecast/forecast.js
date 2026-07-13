@@ -268,6 +268,11 @@ mountBottomNav('location');
         if (spread <= 5) conf = 'Models agree within ' + spreadDisp + ' ' + windUnit + ' — high confidence.';
         else if (spread <= 15) conf = 'Models agree within ' + spreadDisp + ' ' + windUnit + ' — moderate confidence.';
         else conf = 'Models differ by ' + spreadDisp + ' ' + windUnit + ' — low confidence.';
+        if (activeModelKey === 'hrdps') {
+          conf += ' HRDPS is best for the next 24–48h; use ECMWF for day 3+.';
+        } else if (activeModelKey === 'ecmwf') {
+          conf += ' ECMWF anchors longer-range; check HRDPS for near-term wind.';
+        }
         document.getElementById('model-confidence').textContent = conf;
       }
 
@@ -435,6 +440,138 @@ mountBottomNav('location');
         card.hidden = false;
       }
 
+      var planModelApi = 'ecmwf_ifs025';
+      var planTimer = null;
+      var planRequestId = 0;
+      var planMainRef = null;
+
+      function readPlanElevations() {
+        var thInput = document.getElementById('plan-th-elev');
+        var objInput = document.getElementById('plan-obj-elev');
+        var th = thInput ? parseInt(thInput.value, 10) : NaN;
+        var obj = objInput ? parseInt(objInput.value, 10) : NaN;
+        return {
+          th: Number.isFinite(th) ? th : null,
+          obj: Number.isFinite(obj) ? obj : null,
+        };
+      }
+
+      function paintPlanSide(prefix, data, elev) {
+        var windEl = document.getElementById('plan-' + prefix + '-wind');
+        var metaEl = document.getElementById('plan-' + prefix + '-meta');
+        if (!windEl || !metaEl) return;
+        if (!data?.hourly?.windspeed_10m?.length) {
+          windEl.textContent = '—';
+          metaEl.textContent = elev != null ? elev.toLocaleString() + ' m' : '—';
+          return;
+        }
+        var idx = getCurrentHourIndex(data.hourly);
+        idx = Math.min(idx, data.hourly.windspeed_10m.length - 1);
+        var speed = data.hourly.windspeed_10m[idx];
+        var gust = data.hourly.windgusts_10m && data.hourly.windgusts_10m[idx];
+        var dir = data.hourly.winddirection_10m && data.hourly.winddirection_10m[idx];
+        var fmt = formatWindSpeed(speed);
+        windEl.textContent = (fmt.value != null ? fmt.value : '—') + ' ' + fmt.unit;
+        windEl.style.color = windRampColor(speed || 0);
+        var parts = [];
+        if (dir != null) parts.push(degreesToCompass(dir));
+        if (gust != null && gust > 0) {
+          var gFmt = formatWindSpeed(gust);
+          parts.push('gusts ' + gFmt.value);
+        }
+        if (elev != null) parts.push(elev.toLocaleString() + ' m');
+        metaEl.textContent = parts.length ? parts.join(' · ') : '—';
+      }
+
+      function renderPlanFzl(mainData, objElev) {
+        var el = document.getElementById('plan-fzl');
+        if (!el) return;
+        if (!mainData?.hourly) {
+          el.textContent = '—';
+          return;
+        }
+        var h = mainData.hourly;
+        var idx = getCurrentHourIndex(h);
+        var fzl = h.freezing_level_height && h.freezing_level_height[idx];
+        if (fzl == null || isNaN(fzl)) {
+          var temp = h.temperature_2m && h.temperature_2m[idx];
+          var base = resolveElevation();
+          if (temp != null && base != null) {
+            fzl = Math.round(base + Math.max(0, -temp * 120));
+          }
+        }
+        if (fzl == null || isNaN(fzl)) {
+          el.textContent = 'Freezing level unavailable for this model hour.';
+          return;
+        }
+        fzl = Math.round(fzl);
+        var relation = '';
+        if (objElev != null) {
+          var delta = objElev - fzl;
+          if (Math.abs(delta) < 75) relation = ' — near objective';
+          else if (delta > 0) relation = ' — ' + Math.round(delta) + ' m below objective (colder at summit)';
+          else relation = ' — ' + Math.round(-delta) + ' m above objective (warmer at summit)';
+        }
+        el.textContent = 'Freezing level ~' + fzl.toLocaleString() + ' m' + relation;
+      }
+
+      async function refreshPlanCompare() {
+        var elevs = readPlanElevations();
+        var section = document.getElementById('plan-mode');
+        if (!section || section.hidden) return;
+        if (elevs.th == null || elevs.obj == null) return;
+
+        var req = ++planRequestId;
+        paintPlanSide('th', null, elevs.th);
+        paintPlanSide('obj', null, elevs.obj);
+        document.getElementById('plan-th-wind').textContent = '…';
+        document.getElementById('plan-obj-wind').textContent = '…';
+
+        try {
+          var results = await Promise.all([
+            fetchModelWind(lat, lng, planModelApi, 2, elevs.th),
+            fetchModelWind(lat, lng, planModelApi, 2, elevs.obj),
+          ]);
+          if (req !== planRequestId) return;
+          paintPlanSide('th', results[0], elevs.th);
+          paintPlanSide('obj', results[1], elevs.obj);
+          renderPlanFzl(planMainRef || results[0], elevs.obj);
+        } catch (err) {
+          if (req !== planRequestId) return;
+          console.warn('Plan compare failed:', err);
+          document.getElementById('plan-th-wind').textContent = '—';
+          document.getElementById('plan-obj-wind').textContent = '—';
+        }
+      }
+
+      function schedulePlanRefresh() {
+        clearTimeout(planTimer);
+        planTimer = setTimeout(refreshPlanCompare, 350);
+      }
+
+      function initPlanMode(baseElev, mainData, nearTermApi) {
+        var section = document.getElementById('plan-mode');
+        var thInput = document.getElementById('plan-th-elev');
+        var objInput = document.getElementById('plan-obj-elev');
+        if (!section || !thInput || !objInput) return;
+
+        planMainRef = mainData;
+        planModelApi = nearTermApi || 'ecmwf_ifs025';
+
+        var params = new URLSearchParams(window.location.search);
+        var thParam = params.get('th');
+        var objParam = params.get('obj');
+        var th = thParam != null && thParam !== '' ? parseInt(thParam, 10) : NaN;
+        var obj = objParam != null && objParam !== '' ? parseInt(objParam, 10) : NaN;
+        if (!Number.isFinite(th)) th = baseElev != null ? baseElev : 1200;
+        if (!Number.isFinite(obj)) obj = Math.min(5000, th + 500);
+
+        thInput.value = String(th);
+        objInput.value = String(obj);
+        section.hidden = false;
+        refreshPlanCompare();
+      }
+
       async function loadForecast() {
         showLoading();
         hideError();
@@ -483,6 +620,9 @@ mountBottomNav('location');
           if (elevText) {
             elevText.textContent = elev != null ? elev.toLocaleString() + ' m' : '—';
           }
+
+          var nearTermApi = hrdps ? 'gem_hrdps_continental' : 'ecmwf_ifs025';
+          initPlanMode(elev, main, nearTermApi);
 
           hideLoading();
         } catch (err) {
@@ -633,6 +773,21 @@ mountBottomNav('location');
 
       document.getElementById('location-name').textContent = locationName;
       document.title = 'Forecast — ' + locationName;
+
+      var thInput = document.getElementById('plan-th-elev');
+      var objInput = document.getElementById('plan-obj-elev');
+      if (thInput) thInput.addEventListener('input', schedulePlanRefresh);
+      if (objInput) objInput.addEventListener('input', schedulePlanRefresh);
+      document.querySelectorAll('.plan-preset').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var delta = parseInt(btn.getAttribute('data-delta'), 10) || 500;
+          var elevs = readPlanElevations();
+          var th = elevs.th != null ? elevs.th : (resolveElevation() || 1200);
+          if (thInput) thInput.value = String(th);
+          if (objInput) objInput.value = String(Math.min(5000, th + delta));
+          schedulePlanRefresh();
+        });
+      });
 
       if (typeof lucide !== 'undefined') {
         lucide.createIcons({ attrs: { 'stroke-width': 1.5 } });

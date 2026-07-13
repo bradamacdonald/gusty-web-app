@@ -126,23 +126,93 @@
     </div>
     <div class="model-panel-body">
       <div class="model-row" data-model="hrdps">
-        <span class="model-name-wrap"><span class="model-name-row"><span class="model-name">HRDPS</span><span class="model-run-time" id="model-run-hrdps"></span></span><span class="model-active-badge hidden" id="active-badge-hrdps">Powering forecast</span></span>
+        <span class="model-name-wrap">
+          <span class="model-name-row">
+            <span class="model-name">HRDPS</span>
+            <span class="model-role">Near-term · 2.5 km</span>
+            <span class="model-run-time" id="model-run-hrdps"></span>
+          </span>
+          <span class="model-active-badge hidden" id="active-badge-hrdps">Powering forecast</span>
+        </span>
         <span class="model-value" id="model-hrdps">— km/h</span>
       </div>
       <div class="model-row" data-model="gem">
-        <span class="model-name-wrap"><span class="model-name-row"><span class="model-name">GEM</span><span class="model-run-time" id="model-run-gem"></span></span><span class="model-active-badge hidden" id="active-badge-gem">Powering forecast</span></span>
+        <span class="model-name-wrap">
+          <span class="model-name-row">
+            <span class="model-name">GEM</span>
+            <span class="model-role">Regional</span>
+            <span class="model-run-time" id="model-run-gem"></span>
+          </span>
+          <span class="model-active-badge hidden" id="active-badge-gem">Powering forecast</span>
+        </span>
         <span class="model-value" id="model-gem">— km/h</span>
       </div>
       <div class="model-row" data-model="ecmwf">
-        <span class="model-name-wrap"><span class="model-name-row"><span class="model-name">ECMWF</span><span class="model-run-time" id="model-run-ecmwf"></span></span><span class="model-active-badge hidden" id="active-badge-ecmwf">Powering forecast</span></span>
+        <span class="model-name-wrap">
+          <span class="model-name-row">
+            <span class="model-name">ECMWF</span>
+            <span class="model-role">Longer-range</span>
+            <span class="model-run-time" id="model-run-ecmwf"></span>
+          </span>
+          <span class="model-active-badge hidden" id="active-badge-ecmwf">Powering forecast</span>
+        </span>
         <span class="model-value" id="model-ecmwf">— km/h</span>
       </div>
       <div class="model-row" data-model="gfs">
-        <span class="model-name-wrap"><span class="model-name-row"><span class="model-name">GFS</span><span class="model-run-time" id="model-run-gfs"></span></span><span class="model-active-badge hidden" id="active-badge-gfs">Powering forecast</span></span>
+        <span class="model-name-wrap">
+          <span class="model-name-row">
+            <span class="model-name">GFS</span>
+            <span class="model-role">Independent check</span>
+            <span class="model-run-time" id="model-run-gfs"></span>
+          </span>
+          <span class="model-active-badge hidden" id="active-badge-gfs">Powering forecast</span>
+        </span>
         <span class="model-value" id="model-gfs">— km/h</span>
       </div>
       <p class="model-confidence" id="model-confidence">—</p>
     </div>
+  </section>
+
+  <!-- PLAN MODE -->
+  <section class="plan-mode" id="plan-mode" hidden>
+    <div class="section-header">
+      <span class="section-label">Plan</span>
+      <span class="section-link">Trailhead → Objective</span>
+    </div>
+    <div class="plan-elev-row">
+      <label class="plan-field">
+        <span class="plan-field-label">Trailhead</span>
+        <div class="plan-field-input-wrap">
+          <input type="number" class="plan-elev-input" id="plan-th-elev" inputmode="numeric" step="50" min="0" max="5000" aria-label="Trailhead elevation metres">
+          <span class="plan-elev-unit">m</span>
+        </div>
+      </label>
+      <label class="plan-field">
+        <span class="plan-field-label">Objective</span>
+        <div class="plan-field-input-wrap">
+          <input type="number" class="plan-elev-input" id="plan-obj-elev" inputmode="numeric" step="50" min="0" max="5000" aria-label="Objective elevation metres">
+          <span class="plan-elev-unit">m</span>
+        </div>
+      </label>
+    </div>
+    <div class="plan-presets" id="plan-presets">
+      <button type="button" class="plan-preset" data-delta="500">+500 m</button>
+      <button type="button" class="plan-preset" data-delta="1000">+1000 m</button>
+    </div>
+    <div class="plan-compare">
+      <div class="plan-compare-card">
+        <span class="plan-compare-label">Trailhead wind</span>
+        <span class="plan-compare-value" id="plan-th-wind">—</span>
+        <span class="plan-compare-meta" id="plan-th-meta">—</span>
+      </div>
+      <div class="plan-compare-card">
+        <span class="plan-compare-label">Objective wind</span>
+        <span class="plan-compare-value" id="plan-obj-wind">—</span>
+        <span class="plan-compare-meta" id="plan-obj-meta">—</span>
+      </div>
+    </div>
+    <p class="plan-fzl" id="plan-fzl">—</p>
+    <p class="plan-note">Elevation-adjusted winds for this plan. Not an avalanche assessment.</p>
   </section>
 
   <!-- LOADING WATCH -->
