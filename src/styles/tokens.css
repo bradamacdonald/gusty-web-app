@@ -58,8 +58,8 @@
    * Decorative borders / dividers stay quiet — structure with space, not boxes.
    * Interactive fields keep a stronger border for WCAG 1.4.11 (≥3:1).
    */
-  --color-border:        rgba(184, 196, 212, 0.12);
-  --color-border-strong: rgba(184, 196, 212, 0.22);
+  --color-border:        rgba(184, 196, 212, 0.08);
+  --color-border-strong: rgba(184, 196, 212, 0.16);
   --color-border-field:  var(--navy-500);
 
   /* ── Semantic: Text (≥4.5:1 on bg / surface / elevated) ── */
@@ -162,8 +162,8 @@ html.theme-light {
   --color-surface:          #FFFFFF;
   --color-surface-elevated: var(--navy-100);
 
-  --color-border:        rgba(61, 79, 99, 0.14);
-  --color-border-strong: rgba(61, 79, 99, 0.24);
+  --color-border:        rgba(61, 79, 99, 0.10);
+  --color-border-strong: rgba(61, 79, 99, 0.18);
   --color-border-field:  var(--navy-400);
 
   --color-text-primary:   var(--navy-950);

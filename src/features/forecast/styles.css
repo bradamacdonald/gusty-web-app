@@ -94,9 +94,9 @@ body {
 
 /* WIND HERO */
 .wind-hero {
-      padding: var(--space-2) 0 var(--space-8);
-      margin-bottom: var(--space-2);
-      border-bottom: 1px solid var(--color-border);
+      padding: var(--space-2) 0 var(--space-10);
+      margin-bottom: var(--space-4);
+      border-bottom: none;
     }
     .wind-hero-top-row {
       display: flex;
@@ -334,12 +334,11 @@ body {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
-      margin-bottom: var(--space-8);
+      margin-bottom: var(--space-10);
       background: transparent;
       border-radius: 0;
       border: none;
-      border-bottom: 1px solid var(--color-border);
-      padding-bottom: var(--space-4);
+      padding-bottom: var(--space-2);
     }
     .hourly-scroll-wrap::-webkit-scrollbar { display: none; }
     .hourly-scroll-inner {
@@ -402,9 +401,8 @@ body {
       background: transparent;
       border-radius: 0;
       border: none;
-      border-bottom: 1px solid var(--color-border);
-      padding: 0 0 var(--space-6);
-      margin-bottom: var(--space-6);
+      padding: 0 0 var(--space-2);
+      margin-bottom: var(--space-10);
     }
     .model-panel.collapsed .model-panel-body {
       display: none;
@@ -437,7 +435,7 @@ body {
       align-items: center;
       justify-content: space-between;
       padding: var(--space-3) 0;
-      border-bottom: 1px solid var(--color-border);
+      border-bottom: none;
     }
     .model-row:last-of-type {
       border-bottom: none;
@@ -514,9 +512,8 @@ body {
       background: transparent;
       border-radius: 0;
       border: none;
-      border-bottom: 1px solid var(--color-border);
-      padding: 0 0 var(--space-6);
-      margin-bottom: var(--space-6);
+      padding: 0 0 var(--space-2);
+      margin-bottom: var(--space-10);
     }
     .plan-mode[hidden] { display: none !important; }
     .plan-mode .section-header {
@@ -542,7 +539,7 @@ body {
       gap: var(--space-2);
       background: transparent;
       border: none;
-      border-bottom: 1px solid var(--color-border-field);
+      border-bottom: 1px solid var(--color-border-strong);
       border-radius: 0;
       padding: 0;
       min-height: 40px;
@@ -603,8 +600,8 @@ body {
       grid-template-columns: 1fr 1fr;
       gap: var(--space-6);
       margin-bottom: var(--space-4);
-      padding: var(--space-4) 0;
-      border-top: 1px solid var(--color-border);
+      padding: var(--space-2) 0 0;
+      border-top: none;
     }
     .plan-compare-card {
       background: transparent;
@@ -662,9 +659,8 @@ body {
       background: transparent;
       border-radius: 0;
       border: none;
-      border-bottom: 1px solid var(--color-border);
-      padding: 0 0 var(--space-6);
-      margin-bottom: var(--space-6);
+      padding: 0 0 var(--space-2);
+      margin-bottom: var(--space-10);
     }
     .compare-spots .section-header {
       margin-bottom: var(--space-3);
@@ -726,7 +722,6 @@ body {
       align-items: center;
       background: transparent;
       border: none;
-      border-bottom: 1px solid var(--color-border);
       border-radius: 0;
       padding: var(--space-3) 0;
       text-decoration: none;
@@ -737,8 +732,7 @@ body {
       border-bottom: none;
     }
     .compare-card:hover {
-      border-color: var(--color-border);
-      opacity: 0.9;
+      opacity: 0.85;
     }
     .compare-card.is-here .compare-card-name {
       color: var(--color-accent);
@@ -803,16 +797,15 @@ body {
       background: transparent;
       border-radius: 0;
       border: none;
-      border-bottom: 1px solid var(--color-border);
-      padding: 0 0 var(--space-4);
-      margin-bottom: var(--space-6);
+      padding: 0;
+      margin-bottom: var(--space-10);
     }
     .daily-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: var(--space-3) 0;
-      border-bottom: 1px solid var(--color-border);
+      border-bottom: none;
     }
     .daily-row:last-child {
       border-bottom: none;
@@ -849,7 +842,7 @@ body {
       border-radius: 50%;
       flex-shrink: 0;
     }
-    .daily-precip-dot.none { background: transparent; border: 1px solid var(--color-border-strong); }
+    .daily-precip-dot.none { background: color-mix(in srgb, var(--color-text-muted) 35%, transparent); border: none; }
     .daily-precip-dot.trace { background: var(--precip-trace); }
     .daily-precip-dot.light { background: var(--precip-light); }
     .daily-precip-dot.heavy { background: var(--precip-heavy); }
@@ -884,9 +877,8 @@ body {
       background: transparent;
       border-radius: 0;
       border: none;
-      border-bottom: 1px solid var(--color-border);
-      padding: 0 0 var(--space-6);
-      margin-bottom: var(--space-6);
+      padding: 0 0 var(--space-2);
+      margin-bottom: var(--space-10);
     }
     .avalanche-card[hidden] { display: none !important; }
     .avalanche-card-header {
@@ -916,12 +908,12 @@ body {
       grid-template-columns: repeat(3, 1fr);
       gap: var(--space-4);
       margin-bottom: var(--space-4);
-      padding-bottom: var(--space-4);
-      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 0;
+      border-bottom: none;
     }
     .avalanche-bands[hidden] { display: none !important; }
     .avalanche-card.is-offseason {
-      border-color: var(--color-border);
+      border-color: transparent;
     }
     .avalanche-band {
       background: transparent;
@@ -1002,9 +994,8 @@ body {
       background: transparent;
       border-radius: 0;
       border: none;
-      border-bottom: 1px solid var(--color-border);
-      padding: 0 0 var(--space-6);
-      margin-bottom: var(--space-6);
+      padding: 0 0 var(--space-2);
+      margin-bottom: var(--space-10);
     }
     .loading-watch[hidden] { display: none !important; }
     .loading-watch .section-header {
