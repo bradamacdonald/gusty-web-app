@@ -173,63 +173,6 @@
     </div>
   </section>
 
-  <!-- PLAN MODE -->
-  <section class="plan-mode" id="plan-mode" hidden>
-    <div class="section-header">
-      <span class="section-label">Plan</span>
-    </div>
-    <div class="plan-elev-row">
-      <label class="plan-field">
-        <span class="plan-field-label">Trailhead</span>
-        <div class="plan-field-input-wrap">
-          <input type="number" class="plan-elev-input" id="plan-th-elev" inputmode="numeric" step="50" min="0" max="5000" aria-label="Trailhead elevation metres">
-          <span class="plan-elev-unit">m</span>
-        </div>
-      </label>
-      <label class="plan-field">
-        <span class="plan-field-label">Objective</span>
-        <div class="plan-field-input-wrap">
-          <input type="number" class="plan-elev-input" id="plan-obj-elev" inputmode="numeric" step="50" min="0" max="5000" aria-label="Objective elevation metres">
-          <span class="plan-elev-unit">m</span>
-        </div>
-      </label>
-    </div>
-    <div class="plan-presets" id="plan-presets">
-      <button type="button" class="plan-preset" data-delta="500">+500 m</button>
-      <button type="button" class="plan-preset" data-delta="1000">+1000 m</button>
-    </div>
-    <div class="plan-compare">
-      <div class="plan-compare-card">
-        <span class="plan-compare-label">Trailhead wind</span>
-        <span class="plan-compare-value" id="plan-th-wind">—</span>
-        <span class="plan-compare-meta" id="plan-th-meta">—</span>
-      </div>
-      <div class="plan-compare-card">
-        <span class="plan-compare-label">Objective wind</span>
-        <span class="plan-compare-value" id="plan-obj-wind">—</span>
-        <span class="plan-compare-meta" id="plan-obj-meta">—</span>
-      </div>
-    </div>
-    <p class="plan-fzl" id="plan-fzl">—</p>
-    <p class="plan-aspect" id="plan-aspect">—</p>
-    <p class="plan-note">Elevation-adjusted winds and DEM aspect for this plan. Not an avalanche assessment.</p>
-  </section>
-
-  <!-- COMPARE SPOTS -->
-  <section class="compare-spots" id="compare-spots">
-    <div class="section-header">
-      <span class="section-label">Compare</span>
-    </div>
-    <p class="compare-intro" id="compare-intro">Pick saved alternates to compare wind with this location.</p>
-    <div class="compare-picks" id="compare-picks" hidden></div>
-    <div class="compare-results" id="compare-results"></div>
-    <p class="compare-empty" id="compare-empty" hidden>
-      Save other trailheads or peaks, then compare them here for a calmer alternate.
-      <a href="search.html" class="compare-empty-link">Search spots →</a>
-    </p>
-    <p class="compare-note">Same model hour across locations. Weather only — not an avalanche assessment.</p>
-  </section>
-
   <!-- LOADING WATCH -->
   <section class="loading-watch" id="loading-watch" hidden>
     <div class="section-header">
@@ -254,7 +197,6 @@
         <span class="loading-watch-value" id="watch-fzl">—</span>
       </div>
     </div>
-    <p class="loading-watch-note" id="loading-watch-note">Weather drivers only — not an avalanche assessment.</p>
   </section>
 
   <!-- DAILY STRIP -->
@@ -280,6 +222,58 @@
     <p class="avalanche-disclaimer">Hazard context from Avalanche Canada. Gusty does not assess avalanche risk.</p>
     <a href="https://avalanche.ca" class="avalanche-link" id="avalanche-link" target="_blank" rel="noopener">View full forecast →</a>
   </section>
+
+  <!-- TRIP TOOLS (optional — collapsed) -->
+  <details class="trip-tools" id="trip-tools">
+    <summary class="trip-tools-summary">
+      <span class="trip-tools-title">Elevations</span>
+      <span class="trip-tools-hint">Optional</span>
+    </summary>
+    <div class="trip-tools-body">
+      <div class="plan-mode" id="plan-mode">
+        <div class="plan-elev-row">
+          <label class="plan-field">
+            <span class="plan-field-label">Trailhead</span>
+            <div class="plan-field-input-wrap">
+              <input type="number" class="plan-elev-input" id="plan-th-elev" inputmode="numeric" step="50" min="0" max="5000" aria-label="Trailhead elevation metres">
+              <span class="plan-elev-unit">m</span>
+            </div>
+          </label>
+          <label class="plan-field">
+            <span class="plan-field-label">Objective</span>
+            <div class="plan-field-input-wrap">
+              <input type="number" class="plan-elev-input" id="plan-obj-elev" inputmode="numeric" step="50" min="0" max="5000" aria-label="Objective elevation metres">
+              <span class="plan-elev-unit">m</span>
+            </div>
+          </label>
+        </div>
+        <div class="plan-presets" id="plan-presets">
+          <button type="button" class="plan-preset" data-delta="500">+500 m</button>
+          <button type="button" class="plan-preset" data-delta="1000">+1000 m</button>
+        </div>
+        <div class="plan-compare">
+          <div class="plan-compare-card">
+            <span class="plan-compare-label">Trailhead</span>
+            <span class="plan-compare-value" id="plan-th-wind">—</span>
+            <span class="plan-compare-meta" id="plan-th-meta">—</span>
+          </div>
+          <div class="plan-compare-card">
+            <span class="plan-compare-label">Objective</span>
+            <span class="plan-compare-value" id="plan-obj-wind">—</span>
+            <span class="plan-compare-meta" id="plan-obj-meta">—</span>
+          </div>
+        </div>
+        <p class="plan-fzl" id="plan-fzl"></p>
+        <p class="plan-aspect" id="plan-aspect"></p>
+      </div>
+
+      <div class="compare-spots" id="compare-spots" hidden>
+        <p class="compare-heading">Alternates</p>
+        <div class="compare-picks" id="compare-picks"></div>
+        <div class="compare-results" id="compare-results"></div>
+      </div>
+    </div>
+  </details>
 
   <!-- BOTTOM NAVIGATION -->
   <nav id="bottom-nav"></nav>

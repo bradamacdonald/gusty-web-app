@@ -585,11 +585,11 @@ mountBottomNav('location');
         var relation = '';
         if (objElev != null) {
           var delta = objElev - fzl;
-          if (Math.abs(delta) < 75) relation = ' — near objective';
-          else if (delta > 0) relation = ' — ' + Math.round(delta) + ' m below objective (colder at summit)';
-          else relation = ' — ' + Math.round(-delta) + ' m above objective (warmer at summit)';
+          if (Math.abs(delta) < 75) relation = ' · near objective';
+          else if (delta > 0) relation = ' · ' + Math.round(delta) + ' m below objective';
+          else relation = ' · ' + Math.round(-delta) + ' m above objective';
         }
-        el.textContent = 'Freezing level ~' + fzl.toLocaleString() + ' m' + relation;
+        el.textContent = 'FZL ~' + fzl.toLocaleString() + ' m' + relation;
       }
 
       function windFromAt(data) {
@@ -612,10 +612,20 @@ mountBottomNav('location');
         el.dataset.exposure = exposure.kind || 'unknown';
       }
 
+      function tripToolsOpen() {
+        var tools = document.getElementById('trip-tools');
+        return !!(tools && tools.open);
+      }
+
+      function activateTripToolsContent() {
+        if (!tripToolsOpen()) return;
+        refreshPlanCompare();
+        if (compareCandidates.length) refreshCompareResults();
+      }
+
       async function refreshPlanCompare() {
         var elevs = readPlanElevations();
-        var section = document.getElementById('plan-mode');
-        if (!section || section.hidden) return;
+        if (!tripToolsOpen()) return;
         if (elevs.th == null || elevs.obj == null) return;
 
         var req = ++planRequestId;
@@ -656,10 +666,10 @@ mountBottomNav('location');
       }
 
       function initPlanMode(baseElev, mainData, nearTermApi) {
-        var section = document.getElementById('plan-mode');
+        var tools = document.getElementById('trip-tools');
         var thInput = document.getElementById('plan-th-elev');
         var objInput = document.getElementById('plan-obj-elev');
-        if (!section || !thInput || !objInput) return;
+        if (!tools || !thInput || !objInput) return;
 
         planMainRef = mainData;
         planModelApi = nearTermApi || 'ecmwf_ifs025';
@@ -669,6 +679,7 @@ mountBottomNav('location');
         var objParam = params.get('obj');
         var th = thParam != null && thParam !== '' ? parseInt(thParam, 10) : NaN;
         var obj = objParam != null && objParam !== '' ? parseInt(objParam, 10) : NaN;
+        var fromUrl = Number.isFinite(th) || Number.isFinite(obj);
         var savedPlan = getPlanElevations(lat, lng);
         if (!Number.isFinite(th) && savedPlan) th = savedPlan.th;
         if (!Number.isFinite(obj) && savedPlan) obj = savedPlan.obj;
@@ -678,20 +689,24 @@ mountBottomNav('location');
         thInput.value = String(th);
         objInput.value = String(obj);
         setPlanElevations(lat, lng, th, obj);
-        try {
-          var qs = withPlanElevParams(window.location.search, th, obj);
-          window.history.replaceState(null, '', window.location.pathname + '?' + qs + window.location.hash);
-        } catch {
-          // ignore
+
+        if (fromUrl) {
+          tools.open = true;
+          try {
+            var qs = withPlanElevParams(window.location.search, th, obj);
+            window.history.replaceState(null, '', window.location.pathname + '?' + qs + window.location.hash);
+          } catch {
+            // ignore
+          }
+          refreshPlanCompare();
         }
-        section.hidden = false;
-        refreshPlanCompare();
       }
 
       function persistPlanElevationsFromInputs() {
         var elevs = readPlanElevations();
         if (elevs.th == null || elevs.obj == null) return;
         setPlanElevations(lat, lng, elevs.th, elevs.obj);
+        if (!tripToolsOpen()) return;
         try {
           var qs = withPlanElevParams(window.location.search, elevs.th, elevs.obj);
           var next = window.location.pathname + '?' + qs + window.location.hash;
@@ -716,24 +731,16 @@ mountBottomNav('location');
 
       function renderComparePicks() {
         var picks = document.getElementById('compare-picks');
-        var empty = document.getElementById('compare-empty');
-        var intro = document.getElementById('compare-intro');
-        if (!picks) return;
+        var section = document.getElementById('compare-spots');
+        if (!picks || !section) return;
 
         if (!compareCandidates.length) {
-          picks.hidden = true;
+          section.hidden = true;
           picks.innerHTML = '';
-          if (empty) empty.hidden = false;
-          if (intro) intro.textContent = 'Save alternate spots to compare wind against this location.';
           return;
         }
 
-        if (empty) empty.hidden = true;
-        if (intro) {
-          intro.textContent =
-            'Select up to ' + MAX_COMPARE_ALTERNATES + ' saved alternates. Calmest ranks first.';
-        }
-        picks.hidden = false;
+        section.hidden = false;
         picks.innerHTML = '';
         compareCandidates.forEach(function(spot) {
           var key = spotKey(spot.lat, spot.lng);
@@ -752,7 +759,7 @@ mountBottomNav('location');
             if (compareSelectedKeys.has(key)) compareSelectedKeys.delete(key);
             else if (compareSelectedKeys.size < MAX_COMPARE_ALTERNATES) compareSelectedKeys.add(key);
             renderComparePicks();
-            refreshCompareResults();
+            if (tripToolsOpen()) refreshCompareResults();
           });
           picks.appendChild(btn);
         });
@@ -764,7 +771,7 @@ mountBottomNav('location');
         results.innerHTML = '';
         if (!snapshots || !snapshots.length) return;
 
-        rankSnapshotsByCalm(snapshots).forEach(function(snap, i) {
+        rankSnapshotsByCalm(snapshots).forEach(function(snap) {
           var isHere = spotKey(snap.lat, snap.lng) === spotKey(lat, lng);
           var card = document.createElement(isHere ? 'div' : 'a');
           card.className = 'compare-card' + (isHere ? ' is-here' : '');
@@ -782,10 +789,8 @@ mountBottomNav('location');
           var metaParts = [];
           if (snap.dirLabel && snap.dirLabel !== '—') metaParts.push(snap.dirLabel);
           if (snap.elevation != null) metaParts.push(Math.round(snap.elevation).toLocaleString() + ' m');
-          if (snap.conditionLabel && snap.conditionLabel !== '—') metaParts.push(snap.conditionLabel);
           card.innerHTML =
             '<div class="compare-card-name">' +
-            '<span class="compare-card-rank">#' + (i + 1) + '</span>' +
             escapeHtml(snap.name || 'Location') +
             (isHere ? '<span class="compare-card-badge">Here</span>' : '') +
             '</div>' +
@@ -799,7 +804,7 @@ mountBottomNav('location');
 
       async function refreshCompareResults() {
         var results = document.getElementById('compare-results');
-        if (!results) return;
+        if (!results || !tripToolsOpen() || !compareCandidates.length) return;
         var req = ++compareRequestId;
         var here = {
           id: 'here',
@@ -839,7 +844,7 @@ mountBottomNav('location');
           })
         );
         renderComparePicks();
-        refreshCompareResults();
+        if (tripToolsOpen()) refreshCompareResults();
       }
 
       async function loadForecast() {
@@ -1109,6 +1114,13 @@ mountBottomNav('location');
           schedulePlanRefresh();
         });
       });
+
+      var tripTools = document.getElementById('trip-tools');
+      if (tripTools) {
+        tripTools.addEventListener('toggle', function() {
+          if (tripTools.open) activateTripToolsContent();
+        });
+      }
 
       if (typeof lucide !== 'undefined') {
         lucide.createIcons({ attrs: { 'stroke-width': 1.5 } });
