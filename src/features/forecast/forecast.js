@@ -6,6 +6,11 @@ import {
 } from '../../services/storage/saved-spots.js';
 import { fetchAvalancheForecast } from '../../services/api/avalanche-canada.js';
 import { fetchLocationForecast, fetchModelWind } from '../../services/api/open-meteo.js';
+import { fetchTerrainAspect } from '../../services/api/terrain.js';
+import {
+  classifyWindExposure,
+  formatAspectSummary,
+} from '../../lib/terrain-aspect.js';
 import {
   fetchSpotWindSnapshot,
   pickCompareCandidates,
@@ -266,7 +271,10 @@ mountBottomNav('location');
             row.classList.toggle('active', key === activeModelKey);
             badge.classList.toggle('hidden', key !== activeModelKey);
           }
-          if (runEl) runEl.textContent = getModelRunTimeAgo(key);
+          if (runEl) {
+            runEl.textContent = getModelRunTimeAgo(key);
+            runEl.title = 'Estimated from typical model cycle + dissemination lag (Open-Meteo does not expose run IDs)';
+          }
         });
 
         const vals = [hVal, eVal, gVal, mVal].filter(v => v != null);
@@ -399,51 +407,85 @@ mountBottomNav('location');
           return;
         }
 
+        var titleEl = card.querySelector('.avalanche-card-title');
         var bandsEl = document.getElementById('avalanche-bands');
         var indicator = document.getElementById('avalanche-indicator');
         var desc = document.getElementById('avalanche-desc');
         var link = document.getElementById('avalanche-link');
+        var disclaimer = card.querySelector('.avalanche-disclaimer');
+
+        card.classList.toggle('is-offseason', !!forecast.isOffseason);
+
+        if (titleEl) {
+          titleEl.textContent = forecast.isOffseason
+            ? 'Seasonal Avalanche Notice'
+            : 'Avalanche Conditions';
+        }
 
         if (bandsEl) {
           bandsEl.innerHTML = '';
-          (forecast.bands || []).forEach(function(band) {
-            var cell = document.createElement('div');
-            cell.className = 'avalanche-band';
-            var short = band.key === 'alp' ? 'ALP' : band.key === 'tln' ? 'TLN' : 'BTL';
-            var valueText = band.num != null ? String(band.num) : '—';
-            cell.innerHTML =
-              '<span class="avalanche-band-label">' + short + '</span>' +
-              '<span class="avalanche-band-value">' +
-              '<span class="avalanche-band-swatch" style="background:' + band.colour + '"></span>' +
-              '<span style="color:' + band.colour + '">' + valueText + '</span>' +
-              '</span>';
-            bandsEl.appendChild(cell);
-          });
+          if (forecast.isOffseason) {
+            bandsEl.hidden = true;
+          } else {
+            bandsEl.hidden = false;
+            (forecast.bands || []).forEach(function(band) {
+              var cell = document.createElement('div');
+              cell.className = 'avalanche-band';
+              var short = band.key === 'alp' ? 'ALP' : band.key === 'tln' ? 'TLN' : 'BTL';
+              var valueText = band.num != null ? String(band.num) : '—';
+              cell.innerHTML =
+                '<span class="avalanche-band-label">' + short + '</span>' +
+                '<span class="avalanche-band-value">' +
+                '<span class="avalanche-band-swatch" style="background:' + band.colour + '"></span>' +
+                '<span style="color:' + band.colour + '">' + valueText + '</span>' +
+                '</span>';
+              bandsEl.appendChild(cell);
+            });
+          }
         }
 
         if (indicator) {
-          var highest = forecast.highest;
-          var problems = (forecast.problems || []).join(', ');
-          if (highest) {
-            var numHtml = highest.num != null
-              ? '<span class="avalanche-num" style="color:' + highest.colour + '">' + highest.num + '</span> '
-              : '';
+          if (forecast.isOffseason) {
             indicator.innerHTML =
-              '<span class="avalanche-indicator-sq" style="background:' + highest.colour + '"></span>' +
-              numHtml +
-              '<span>' + highest.display + (problems ? ' · ' + problems : '') + '</span>';
+              '<span class="avalanche-indicator-sq" style="background:#8A9BB0"></span>' +
+              '<span>Summer Conditions · Regular ratings resume in winter</span>';
           } else {
-            indicator.innerHTML = '';
+            var highest = forecast.highest;
+            var problems = (forecast.problems || []).join(', ');
+            if (highest) {
+              var numHtml = highest.num != null
+                ? '<span class="avalanche-num" style="color:' + highest.colour + '">' + highest.num + '</span> '
+                : '';
+              indicator.innerHTML =
+                '<span class="avalanche-indicator-sq" style="background:' + highest.colour + '"></span>' +
+                numHtml +
+                '<span>' + highest.display + (problems ? ' · ' + problems : '') + '</span>';
+            } else {
+              indicator.innerHTML = '';
+            }
           }
         }
 
         if (desc) {
-          desc.textContent = forecast.highlights ||
-            (forecast.areaName ? ('Forecast region: ' + forecast.areaName) : '');
+          if (forecast.highlights) {
+            desc.textContent = forecast.highlights;
+          } else if (forecast.isOffseason) {
+            desc.textContent =
+              'Regular avalanche forecasts have ended for the season. Isolated hazard may still exist at high elevations — check Avalanche Canada before travel.';
+          } else {
+            desc.textContent = forecast.areaName
+              ? ('Forecast region: ' + forecast.areaName)
+              : '';
+          }
+        }
+        if (disclaimer) {
+          disclaimer.textContent = forecast.isOffseason
+            ? 'Seasonal notice from Avalanche Canada. Gusty does not assess avalanche risk.'
+            : 'Hazard context from Avalanche Canada. Gusty does not assess avalanche risk.';
         }
         if (link) {
           link.href = forecast.url || 'https://avalanche.ca';
-          link.textContent = formatIssued(forecast.dateIssued) + ' · View full forecast →';
+          link.textContent = formatIssued(forecast.dateIssued) + ' · View on avalanche.ca →';
         }
         card.hidden = false;
       }
@@ -523,6 +565,26 @@ mountBottomNav('location');
         el.textContent = 'Freezing level ~' + fzl.toLocaleString() + ' m' + relation;
       }
 
+      function windFromAt(data) {
+        if (!data?.hourly?.winddirection_10m?.length) return null;
+        var idx = Math.min(
+          getCurrentHourIndex(data.hourly),
+          data.hourly.winddirection_10m.length - 1
+        );
+        var dir = data.hourly.winddirection_10m[idx];
+        return dir != null && !isNaN(dir) ? dir : null;
+      }
+
+      function renderPlanAspect(terrain, windFromDeg) {
+        var el = document.getElementById('plan-aspect');
+        if (!el) return;
+        el.textContent = formatAspectSummary(terrain, windFromDeg);
+        var exposure = terrain && !terrain.isFlat
+          ? classifyWindExposure(terrain.aspectDeg, windFromDeg)
+          : { kind: 'unknown' };
+        el.dataset.exposure = exposure.kind || 'unknown';
+      }
+
       async function refreshPlanCompare() {
         var elevs = readPlanElevations();
         var section = document.getElementById('plan-mode');
@@ -534,21 +596,29 @@ mountBottomNav('location');
         paintPlanSide('obj', null, elevs.obj);
         document.getElementById('plan-th-wind').textContent = '…';
         document.getElementById('plan-obj-wind').textContent = '…';
+        var aspectEl = document.getElementById('plan-aspect');
+        if (aspectEl) {
+          aspectEl.textContent = 'Reading terrain…';
+          aspectEl.dataset.exposure = 'unknown';
+        }
 
         try {
           var results = await Promise.all([
             fetchModelWind(lat, lng, planModelApi, 2, elevs.th),
             fetchModelWind(lat, lng, planModelApi, 2, elevs.obj),
+            fetchTerrainAspect(lat, lng).catch(function() { return null; }),
           ]);
           if (req !== planRequestId) return;
           paintPlanSide('th', results[0], elevs.th);
           paintPlanSide('obj', results[1], elevs.obj);
           renderPlanFzl(planMainRef || results[0], elevs.obj);
+          renderPlanAspect(results[2], windFromAt(results[1]) || windFromAt(results[0]));
         } catch (err) {
           if (req !== planRequestId) return;
           console.warn('Plan compare failed:', err);
           document.getElementById('plan-th-wind').textContent = '—';
           document.getElementById('plan-obj-wind').textContent = '—';
+          if (aspectEl) aspectEl.textContent = 'Aspect unavailable.';
         }
       }
 

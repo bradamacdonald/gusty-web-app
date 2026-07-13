@@ -56,6 +56,15 @@ function highestBand(bands) {
   return ranked[0] || bands[0] || null;
 }
 
+function isSeasonalValue(value) {
+  return (
+    value === 'offseason' ||
+    value === 'norating' ||
+    value === 'noRating' ||
+    value === 'no_rating'
+  );
+}
+
 function problemLabels(problems) {
   if (!Array.isArray(problems) || !problems.length) return [];
   return problems
@@ -105,6 +114,8 @@ export function normalizeAvalancheProduct(data) {
   const highest = highestBand(bands);
   const problems = problemLabels(report.problems);
   const highlights = stripHtml(report.highlights);
+  const isOffseason =
+    bands.length > 0 && bands.every((b) => isSeasonalValue(b.value));
 
   return {
     id: data.id || data.slug,
@@ -120,5 +131,6 @@ export function normalizeAvalancheProduct(data) {
     highest,
     problems,
     owner: data.owner?.display || 'Avalanche Canada',
+    isOffseason,
   };
 }

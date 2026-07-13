@@ -6,9 +6,11 @@
 
 ## What is Gusty?
 
-Gusty is a purpose-built wind forecast tool for hikers, skiers, and mountaineers. It surfaces current wind, gusts, direction, hourly strips, precipitation, and multi-model comparisons (ECMWF, GFS, GEM, HRRR) in a dark, instrument-grade UI designed for one-handed phone use in the field.
+Gusty is a purpose-built wind forecast tool for hikers, skiers, and mountaineers. It surfaces current wind, gusts, direction, hourly strips, precipitation, and multi-model comparisons (**HRDPS**, ECMWF, GFS, GEM, HRRR) in a dark, instrument-grade UI designed for one-handed phone use in the field.
 
 The app has six routes: landing search, map search, forecast, saved spots, per-model detail charts, and settings.
+
+On the forecast page it also stacks backcountry decision context: Avalanche Canada danger ratings (live), a loading/new-snow watch, trailhead→objective plan winds with DEM aspect, and compare-against-saved-spots.
 
 ---
 
@@ -31,13 +33,17 @@ Gusty focuses the entire experience on wind readability: color ramps tied to spe
 - End-to-end mobile flows: search → forecast → save → compare models → drill into charts
 - Dark-first design system with documented tokens (`Guidelines.md`, live component reference pages)
 - Map-based search with bottom-sheet location preview and reverse geocoding
+- Curated BC/Alberta mountain gazetteer (resorts, peaks, passes) ranked above Mapbox/GeoNames
+- Forecast decision stack: Avalanche Canada chip, Loading Watch, Plan mode (elev + DEM aspect), Compare Spots
 - Saved spots with drag-to-reorder (SortableJS)
 - Settings for units (metric/imperial), theme, default model, and Hair Mode
 
 **Engineering**
 - Refactored a ~7,000-line copy-paste prototype into a layered Vite MPA with shared modules
-- Geocoding pipeline combining Mapbox Places + GeoNames terrain search (BC-focused)
-- Open-Meteo integration for multi-model hourly/daily forecasts and elevation-aware detail charts
+- Geocoding pipeline: curated spots + Mapbox Places (western CA) + GeoNames BC/AB terrain
+- Open-Meteo multi-model forecasts (HRDPS near-term) with elevation-aware downscaling
+- Avalanche Canada public point API for ALP/TLN/BTL context (with offseason handling)
+- Open-Meteo elevation DEM sampling for objective aspect / lee–windward hints
 - Client-only persistence (localStorage) — no backend, no accounts, no PII collection
 - Environment-based API key management for Mapbox and GeoNames
 
@@ -49,11 +55,11 @@ Gusty focuses the entire experience on wind readability: color ramps tied to spe
 
 2. **Dual-source geocoding** — Mapbox handles POIs and places; GeoNames fills gaps for mountain/terrain features that street-oriented geocoders miss. Search logic includes fallback rules (e.g. when results are all addresses) and smart reverse-geocode name picking for map pin drops.
 
-3. **Multi-model forecast composition** — The forecast page fetches ECMWF, GFS, and GEM in parallel, computes model spread for a confidence string, and respects the user’s preferred default model for the hero display.
+3. **Multi-model forecast composition** — Forecast fetches HRDPS, ECMWF, GFS, and GEM in parallel, scores model spread, labels each model’s role (near-term vs longer-range), and uses estimated cycle+lag freshness (Open-Meteo does not expose run IDs).
 
-4. **Design tokens as code** — A single `tokens.css` source of truth replaces six copy-pasted `:root` blocks. Typography (Inter + DM Mono + Barlow wordmark), wind color ramp, and spacing scales are enforced consistently.
+4. **Design tokens as code** — A single `tokens.css` source of truth. UI wind colors stay punchy; detail charts use softer `--chart-*` tokens for WCAG non-text contrast without shouting.
 
-5. **Privacy-by-architecture** — Saved locations and settings never leave the device. Third-party calls go directly from the browser to Open-Meteo, Mapbox, and GeoNames.
+5. **Privacy-by-architecture** — Saved locations and settings never leave the device. Third-party calls go directly from the browser to Open-Meteo, Mapbox, GeoNames, and Avalanche Canada.
 
 ---
 
@@ -77,11 +83,12 @@ gusty-web-app/
 │   │   └── detail/
 │   ├── components/shell/        # App chrome (bottom navigation)
 │   ├── services/
-│   │   ├── api/                 # Open-Meteo, geocoding
+│   │   ├── api/                 # Open-Meteo, geocoding, Avalanche Canada, terrain
+│   │   ├── compare-spots.js     # Multi-location wind snapshots
 │   │   └── storage/             # localStorage: settings, saved spots
-│   ├── lib/                     # Constants + pure utilities
+│   ├── lib/                     # Constants + pure utilities (wind, terrain aspect, models)
 │   └── styles/                  # Global tokens, base, shared layout CSS
-├── tests/                       # Reserved for Vitest
+├── tests/                       # Vitest unit tests
 ├── docs/
 │   ├── architecture.md
 │   └── decisions/               # ADRs
@@ -98,9 +105,9 @@ Full details: [`docs/architecture.md`](docs/architecture.md)
 |-------|----------------|----------|
 | **app/routes** | Wire HTML → feature | `routes/forecast.js` |
 | **features** | Domain UI + orchestration | `features/forecast/forecast.js` |
-| **services/api** | External HTTP APIs | `fetchLocationForecast()`, `searchPlaces()` |
+| **services/api** | External HTTP APIs | `fetchLocationForecast()`, `fetchAvalancheForecast()`, `searchPlaces()` |
 | **services/storage** | Browser persistence | `getSavedSpots()`, `setHairMode()` |
-| **lib** | Constants + pure helpers | `windRampColor()`, `WEATHER_MODELS` |
+| **lib** | Constants + pure helpers | `windRampColor()`, `computeSlopeAspect()`, `WEATHER_MODELS` |
 | **components/shell** | Shared app chrome | `mountBottomNav()` |
 
 ### Data flow

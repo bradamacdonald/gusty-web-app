@@ -42,7 +42,29 @@ describe('normalizeAvalancheProduct', () => {
     expect(normalized.bands).toHaveLength(3);
     expect(normalized.highest.value).toBe('considerable');
     expect(normalized.highest.num).toBe(3);
+    expect(normalized.isOffseason).toBe(false);
     expect(normalized.url).toContain('avalanche.ca');
+  });
+
+  it('flags offseason summer products', () => {
+    const normalized = normalizeAvalancheProduct({
+      url: 'https://avalanche.ca/forecasts/x',
+      report: {
+        title: 'Selkirks',
+        highlights: '<p>Regular avalanche forecasts have ended.</p>',
+        dangerRatings: [
+          {
+            ratings: {
+              alp: { display: 'Alpine', rating: { value: 'offseason', display: 'Summer Conditions' } },
+              tln: { display: 'Treeline', rating: { value: 'offseason', display: 'Summer Conditions' } },
+              btl: { display: 'Below Treeline', rating: { value: 'offseason', display: 'Summer Conditions' } },
+            },
+          },
+        ],
+      },
+    });
+    expect(normalized.isOffseason).toBe(true);
+    expect(normalized.highest.num).toBeNull();
   });
 
   it('returns null without a report', () => {

@@ -1,42 +1,84 @@
 import { MODEL_API_BY_NAME } from './constants.js';
 
-/** Model run schedules (UTC): GFS 00/06/12/18, ECMWF/GEM 00/12, HRDPS ~every 6h, HRRR hourly */
-export function getModelRunTimeAgo(model) {
-  const now = new Date();
-  const y = now.getUTCFullYear();
-  const m = now.getUTCMonth();
-  const d = now.getUTCDate();
-  const h = now.getUTCHours();
+/**
+ * Approximate NWP cycle + dissemination lag (UTC hours after cycle before
+ * fields typically appear on Open-Meteo). Open-Meteo does not expose model
+ * run timestamps in the forecast payload, so this remains an estimate.
+ *
+ * Schedule: GFS/HRDPS 00/06/12/18, ECMWF/GEM 00/12, HRRR hourly.
+ */
+const MODEL_CYCLES = {
+  gfs: { hours: [0, 6, 12, 18], lagHours: 4 },
+  hrdps: { hours: [0, 6, 12, 18], lagHours: 3 },
+  ecmwf: { hours: [0, 12], lagHours: 7 },
+  gem: { hours: [0, 12], lagHours: 4 },
+  hrrr: { hours: null, lagHours: 1 },
+};
 
-  let lastRun;
-  if (model === 'gfs') {
-    const gfsHours = [0, 6, 12, 18];
-    const prev = gfsHours.filter((x) => x <= h).pop();
-    lastRun =
-      prev !== undefined
-        ? new Date(Date.UTC(y, m, d, prev, 0, 0))
-        : new Date(Date.UTC(y, m, d - 1, 18, 0, 0));
-  } else if (model === 'ecmwf' || model === 'gem') {
-    lastRun = h >= 12 ? new Date(Date.UTC(y, m, d, 12, 0, 0)) : new Date(Date.UTC(y, m, d, 0, 0, 0));
-  } else if (model === 'hrdps') {
-    const hours = [0, 6, 12, 18];
-    const prev = hours.filter((x) => x <= h).pop();
-    lastRun =
-      prev !== undefined
-        ? new Date(Date.UTC(y, m, d, prev, 0, 0))
-        : new Date(Date.UTC(y, m, d - 1, 18, 0, 0));
-  } else if (model === 'hrrr') {
-    lastRun = new Date(Date.UTC(y, m, d, h, 0, 0));
-  } else {
-    return '';
-  }
-
-  const diffMs = now - lastRun;
+export function formatTimeAgo(fromDate, now = new Date()) {
+  if (!(fromDate instanceof Date) || Number.isNaN(fromDate.getTime())) return '';
+  const diffMs = now - fromDate;
+  if (diffMs < 0) return 'Est. pending';
   const diffMin = Math.floor(diffMs / 60000);
   const diffHr = Math.floor(diffMs / 3600000);
-  if (diffMin < 1) return 'Updated just now';
-  if (diffHr < 1) return `Updated ${diffMin}m ago`;
-  return `Updated ${diffHr}h ago`;
+  if (diffMin < 1) return 'Est. just now';
+  if (diffHr < 1) return `Est. ${diffMin}m ago`;
+  if (diffHr < 48) return `Est. ${diffHr}h ago`;
+  const diffDays = Math.floor(diffHr / 24);
+  return `Est. ${diffDays}d ago`;
+}
+
+/**
+ * Latest cycle dissemination time that should already be available.
+ */
+export function estimateModelAvailableAt(model, now = new Date()) {
+  const cfg = MODEL_CYCLES[model];
+  if (!cfg) return null;
+
+  if (model === 'hrrr') {
+    const available = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        now.getUTCHours(),
+        0,
+        0
+      )
+    );
+    available.setUTCHours(available.getUTCHours() - cfg.lagHours);
+    return available;
+  }
+
+  const cycles = [];
+  for (let dayBack = 0; dayBack <= 2; dayBack += 1) {
+    cfg.hours.forEach((hour) => {
+      cycles.push(
+        new Date(
+          Date.UTC(
+            now.getUTCFullYear(),
+            now.getUTCMonth(),
+            now.getUTCDate() - dayBack,
+            hour,
+            0,
+            0
+          )
+        )
+      );
+    });
+  }
+  cycles.sort((a, b) => b - a);
+
+  for (const cycle of cycles) {
+    const available = new Date(cycle.getTime() + cfg.lagHours * 3600000);
+    if (available <= now) return available;
+  }
+  return null;
+}
+
+export function getModelRunTimeAgo(model, now = new Date()) {
+  const availableAt = estimateModelAvailableAt(model, now);
+  return formatTimeAgo(availableAt, now);
 }
 
 export function modelKeyToApi(key) {
