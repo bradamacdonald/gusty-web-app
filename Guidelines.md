@@ -15,30 +15,91 @@ from the scales below.
 
 ---
 
+## Contrast (WCAG 2.1 AA)
+
+All text, icons, and form control borders must meet AA against the surface
+they sit on (`bg`, `surface`, or `surface-elevated`):
+
+- Normal text / icons: **≥ 4.5:1**
+- Interactive control borders (`border-field`): **≥ 3:1**
+
+Do not invent new greys for labels, placeholders, or captions — use the
+semantic text tokens below. Runtime SSOT: `src/styles/tokens.css`.
+
+---
+
+## Primitive ramps
+
+Semantic tokens alias these primitives. Prefer semantic names in UI CSS;
+reach for primitives only when defining new aliases.
+
+### Navy / slate
+
+| Token     | Hex     |
+|-----------|---------|
+| navy-950  | #0B1120 |
+| navy-900  | #111827 |
+| navy-800  | #1A2333 |
+| navy-700  | #243044 |
+| navy-600  | #334155 |
+| navy-500  | #4A5C72 |
+| navy-400  | #5A6B80 |
+| navy-350  | #6B7C90 |
+| navy-300  | #8A9BB0 |
+| navy-200  | #B8C4D4 |
+| navy-100  | #E8ECF1 |
+| navy-50   | #F5F7FA |
+| navy-25   | #F0F4F8 |
+
+### Cyan (accent)
+
+| Token    | Hex     | Notes                |
+|----------|---------|----------------------|
+| cyan-400 | #38BDF8 | Dark-mode accent     |
+| cyan-500 | #0EA5E9 |                      |
+| cyan-600 | #0284C7 |                      |
+| cyan-700 | #0369A1 | Light-mode accent    |
+
+### Wind / status pairs (dark → light)
+
+| Family  | Dark hex | Light hex |
+|---------|----------|-----------|
+| green   | #34D399  | #047857   |
+| lime    | #A3E635  | #3F6212   |
+| amber   | #FBBF24  | #92400E   |
+| orange  | #F97316  | #9A3412   |
+| red     | #F05252  | #B91C1C   |
+| magenta | #D946EF  | #A21CAF   |
+
+---
+
 ## Surfaces
 
-Use these three levels to create depth. Never use pure black or white.
+Use these three levels to create depth. Never use pure black. Prefer off-black
+navies from the ramp; light `surface` may use white for card lift.
 
-| Token            | Hex       | Use                              |
-|------------------|-----------|----------------------------------|
-| bg               | #0B1120   | Page canvas, app background      |
-| surface          | #111827   | Cards, panels, containers        |
-| surface-elevated | #1A2333   | Raised panels, model comparison  |
-| border           | rgba(255,255,255,0.07)  | Default borders     |
-| border-strong    | rgba(255,255,255,0.13)  | Emphasized borders  |
+| Token            | Dark      | Light     | Use                              |
+|------------------|-----------|-----------|----------------------------------|
+| bg               | navy-950  | navy-50   | Page canvas, app background      |
+| surface          | navy-900  | #FFFFFF   | Cards, panels, containers        |
+| surface-elevated | navy-800  | navy-100  | Raised panels, model comparison  |
+| border           | white 12% | black 14% | Decorative hairlines             |
+| border-strong    | white 22% | black 24% | Emphasized dividers              |
+| border-field     | navy-350  | navy-350  | Inputs, selects, toggles (≥3:1)  |
 
 ---
 
 ## Text
 
-Never use pure white. Never use pure black.
+Never use pure white or pure black for text — use navy-25 / navy-950.
 
-| Token          | Hex       | Use                          |
-|----------------|-----------|------------------------------|
-| text-primary   | #F0F4F8   | Headings, primary values     |
-| text-secondary | #8A9BB0   | Labels, supporting info      |
-| text-muted     | #4A5C72   | Captions, timestamps, hints  |
-| accent         | #38BDF8   | Links, active states, focus  |
+| Token          | Dark      | Light     | Use                          |
+|----------------|-----------|-----------|------------------------------|
+| text-primary   | navy-25   | navy-950  | Headings, primary values     |
+| text-secondary | navy-200  | #3D4F63   | Labels, supporting info      |
+| text-muted     | navy-300  | navy-400  | Captions, timestamps, hints  |
+| text-inverse   | navy-950  | navy-25   | Text on filled accent        |
+| accent         | cyan-400  | cyan-700  | Links, active states, focus  |
 
 ---
 
@@ -46,28 +107,30 @@ Never use pure white. Never use pure black.
 
 This is the most important color scale in the app. Use it consistently
 everywhere wind speed is displayed — hourly strips, model panels, hero values.
-Never use other colors for wind data.
+Never use other colors for wind data. Values swap automatically in light mode
+so wind text stays AA on light surfaces.
 
-| Token    | Hex     | Range      | Label   |
-|----------|---------|------------|---------|
-| calm     | #34D399 | 0–15 km/h  | Calm    |
-| light    | #A3E635 | 16–30 km/h | Light   |
-| moderate | #FBBF24 | 31–50 km/h | Moderate|
-| strong   | #F97316 | 51–74 km/h | Strong  |
-| severe   | #EF4444 | 75–100 km/h| Severe  |
-| extreme  | #C026D3 | 100+ km/h  | Extreme |
+| Token    | Dark    | Light   | Range       | Label   |
+|----------|---------|---------|-------------|---------|
+| calm     | #34D399 | #047857 | 0–15 km/h   | Calm    |
+| light    | #A3E635 | #3F6212 | 16–30 km/h  | Light   |
+| moderate | #FBBF24 | #92400E | 31–50 km/h  | Moderate|
+| strong   | #F97316 | #9A3412 | 51–74 km/h  | Strong  |
+| severe   | #F05252 | #B91C1C | 75–100 km/h | Severe  |
+| extreme  | #D946EF | #A21CAF | 100+ km/h   | Extreme |
 
 ---
 
 ## Status Colors
 
 Use only for go/no-go condition indicators. Never repurpose for other meanings.
+Light mode uses the darker wind-pair aliases so badge text stays AA.
 
-| Token    | Hex     | Meaning              |
-|----------|---------|----------------------|
-| go       | #34D399 | Favorable conditions |
-| caution  | #FBBF24 | Marginal conditions  |
-| no-go    | #EF4444 | Unsafe conditions    |
+| Token    | Dark    | Light   | Meaning              |
+|----------|---------|---------|----------------------|
+| go       | #34D399 | #047857 | Favorable conditions |
+| caution  | #FBBF24 | #92400E | Marginal conditions  |
+| no-go    | #F05252 | #B91C1C | Unsafe conditions    |
 
 Status badges use 15% opacity background tint + 30% opacity border of the same color.
 

@@ -139,19 +139,19 @@
       flex-shrink: 0;
     }
     .badge-go {
-      background: rgba(52, 211, 153, 0.15);
+      background: color-mix(in srgb, var(--color-go) 15%, transparent);
       color: var(--color-go);
-      border: 1px solid rgba(52, 211, 153, 0.3);
+      border: 1px solid color-mix(in srgb, var(--color-go) 30%, transparent);
     }
     .badge-caution {
-      background: rgba(251, 191, 36, 0.15);
+      background: color-mix(in srgb, var(--color-caution) 15%, transparent);
       color: var(--color-caution);
-      border: 1px solid rgba(251, 191, 36, 0.3);
+      border: 1px solid color-mix(in srgb, var(--color-caution) 30%, transparent);
     }
     .badge-no-go {
-      background: rgba(239, 68, 68, 0.15);
+      background: color-mix(in srgb, var(--color-no-go) 15%, transparent);
       color: var(--color-no-go);
-      border: 1px solid rgba(239, 68, 68, 0.3);
+      border: 1px solid color-mix(in srgb, var(--color-no-go) 30%, transparent);
     }
     .spot-meta {
       font-size: var(--text-sm);
@@ -207,7 +207,7 @@
     }
     .spot-delete-btn:hover {
       color: var(--color-no-go);
-      background: rgba(239, 68, 68, 0.1);
+      background: color-mix(in srgb, var(--color-no-go) 10%, transparent);
     }
     .spot-delete-btn svg {
       width: 18px;

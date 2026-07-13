@@ -36,10 +36,32 @@ mountBottomNav('location');
         backBtn.href = 'forecast.html?' + p.toString();
       }
 
+      function cssVar(name, fallback) {
+        var value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        return value || fallback;
+      }
+
+      var chartGrid = cssVar('--color-border', 'rgba(255,255,255,0.12)');
+      var chartTick = cssVar('--color-text-muted', '#8A9BB0');
+      var chartAccent = cssVar('--color-accent', '#38BDF8');
+      var chartSecondary = cssVar('--color-text-secondary', '#B8C4D4');
+      var chartMuted = cssVar('--color-text-muted', '#8A9BB0');
+      var windStrong = cssVar('--wind-strong', '#F97316');
+      var windModerate = cssVar('--wind-moderate', '#FBBF24');
+      var windCalm = cssVar('--wind-calm', '#34D399');
+      var precipHeavy = cssVar('--precip-heavy', 'rgba(96, 165, 250, 0.85)');
+      var precipSnow = cssVar('--precip-snow', 'rgba(226, 232, 240, 0.70)');
+      var cloudFill = document.documentElement.classList.contains('theme-light')
+        ? 'rgba(61, 79, 99, 0.08)'
+        : 'rgba(255,255,255,0.04)';
+      var cloudStroke = document.documentElement.classList.contains('theme-light')
+        ? 'rgba(61, 79, 99, 0.18)'
+        : 'rgba(255,255,255,0.12)';
+
       var xAxisTicksEvery2 = {
-        grid: { color: 'rgba(255,255,255,0.07)' },
+        grid: { color: chartGrid },
         ticks: {
-          color: '#4A5C72',
+          color: chartTick,
           font: { size: 10, family: "'DM Mono'" },
           maxRotation: 0,
           callback: function(val, index, ticks) {
@@ -53,7 +75,7 @@ mountBottomNav('location');
         plugins: { legend: { display: false } },
         scales: {
           x: xAxisTicksEvery2,
-          y: { grid: { color: 'rgba(255,255,255,0.07)' }, ticks: { color: '#4A5C72', font: { size: 10, family: "'DM Mono'" } } }
+          y: { grid: { color: chartGrid }, ticks: { color: chartTick, font: { size: 10, family: "'DM Mono'" } } }
         }
       };
 
@@ -205,9 +227,9 @@ mountBottomNav('location');
         data: {
           labels: labels,
           datasets: [
-            { label: 'Summit', data: windData.summit, borderColor: '#F97316', backgroundColor: 'transparent', borderWidth: 2, tension: 0.3, pointRadius: 0 },
-            { label: 'Mid', data: windData.mid, borderColor: '#FBBF24', backgroundColor: 'transparent', borderWidth: 2, tension: 0.3, pointRadius: 0 },
-            { label: 'Trailhead', data: windData.trailhead, borderColor: '#34D399', backgroundColor: 'transparent', borderWidth: 2, tension: 0.3, pointRadius: 0 }
+            { label: 'Summit', data: windData.summit, borderColor: windStrong, backgroundColor: 'transparent', borderWidth: 2, tension: 0.3, pointRadius: 0 },
+            { label: 'Mid', data: windData.mid, borderColor: windModerate, backgroundColor: 'transparent', borderWidth: 2, tension: 0.3, pointRadius: 0 },
+            { label: 'Trailhead', data: windData.trailhead, borderColor: windCalm, backgroundColor: 'transparent', borderWidth: 2, tension: 0.3, pointRadius: 0 }
           ]
         },
         options: {
@@ -237,7 +259,7 @@ mountBottomNav('location');
           },
           scales: {
             x: xAxisTicksEvery2,
-            y: { grid: { color: 'rgba(255,255,255,0.07)' }, ticks: { color: '#4A5C72', font: { size: 10, family: "'DM Mono'" } }, min: 0, max: 120 }
+            y: { grid: { color: chartGrid }, ticks: { color: chartTick, font: { size: 10, family: "'DM Mono'" } }, min: 0, max: 120 }
           }
         }
       });
@@ -247,9 +269,9 @@ mountBottomNav('location');
         data: {
           labels: labels,
           datasets: [
-            { label: 'Temp', data: tempData.temp, borderColor: '#38BDF8', backgroundColor: 'transparent', borderWidth: 2, tension: 0.3, pointRadius: 0 },
-            { label: 'Dew Point', data: tempData.dewPoint, borderColor: '#8A9BB0', backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [4,4], tension: 0.3, pointRadius: 0 },
-            { label: 'Freezing', data: tempData.freezing, borderColor: '#4A5C72', backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [4,4], tension: 0.3, pointRadius: 0, yAxisID: 'y1' }
+            { label: 'Temp', data: tempData.temp, borderColor: chartAccent, backgroundColor: 'transparent', borderWidth: 2, tension: 0.3, pointRadius: 0 },
+            { label: 'Dew Point', data: tempData.dewPoint, borderColor: chartSecondary, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [4,4], tension: 0.3, pointRadius: 0 },
+            { label: 'Freezing', data: tempData.freezing, borderColor: chartMuted, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [4,4], tension: 0.3, pointRadius: 0, yAxisID: 'y1' }
           ]
         },
         options: {
@@ -269,10 +291,10 @@ mountBottomNav('location');
         data: {
           labels: labels,
           datasets: [
-            { label: 'Cloud', data: precipData.cloud, type: 'line', borderColor: 'rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.04)', fill: true, tension: 0.3, pointRadius: 0, yAxisID: 'yCloud', order: 0 },
-            { label: 'Rain', data: precipData.rain, backgroundColor: 'rgba(96, 165, 250, 0.85)', borderWidth: 0, stack: 'precip', order: 2 },
-            { label: 'Snow', data: precipData.snow, backgroundColor: 'rgba(226, 232, 240, 0.70)', borderWidth: 0, stack: 'precip', order: 1 },
-            { label: 'Cumulative', data: precipData.cumulative, type: 'line', borderColor: '#38BDF8', backgroundColor: 'transparent', borderWidth: 2, tension: 0, stepped: true, pointRadius: 0, yAxisID: 'yCumulative', order: 3 }
+            { label: 'Cloud', data: precipData.cloud, type: 'line', borderColor: cloudStroke, backgroundColor: cloudFill, fill: true, tension: 0.3, pointRadius: 0, yAxisID: 'yCloud', order: 0 },
+            { label: 'Rain', data: precipData.rain, backgroundColor: precipHeavy, borderWidth: 0, stack: 'precip', order: 2 },
+            { label: 'Snow', data: precipData.snow, backgroundColor: precipSnow, borderWidth: 0, stack: 'precip', order: 1 },
+            { label: 'Cumulative', data: precipData.cumulative, type: 'line', borderColor: chartAccent, backgroundColor: 'transparent', borderWidth: 2, tension: 0, stepped: true, pointRadius: 0, yAxisID: 'yCumulative', order: 3 }
           ]
         },
         options: {

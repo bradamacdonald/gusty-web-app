@@ -15,36 +15,70 @@
 
   :root {
 
-    /* --- SURFACE HIERARCHY (3 levels) --- */
-    --color-bg:          #0B1120;   /* page canvas */
-    --color-surface:     #111827;   /* cards, panels */
-    --color-surface-elevated: #1A2333; /* raised panels, model comparison */
-    --color-border:      rgba(255, 255, 255, 0.07);
-    --color-border-strong: rgba(255, 255, 255, 0.13);
+    /* --- PRIMITIVE: Navy / slate --- */
+    --navy-950: #0B1120;
+    --navy-900: #111827;
+    --navy-800: #1A2333;
+    --navy-700: #243044;
+    --navy-600: #334155;
+    --navy-500: #4A5C72;
+    --navy-400: #5A6B80;
+    --navy-350: #6B7C90;
+    --navy-300: #8A9BB0;
+    --navy-200: #B8C4D4;
+    --navy-100: #E8ECF1;
+    --navy-50:  #F5F7FA;
+    --navy-25:  #F0F4F8;
 
-    /* --- TEXT --- */
-    --color-text-primary:   #F0F4F8;  /* headings, primary values */
-    --color-text-secondary: #8A9BB0;  /* labels, supporting info */
-    --color-text-muted:     #4A5C72;  /* captions, disabled */
-    --color-text-inverse:   #0B1120;  /* text on light accents */
+    /* --- PRIMITIVE: Cyan --- */
+    --cyan-400: #38BDF8;
+    --cyan-700: #0369A1;
 
-    /* --- ACCENT — Electric Cyan (primary interactive) --- */
-    --color-accent:         #38BDF8;  /* links, active states */
-    --color-accent-dim:     rgba(56, 189, 248, 0.15); /* accent bg tint */
-    --color-accent-border:  rgba(56, 189, 248, 0.30);
+    /* --- PRIMITIVE: Wind / status pairs --- */
+    --green-400:  #34D399;
+    --green-700:  #047857;
+    --lime-400:   #A3E635;
+    --lime-800:   #3F6212;
+    --amber-400:  #FBBF24;
+    --amber-800:  #92400E;
+    --orange-400: #F97316;
+    --orange-700: #9A3412;
+    --red-400:    #F05252;
+    --red-700:    #B91C1C;
+    --magenta-500:#D946EF;
+    --magenta-700:#A21CAF;
 
-    /* --- WIND COLOR RAMP (meteorological convention) --- */
-    --wind-calm:      #34D399;  /* 0–15 km/h  — calm */
-    --wind-light:     #A3E635;  /* 16–30 km/h — light */
-    --wind-moderate:  #FBBF24;  /* 31–50 km/h — moderate */
-    --wind-strong:    #F97316;  /* 51–74 km/h — strong */
-    --wind-severe:    #EF4444;  /* 75–100 km/h — severe */
-    --wind-extreme:   #C026D3;  /* 100+ km/h  — extreme */
+    /* --- SEMANTIC: Surfaces --- */
+    --color-bg:          var(--navy-950);
+    --color-surface:     var(--navy-900);
+    --color-surface-elevated: var(--navy-800);
+    --color-border:      rgba(255, 255, 255, 0.12);
+    --color-border-strong: rgba(255, 255, 255, 0.22);
+    --color-border-field: var(--navy-350);
 
-    /* --- SEMANTIC STATUS --- */
-    --color-go:       #34D399;  /* favorable conditions */
-    --color-caution:  #FBBF24;  /* marginal conditions */
-    --color-no-go:    #EF4444;  /* unsafe conditions */
+    /* --- SEMANTIC: Text (WCAG AA ≥4.5:1) --- */
+    --color-text-primary:   var(--navy-25);
+    --color-text-secondary: var(--navy-200);
+    --color-text-muted:     var(--navy-300);
+    --color-text-inverse:   var(--navy-950);
+
+    /* --- SEMANTIC: Accent --- */
+    --color-accent:         var(--cyan-400);
+    --color-accent-dim:     rgba(56, 189, 248, 0.15);
+    --color-accent-border:  rgba(56, 189, 248, 0.45);
+
+    /* --- SEMANTIC: Wind --- */
+    --wind-calm:      var(--green-400);
+    --wind-light:     var(--lime-400);
+    --wind-moderate:  var(--amber-400);
+    --wind-strong:    var(--orange-400);
+    --wind-severe:    var(--red-400);
+    --wind-extreme:   var(--magenta-500);
+
+    /* --- SEMANTIC: Status --- */
+    --color-go:       var(--green-400);
+    --color-caution:  var(--amber-400);
+    --color-no-go:    var(--red-400);
 
     /* --- PRECIPITATION --- */
     --precip-none:    rgba(255,255,255,0.0);
@@ -108,6 +142,31 @@
     --duration-fast:   100ms;
     --duration-base:   200ms;
     --duration-slow:   350ms;
+  }
+
+  html.theme-light {
+    --color-bg:               var(--navy-50);
+    --color-surface:          #FFFFFF;
+    --color-surface-elevated: var(--navy-100);
+    --color-border:           rgba(0, 0, 0, 0.14);
+    --color-border-strong:    rgba(0, 0, 0, 0.24);
+    --color-border-field:     var(--navy-350);
+    --color-text-primary:     var(--navy-950);
+    --color-text-secondary:   #3D4F63;
+    --color-text-muted:       var(--navy-400);
+    --color-text-inverse:     var(--navy-25);
+    --color-accent:           var(--cyan-700);
+    --color-accent-dim:       rgba(3, 105, 161, 0.12);
+    --color-accent-border:    rgba(3, 105, 161, 0.45);
+    --wind-calm:     var(--green-700);
+    --wind-light:    var(--lime-800);
+    --wind-moderate: var(--amber-800);
+    --wind-strong:   var(--orange-700);
+    --wind-severe:   var(--red-700);
+    --wind-extreme:  var(--magenta-700);
+    --color-go:      var(--green-700);
+    --color-caution: var(--amber-800);
+    --color-no-go:   var(--red-700);
   }
 
   /* ============================================================
@@ -290,26 +349,26 @@
       </div>
     </div>
     <div class="swatch">
-      <div class="swatch-color" style="background:#8A9BB0"></div>
+      <div class="swatch-color" style="background:#B8C4D4"></div>
       <div class="swatch-info">
         <div class="swatch-name">--color-text-secondary</div>
-        <div class="swatch-value">#8A9BB0</div>
-        <div class="swatch-desc">Labels, supporting info</div>
+        <div class="swatch-value">#B8C4D4</div>
+        <div class="swatch-desc">Labels, supporting info · AA</div>
       </div>
     </div>
     <div class="swatch">
-      <div class="swatch-color" style="background:#4A5C72"></div>
+      <div class="swatch-color" style="background:#8A9BB0"></div>
       <div class="swatch-info">
         <div class="swatch-name">--color-text-muted</div>
-        <div class="swatch-value">#4A5C72</div>
-        <div class="swatch-desc">Captions, disabled</div>
+        <div class="swatch-value">#8A9BB0</div>
+        <div class="swatch-desc">Captions, timestamps, hints · AA</div>
       </div>
     </div>
     <div class="swatch">
       <div class="swatch-color" style="background:#38BDF8"></div>
       <div class="swatch-info">
         <div class="swatch-name">--color-accent</div>
-        <div class="swatch-value">#38BDF8</div>
+        <div class="swatch-value">#38BDF8 / #0369A1 light</div>
         <div class="swatch-desc">Links, active states, interactive</div>
       </div>
     </div>
@@ -328,8 +387,8 @@
     <div class="wind-ramp-seg" style="background:#A3E635"><span class="wind-ramp-label">Light</span></div>
     <div class="wind-ramp-seg" style="background:#FBBF24"><span class="wind-ramp-label">Mod</span></div>
     <div class="wind-ramp-seg" style="background:#F97316"><span class="wind-ramp-label">Strong</span></div>
-    <div class="wind-ramp-seg" style="background:#EF4444"><span class="wind-ramp-label">Severe</span></div>
-    <div class="wind-ramp-seg" style="background:#C026D3"><span class="wind-ramp-label">Extreme</span></div>
+    <div class="wind-ramp-seg" style="background:#F05252"><span class="wind-ramp-label">Severe</span></div>
+    <div class="wind-ramp-seg" style="background:#D946EF"><span class="wind-ramp-label">Extreme</span></div>
   </div>
 
   <div class="wind-grid">
@@ -349,11 +408,11 @@
       <span class="wind-chip-label">Strong</span>
       <span class="wind-chip-range">51–74</span>
     </div>
-    <div class="wind-chip" style="background:#EF4444">
+    <div class="wind-chip" style="background:#F05252">
       <span class="wind-chip-label">Severe</span>
       <span class="wind-chip-range">75–100</span>
     </div>
-    <div class="wind-chip" style="background:#C026D3">
+    <div class="wind-chip" style="background:#D946EF">
       <span class="wind-chip-label">Extreme</span>
       <span class="wind-chip-range">100+</span>
     </div>
@@ -386,10 +445,10 @@
       </div>
     </div>
     <div class="swatch">
-      <div class="swatch-color" style="background:#EF4444"></div>
+      <div class="swatch-color" style="background:#F05252"></div>
       <div class="swatch-info">
         <div class="swatch-name">--color-no-go</div>
-        <div class="swatch-value">#EF4444</div>
+        <div class="swatch-value">#F05252</div>
         <div class="swatch-desc">Unsafe conditions</div>
       </div>
     </div>
@@ -670,8 +729,8 @@
       <tr><td><code>--wind-light</code></td><td class="val">#A3E635</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">16–30 km/h</td></tr>
       <tr><td><code>--wind-moderate</code></td><td class="val">#FBBF24</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">31–50 km/h</td></tr>
       <tr><td><code>--wind-strong</code></td><td class="val">#F97316</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">51–74 km/h</td></tr>
-      <tr><td><code>--wind-severe</code></td><td class="val">#EF4444</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">75–100 km/h</td></tr>
-      <tr><td><code>--wind-extreme</code></td><td class="val">#C026D3</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">100+ km/h</td></tr>
+      <tr><td><code>--wind-severe</code></td><td class="val">#F05252</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">75–100 km/h</td></tr>
+      <tr><td><code>--wind-extreme</code></td><td class="val">#D946EF</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">100+ km/h</td></tr>
       <tr><td><code>--font-ui</code></td><td class="val">'Inter'</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">All UI text</td></tr>
       <tr><td><code>--font-data</code></td><td class="val">'DM Mono'</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">All numeric values, model labels</td></tr>
       <tr><td><code>--text-xs / sm / base / lg / xl / 2xl / 3xl</code></td><td class="val">11–40px</td><td style="color:var(--color-text-secondary);font-size:var(--text-sm)">Type scale</td></tr>

@@ -218,24 +218,26 @@
     .form-input {
       width: 100%;
       padding: 12px 16px;
-      border: 1px solid rgba(0,0,0,0.08);
+      border: 1px solid #6B7C90;
       border-radius: 10px;
       font-family: 'Inter', system-ui, sans-serif;
       font-size: 15px;
+      color: #0B1120;
     }
-    .form-input:focus { outline: none; border-color: rgba(56,189,248,0.3); box-shadow: 0 0 0 2px rgba(56,189,248,0.15); }
-    .form-input.error { border-color: #EF4444; }
-    .form-input:disabled { background: #F5F7FA; color: #888; }
-    .form-helper { font-size: 11px; color: #888; margin-top: 4px; }
+    .form-input::placeholder { color: #5A6B80; }
+    .form-input:focus { outline: none; border-color: #0369A1; box-shadow: 0 0 0 2px rgba(3,105,161,0.12); }
+    .form-input.error { border-color: #B91C1C; }
+    .form-input:disabled { background: #F5F7FA; color: #5A6B80; }
+    .form-helper { font-size: 11px; color: #5A6B80; margin-top: 4px; }
     .toggle-wrap { display: flex; align-items: center; gap: 16px; }
     .toggle {
       width: 48px; height: 28px;
       background: #E8ECF1;
-      border: 1px solid rgba(0,0,0,0.08);
+      border: 1px solid #6B7C90;
       border-radius: 999px;
       position: relative;
     }
-    .toggle.on { background: rgba(56,189,248,0.15); border-color: rgba(56,189,248,0.3); }
+    .toggle.on { background: rgba(3,105,161,0.12); border-color: rgba(3,105,161,0.45); }
     .toggle-knob {
       position: absolute;
       top: 2px; left: 2px;
@@ -429,14 +431,14 @@
         <div class="contrast-sample contrast-dark">Dark text</div>
       </div>
       <div>
-        <div class="colour-swatch" style="background:#8A9BB0"></div>
+        <div class="colour-swatch" style="background:#B8C4D4"></div>
         <p class="token-name">--color-text-secondary</p>
-        <p class="token-name">#8A9BB0</p>
+        <p class="token-name">#B8C4D4</p>
       </div>
       <div>
-        <div class="colour-swatch" style="background:#4A5C72"></div>
+        <div class="colour-swatch" style="background:#8A9BB0"></div>
         <p class="token-name">--color-text-muted</p>
-        <p class="token-name">#4A5C72</p>
+        <p class="token-name">#8A9BB0</p>
       </div>
     </div>
   </div>
@@ -465,14 +467,14 @@
         <p class="token-name">#F97316</p>
       </div>
       <div>
-        <div class="colour-swatch" style="background:#EF4444"></div>
+        <div class="colour-swatch" style="background:#F05252"></div>
         <p class="token-name">--wind-severe / --color-no-go</p>
-        <p class="token-name">#EF4444</p>
+        <p class="token-name">#F05252</p>
       </div>
       <div>
-        <div class="colour-swatch" style="background:#C026D3"></div>
+        <div class="colour-swatch" style="background:#D946EF"></div>
         <p class="token-name">--wind-extreme</p>
-        <p class="token-name">#C026D3</p>
+        <p class="token-name">#D946EF</p>
       </div>
     </div>
   </div>
