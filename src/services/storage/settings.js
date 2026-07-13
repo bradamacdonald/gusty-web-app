@@ -97,23 +97,3 @@ export function getTempUnit() {
   return getUnits() === 'imperial' ? '°F' : '°C';
 }
 
-/** Backward-compatible global for gradual migration */
-export function attachGlobal() {
-  if (typeof window === 'undefined') return;
-  window.GustySettings = {
-    getHairMode,
-    getUnits,
-    getTheme,
-    getDefaultModel,
-    applyTheme,
-    getHairLabel,
-    getConditionLabel,
-    getConditionDisplayLabel,
-    formatWindSpeed,
-    formatTemp,
-    convertWindForDisplay,
-    kmhToMph,
-    getWindUnit,
-    getTempUnit,
-  };
-}

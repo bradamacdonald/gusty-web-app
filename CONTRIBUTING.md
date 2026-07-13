@@ -29,7 +29,7 @@ Read [docs/architecture.md](./docs/architecture.md) before adding new modules.
 
 ## Conventions
 
-- **ES modules** — all source uses `import`/`export`; no IIFE globals except `window.GustySettings` (legacy compat in bootstrap)
+- **ES modules** — all source uses `import`/`export`; no window globals
 - **No cross-feature imports** — `features/forecast/` must not import from `features/search/`
 - **Services stay pure** — no `document.*` or `localStorage` in `services/api/`; storage only in `services/storage/`
 - **CSS** — feature styles import `../../styles/shared.css`; do not duplicate tokens
