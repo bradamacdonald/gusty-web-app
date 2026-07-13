@@ -656,5 +656,5 @@ body {
       cursor: pointer;
     }
     .retry-btn:hover {
-      background: rgba(56, 189, 248, 0.25);
+      background: color-mix(in srgb, var(--color-accent) 25%, transparent);
     }

@@ -53,9 +53,9 @@
   --color-surface:          var(--navy-900);
   --color-surface-elevated: var(--navy-800);
 
-  /* Decorative hairlines (not relied on alone to identify controls) */
-  --color-border:        rgba(255, 255, 255, 0.12);
-  --color-border-strong: rgba(255, 255, 255, 0.22);
+  /* Component / divider borders — ≥3:1 vs adjacent surfaces (WCAG 1.4.11) */
+  --color-border:        var(--navy-350);
+  --color-border-strong: var(--navy-300);
   /* Form / control chrome — ≥3:1 vs adjacent surfaces */
   --color-border-field:  var(--navy-350);
 
@@ -68,7 +68,8 @@
   /* ── Semantic: Accent ── */
   --color-accent:        var(--cyan-400);
   --color-accent-dim:    rgba(56, 189, 248, 0.15);
-  --color-accent-border: rgba(56, 189, 248, 0.45);
+  /* Solid focus / state border — translucent accents fail non-text 3:1 */
+  --color-accent-border: var(--color-accent);
 
   /* ── Semantic: Wind ── */
   --wind-calm:     var(--green-400);
@@ -85,8 +86,8 @@
 
   /* ── Precipitation ── */
   --precip-none:  rgba(255, 255, 255, 0);
-  --precip-trace: rgba(147, 197, 253, 0.25);
-  --precip-light: rgba(147, 197, 253, 0.55);
+  --precip-trace: rgba(147, 197, 253, 0.50);
+  --precip-light: rgba(147, 197, 253, 0.70);
   --precip-heavy: rgba(96, 165, 250, 0.85);
   --precip-snow:  rgba(226, 232, 240, 0.70);
 
@@ -140,8 +141,8 @@ html.theme-light {
   --color-surface:          #FFFFFF;
   --color-surface-elevated: var(--navy-100);
 
-  --color-border:        rgba(0, 0, 0, 0.14);
-  --color-border-strong: rgba(0, 0, 0, 0.24);
+  --color-border:        var(--navy-350);
+  --color-border-strong: var(--navy-400);
   --color-border-field:  var(--navy-350);
 
   --color-text-primary:   var(--navy-950);
@@ -151,7 +152,7 @@ html.theme-light {
 
   --color-accent:        var(--cyan-700);
   --color-accent-dim:    rgba(3, 105, 161, 0.12);
-  --color-accent-border: rgba(3, 105, 161, 0.45);
+  --color-accent-border: var(--color-accent);
 
   --wind-calm:     var(--green-700);
   --wind-light:    var(--lime-800);
@@ -164,9 +165,10 @@ html.theme-light {
   --color-caution: var(--amber-800);
   --color-no-go:   var(--red-700);
 
+  /* Graphical precip fills — ≥3:1 vs light surfaces (WCAG 1.4.11) */
   --precip-none:  rgba(0, 0, 0, 0);
-  --precip-trace: rgba(3, 105, 161, 0.18);
-  --precip-light: rgba(3, 105, 161, 0.35);
-  --precip-heavy: rgba(3, 105, 161, 0.55);
-  --precip-snow:  rgba(74, 92, 114, 0.45);
+  --precip-trace: rgba(3, 105, 161, 0.75);
+  --precip-light: rgba(3, 105, 161, 0.85);
+  --precip-heavy: var(--cyan-700);
+  --precip-snow:  rgba(74, 92, 114, 0.85);
 }

@@ -83,9 +83,10 @@ navies from the ramp; light `surface` may use white for card lift.
 | bg               | navy-950  | navy-50   | Page canvas, app background      |
 | surface          | navy-900  | #FFFFFF   | Cards, panels, containers        |
 | surface-elevated | navy-800  | navy-100  | Raised panels, model comparison  |
-| border           | white 12% | black 14% | Decorative hairlines             |
-| border-strong    | white 22% | black 24% | Emphasized dividers              |
+| border           | navy-350  | navy-350  | Panel / card boundaries (≥3:1)   |
+| border-strong    | navy-300  | navy-400  | Emphasized dividers (≥3:1)       |
 | border-field     | navy-350  | navy-350  | Inputs, selects, toggles (≥3:1)  |
+| accent-border    | accent    | accent    | Focus / selected control border  |
 
 ---
 
@@ -139,14 +140,15 @@ Status badges use 15% opacity background tint + 30% opacity border of the same c
 ## Precipitation
 
 Used in hourly strip bars only. Displayed as a 3px bar at the bottom of each hour cell.
+Fills meet WCAG 1.4.11 (≥3:1) against theme surfaces.
 
-| Token  | Value                      |
-|--------|----------------------------|
-| none   | transparent                |
-| trace  | rgba(147,197,253, 0.25)    |
-| light  | rgba(147,197,253, 0.55)    |
-| heavy  | rgba(96,165,250, 0.85)     |
-| snow   | rgba(226,232,240, 0.70)    |
+| Token  | Dark                       | Light                      |
+|--------|----------------------------|----------------------------|
+| none   | transparent                | transparent                |
+| trace  | rgba(147,197,253, 0.50)    | rgba(3,105,161, 0.75)      |
+| light  | rgba(147,197,253, 0.70)    | rgba(3,105,161, 0.85)      |
+| heavy  | rgba(96,165,250, 0.85)     | #0369A1 (cyan-700)         |
+| snow   | rgba(226,232,240, 0.70)    | rgba(74,92,114, 0.85)      |
 
 ---
 
