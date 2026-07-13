@@ -1,0 +1,228 @@
+@import '../../styles/shared.css';
+
+
+/* HEADER */
+.page-header {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-bottom: var(--space-6);
+    }
+    .wordmark {
+      font-family: 'Barlow', sans-serif;
+      font-weight: 700;
+      font-style: italic;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      font-size: 22px;
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-2);
+    }
+    .page-title {
+      font-size: var(--text-xl);
+      font-weight: var(--weight-semibold);
+      letter-spacing: var(--tracking-tight);
+      color: var(--color-text-primary);
+    }
+    .header-btn {
+      background: none;
+      border: none;
+      color: var(--color-accent);
+      font-family: var(--font-ui);
+      font-size: var(--text-base);
+      font-weight: var(--weight-medium);
+      cursor: pointer;
+      padding: var(--space-2);
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+/* SPOT CARD */
+.spot-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      margin: 0;
+      padding: 0;
+    }
+    .drop-indicator {
+      height: 2px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 1px;
+      margin: 4px 0;
+      width: 100%;
+      pointer-events: none;
+      flex-shrink: 0;
+      animation: dropIndicatorIn 0.15s ease-out;
+    }
+    @keyframes dropIndicatorIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .sortable-ghost {
+      opacity: 0.4;
+    }
+    .sortable-chosen {
+      cursor: grabbing;
+    }
+    .sortable-drag {
+      opacity: 1;
+    }
+    .spot-card-wrapper {
+      border-radius: var(--radius-md);
+      transition: max-height 0.35s ease-out, opacity 0.25s ease-out, margin 0.35s ease-out;
+    }
+    .spot-card-wrapper.collapsing {
+      max-height: 0;
+      opacity: 0;
+      margin-bottom: calc(-1 * var(--space-4));
+      overflow: hidden;
+    }
+    .spot-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-3);
+      cursor: pointer;
+      position: relative;
+    }
+    .spot-drag-handle {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-muted);
+      cursor: grab;
+    }
+    .spot-drag-handle:active {
+      cursor: grabbing;
+    }
+    .spot-drag-handle svg {
+      width: 20px;
+      height: 20px;
+    }
+    .spot-card-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    .spot-name {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      width: 100%;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    .condition-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      align-self: flex-start;
+    }
+    .condition-badge .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+    .badge-go {
+      background: rgba(52, 211, 153, 0.15);
+      color: var(--color-go);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+    .badge-caution {
+      background: rgba(251, 191, 36, 0.15);
+      color: var(--color-caution);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+    .badge-no-go {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--color-no-go);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .spot-meta {
+      font-size: var(--text-sm);
+      font-family: var(--font-data);
+      color: var(--color-text-muted);
+    }
+    .spot-wind-speed {
+      font-family: var(--font-data);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-medium);
+    }
+    .spot-wind-speed.wind-calm { color: var(--wind-calm); }
+    .spot-wind-speed.wind-light { color: var(--wind-light); }
+    .spot-wind-speed.wind-moderate { color: var(--wind-moderate); }
+    .spot-wind-speed.wind-strong { color: var(--wind-strong); }
+    .spot-wind-speed.wind-severe { color: var(--wind-severe); }
+    .spot-wind-speed.wind-extreme { color: var(--wind-extreme); }
+    /* Trash: desktop only, top-right, opacity 0 by default, 1 on card hover */
+    .spot-delete-btn {
+      position: absolute;
+      top: var(--space-4);
+      right: var(--space-4);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      padding: 0;
+      border-radius: var(--radius-sm);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .spot-card:hover .spot-delete-btn {
+        opacity: 1;
+        pointer-events: auto;
+      }
+    }
+    @media (min-width: 769px) {
+      .spot-card {
+        padding-right: 52px;
+      }
+    }
+    @media (max-width: 768px) {
+      .spot-delete-btn {
+        display: none;
+      }
+    }
+    .spot-delete-btn:hover {
+      color: var(--color-no-go);
+      background: rgba(239, 68, 68, 0.1);
+    }
+    .spot-delete-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+    }
+
+/* EMPTY STATE */
+.empty-state {
+      text-align: center;
+      padding: var(--space-8) 0;
+      color: var(--color-text-muted);
+      font-size: var(--text-base);
+      line-height: 1.5;
+    }
+    .empty-state.hidden {
+      display: none;
+    }

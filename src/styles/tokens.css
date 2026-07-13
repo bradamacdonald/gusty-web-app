@@ -1,0 +1,89 @@
+/* ============================================================
+   GUSTY.CA DESIGN TOKENS — single source of truth
+   See Guidelines.md for usage rules
+   ============================================================ */
+:root {
+  --color-bg:          #0B1120;
+  --color-surface:     #111827;
+  --color-surface-elevated: #1A2333;
+  --color-border:      rgba(255, 255, 255, 0.07);
+  --color-border-strong: rgba(255, 255, 255, 0.13);
+
+  --color-text-primary:   #F0F4F8;
+  --color-text-secondary: #8A9BB0;
+  --color-text-muted:     #4A5C72;
+  --color-text-inverse:   #0B1120;
+
+  --color-accent:         #38BDF8;
+  --color-accent-dim:     rgba(56, 189, 248, 0.15);
+  --color-accent-border:  rgba(56, 189, 248, 0.30);
+
+  --wind-calm:      #34D399;
+  --wind-light:     #A3E635;
+  --wind-moderate:  #FBBF24;
+  --wind-strong:    #F97316;
+  --wind-severe:    #EF4444;
+  --wind-extreme:   #C026D3;
+
+  --color-go:       #34D399;
+  --color-caution:  #FBBF24;
+  --color-no-go:    #EF4444;
+
+  --precip-none:    rgba(255,255,255,0.0);
+  --precip-trace:   rgba(147, 197, 253, 0.25);
+  --precip-light:   rgba(147, 197, 253, 0.55);
+  --precip-heavy:   rgba(96, 165, 250, 0.85);
+  --precip-snow:    rgba(226, 232, 240, 0.70);
+
+  --font-ui:   'Inter', system-ui, sans-serif;
+  --font-data: 'DM Mono', 'Menlo', monospace;
+
+  --text-xs:   11px;
+  --text-sm:   13px;
+  --text-base: 15px;
+  --text-lg:   18px;
+  --text-xl:   22px;
+  --text-2xl:  28px;
+  --text-3xl:  40px;
+
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+
+  --leading-tight:  1.15;
+  --leading-normal: 1.45;
+
+  --tracking-tight:  -0.025em;
+  --tracking-normal:  0em;
+  --tracking-wide:    0.06em;
+
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  14px;
+  --radius-full: 999px;
+
+  --hour-cell-width: 52px;
+}
+
+html.theme-light {
+  --color-bg:          #F5F7FA;
+  --color-surface:     #FFFFFF;
+  --color-surface-elevated: #E8ECF1;
+  --color-border:      rgba(0, 0, 0, 0.08);
+  --color-border-strong: rgba(0, 0, 0, 0.15);
+  --color-text-primary:   #0B1120;
+  --color-text-secondary: #4A5C72;
+  --color-text-muted:     #8A9BB0;
+  --color-text-inverse:   #F0F4F8;
+}
