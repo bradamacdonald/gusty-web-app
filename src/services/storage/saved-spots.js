@@ -7,6 +7,15 @@ import {
 } from './settings.js';
 import { windClassFromSpeed } from '../../lib/wind.js';
 
+/** Map sustained wind (km/h) to saved-card badge tier. */
+export function conditionKeyFromSpeed(kmh) {
+  if (kmh == null || Number.isNaN(Number(kmh))) return 'unknown';
+  const v = Number(kmh);
+  if (v < 30) return 'go';
+  if (v <= 60) return 'caution';
+  return 'no-go';
+}
+
 export function getSavedSpots() {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.savedSpots);
@@ -32,6 +41,36 @@ export function setSavedSpots(arr) {
 export function isSpotSaved(lat, lng) {
   const key = spotKey(lat, lng);
   return getSavedSpots().some((s) => spotKey(s.lat, s.lng) === key);
+}
+
+/**
+ * Persist current-hour wind onto a saved spot (no-op if not saved).
+ * Speeds are always stored as km/h; display converts via settings.
+ */
+export function updateSavedSpotWind(lat, lng, {
+  windSpeed,
+  windDirection = null,
+  elevation = null,
+  capturedAt = Date.now(),
+} = {}) {
+  if (windSpeed == null || Number.isNaN(Number(windSpeed))) return false;
+  const spots = getSavedSpots();
+  const key = spotKey(lat, lng);
+  const idx = spots.findIndex((s) => spotKey(s.lat, s.lng) === key);
+  if (idx < 0) return false;
+
+  const speed = Math.round(Number(windSpeed));
+  const next = { ...spots[idx] };
+  next.windSpeed = speed;
+  next.condition = conditionKeyFromSpeed(speed);
+  next.windCapturedAt = capturedAt;
+  if (windDirection) next.windDirection = windDirection;
+  if (elevation != null && !Number.isNaN(Number(elevation))) {
+    next.elevation = Math.round(Number(elevation));
+  }
+  spots[idx] = next;
+  setSavedSpots(spots);
+  return true;
 }
 
 export function toggleSavedSpot({ lat, lng, name, elevation = null }) {
@@ -67,24 +106,31 @@ export function buildForecastUrl(spot) {
 }
 
 export function getSpotDisplayData(spot) {
-  const name = spot.name || 'Location';
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = ((hash << 5) - hash + name.charCodeAt(i)) | 0;
+  const hasWind = spot.windSpeed != null && !Number.isNaN(Number(spot.windSpeed));
+  if (!hasWind) {
+    return {
+      condition: 'unknown',
+      conditionLabel: 'Open to load',
+      windDir: '—',
+      windSpeed: null,
+      windDisp: '—',
+      windUnit: getWindUnit(),
+      windClass: '',
+      hasLive: false,
+    };
   }
-  const h = Math.abs(hash);
-  const condition = spot.condition || (h % 3 === 0 ? 'go' : h % 3 === 1 ? 'caution' : 'no-go');
-  const windSpeed = spot.windSpeed != null ? spot.windSpeed : 18 + (h % 45);
-  const conditionLabel = getConditionDisplayLabel(windSpeed);
-  const windDir = spot.windDirection || ['N', 'NE', 'E', 'SE', 'S', 'SW', 'WSW', 'W', 'NW'][h % 9];
 
+  const windSpeed = Number(spot.windSpeed);
+  const condition = spot.condition || conditionKeyFromSpeed(windSpeed);
   return {
     condition,
-    conditionLabel,
-    windDir,
+    conditionLabel: getConditionDisplayLabel(windSpeed),
+    windDir: spot.windDirection || '—',
     windSpeed,
     windDisp: convertWindForDisplay(windSpeed),
     windUnit: getWindUnit(),
     windClass: windClassFromSpeed(windSpeed),
+    hasLive: true,
+    windCapturedAt: spot.windCapturedAt || null,
   };
 }

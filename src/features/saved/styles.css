@@ -153,6 +153,11 @@
       color: var(--color-no-go);
       border: 1px solid color-mix(in srgb, var(--color-no-go) 30%, transparent);
     }
+    .badge-unknown {
+      background: color-mix(in srgb, var(--color-text-muted) 12%, transparent);
+      color: var(--color-text-muted);
+      border: 1px solid color-mix(in srgb, var(--color-text-muted) 25%, transparent);
+    }
     .spot-meta {
       font-size: var(--text-sm);
       font-family: var(--font-data);

@@ -1,6 +1,7 @@
 import {
   isSpotSaved,
   toggleSavedSpot,
+  updateSavedSpotWind,
   getSavedSpots,
   buildForecastUrl,
 } from '../../services/storage/saved-spots.js';
@@ -66,6 +67,7 @@ mountBottomNav('location');
       const locationName = (decodedName && decodedName !== 'Location') ? decodedName : formatCoordinates(lat, lng);
 
       var apiElevation = null;
+      var lastWindSnapshot = null;
       var _popoverCurrentWind = null;
       var _popoverMaxWind = null;
 
@@ -845,6 +847,19 @@ mountBottomNav('location');
           var nearTermApi = hrdps ? 'gem_hrdps_continental' : 'ecmwf_ifs025';
           initPlanMode(elev, main, nearTermApi);
           initCompareSpots(elev, nearTermApi);
+
+          var speed = heroData.hourly.windspeed_10m[heroIdx];
+          var dirDeg = heroData.hourly.winddirection_10m
+            ? heroData.hourly.winddirection_10m[heroIdx]
+            : null;
+          lastWindSnapshot = {
+            windSpeed: speed,
+            windDirection: dirDeg != null ? degreesToCompass(dirDeg) : null,
+            elevation: elev,
+          };
+          if (isSpotSaved(lat, lng)) {
+            updateSavedSpotWind(lat, lng, lastWindSnapshot);
+          }
         }
 
         async function fetchBundle() {
@@ -919,12 +934,15 @@ mountBottomNav('location');
       }
 
       function toggleSave() {
-        toggleSavedSpot({
+        var nowSaved = toggleSavedSpot({
           lat,
           lng,
           name: locationName,
           elevation: resolveElevation(),
         });
+        if (nowSaved && lastWindSnapshot) {
+          updateSavedSpotWind(lat, lng, lastWindSnapshot);
+        }
         updateSaveButtonState();
       }
 

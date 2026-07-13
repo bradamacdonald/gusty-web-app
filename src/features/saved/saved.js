@@ -3,11 +3,13 @@ import { bootstrap } from '../../app/bootstrap.js';
 import { mountBottomNav } from '../../components/shell/bottom-nav.js';
 import { formatElevation } from '../../lib/datetime.js';
 import { spotKey } from '../../lib/coordinates.js';
+import { fetchSpotWindSnapshot } from '../../services/compare-spots.js';
 import {
   buildForecastUrl,
   getSavedSpots,
   getSpotDisplayData,
   setSavedSpots,
+  updateSavedSpotWind,
 } from '../../services/storage/saved-spots.js';
 
 bootstrap();
@@ -103,4 +105,34 @@ function renderSpots() {
   }
 }
 
+async function refreshSavedWinds() {
+  const spots = getSavedSpots();
+  if (!spots.length) return;
+
+  const results = await Promise.all(
+    spots.map(async (spot) => {
+      try {
+        const snap = await fetchSpotWindSnapshot(spot);
+        return { spot, snap };
+      } catch {
+        return { spot, snap: null };
+      }
+    })
+  );
+
+  let changed = false;
+  results.forEach(({ spot, snap }) => {
+    if (!snap || snap.error || snap.speed == null) return;
+    const updated = updateSavedSpotWind(spot.lat, spot.lng, {
+      windSpeed: snap.speed,
+      windDirection: snap.dirLabel !== '—' ? snap.dirLabel : null,
+      elevation: spot.elevation,
+    });
+    if (updated) changed = true;
+  });
+
+  if (changed) renderSpots();
+}
+
 renderSpots();
+refreshSavedWinds();
