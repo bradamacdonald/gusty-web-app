@@ -1,0 +1,1307 @@
+[
+  {
+    "id": "whitewater-nelson",
+    "name": "Whitewater Ski Resort",
+    "aliases": ["whitewater", "white water", "whitewater ski", "ww nelson", "whitewater nelson"],
+    "lat": 49.441,
+    "lng": -117.15,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "whistler-blackcomb",
+    "name": "Whistler Blackcomb",
+    "aliases": ["whistler", "blackcomb", "whistler village", "wb"],
+    "lat": 50.1162,
+    "lng": -122.9535,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "cypress-mountain",
+    "name": "Cypress Mountain",
+    "aliases": ["cypress", "cypress mountain resort"],
+    "lat": 49.396,
+    "lng": -123.204,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "grouse-mountain",
+    "name": "Grouse Mountain",
+    "aliases": ["grouse", "the grind"],
+    "lat": 49.3797,
+    "lng": -123.0817,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "seymour-mountain",
+    "name": "Mount Seymour",
+    "aliases": ["seymour", "mt seymour", "mount seymour"],
+    "lat": 49.393,
+    "lng": -122.948,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "big-white",
+    "name": "Big White Ski Resort",
+    "aliases": ["big white", "bigwhite"],
+    "lat": 49.721,
+    "lng": -118.939,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "silver-star",
+    "name": "Silver Star Mountain Resort",
+    "aliases": ["silver star", "silverstar"],
+    "lat": 50.359,
+    "lng": -119.062,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "sun-peaks",
+    "name": "Sun Peaks Resort",
+    "aliases": ["sun peaks", "sunpeaks", "tod mountain"],
+    "lat": 50.884,
+    "lng": -119.939,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "red-mountain",
+    "name": "RED Mountain Resort",
+    "aliases": ["red mountain", "red resort", "red rossland"],
+    "lat": 49.104,
+    "lng": -117.837,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "fernie-alpine",
+    "name": "Fernie Alpine Resort",
+    "aliases": ["fernie", "fernie alpine", "far"],
+    "lat": 49.463,
+    "lng": -115.087,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "kimberley-alpine",
+    "name": "Kimberley Alpine Resort",
+    "aliases": ["kimberley", "kimberley alpine"],
+    "lat": 49.688,
+    "lng": -116.015,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "panorama",
+    "name": "Panorama Mountain Resort",
+    "aliases": ["panorama", "panorama resort"],
+    "lat": 50.46,
+    "lng": -116.237,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "kicking-horse",
+    "name": "Kicking Horse Mountain Resort",
+    "aliases": ["kicking horse", "kickinghorse", "golden resort"],
+    "lat": 51.298,
+    "lng": -117.048,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "revelstoke-mountain",
+    "name": "Revelstoke Mountain Resort",
+    "aliases": ["revelstoke", "revelstoke mountain", "rmr", "revy"],
+    "lat": 50.958,
+    "lng": -118.164,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "apex-mountain",
+    "name": "Apex Mountain Resort",
+    "aliases": ["apex", "apex mountain", "apex penticton"],
+    "lat": 49.393,
+    "lng": -119.904,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "mount-washington",
+    "name": "Mount Washington Alpine Resort",
+    "aliases": ["mount washington", "mt washington", "washington vancouver island"],
+    "lat": 49.748,
+    "lng": -125.298,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "harper-mountain",
+    "name": "Harper Mountain",
+    "aliases": ["harper", "harper mountain"],
+    "lat": 50.718,
+    "lng": -120.137,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "shames-mountain",
+    "name": "Shames Mountain",
+    "aliases": ["shames", "shames mountain", "terrace ski"],
+    "lat": 54.483,
+    "lng": -128.947,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "hudson-bay-mountain",
+    "name": "Hudson Bay Mountain",
+    "aliases": ["hudson bay mountain", "smithers ski"],
+    "lat": 54.773,
+    "lng": -127.262,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "powder-king",
+    "name": "Powder King Mountain Resort",
+    "aliases": ["powder king", "powderking"],
+    "lat": 55.356,
+    "lng": -122.635,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "manning-park",
+    "name": "Manning Park Resort",
+    "aliases": ["manning park", "manning", "manning ski"],
+    "lat": 49.064,
+    "lng": -120.782,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "beaver-valley",
+    "name": "Beaver Valley Ski Club",
+    "aliases": ["beaver valley", "beaver valley ski"],
+    "lat": 49.15,
+    "lng": -117.52,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "phoenix-mountain",
+    "name": "Phoenix Mountain",
+    "aliases": ["phoenix mountain", "phoenix ski"],
+    "lat": 49.1,
+    "lng": -118.6,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "salmo-ski",
+    "name": "Salmo Ski Hill",
+    "aliases": ["salmo ski", "salmo hill"],
+    "lat": 49.185,
+    "lng": -117.278,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "lake-louise",
+    "name": "Lake Louise Ski Resort",
+    "aliases": ["lake louise", "louise", "ll ski"],
+    "lat": 51.442,
+    "lng": -116.163,
+    "region": "AB",
+    "kind": "resort"
+  },
+  {
+    "id": "sunshine-village",
+    "name": "Sunshine Village",
+    "aliases": ["sunshine", "sunshine village", "sunshine banff"],
+    "lat": 51.078,
+    "lng": -115.782,
+    "region": "AB",
+    "kind": "resort"
+  },
+  {
+    "id": "mount-norquay",
+    "name": "Mount Norquay",
+    "aliases": ["norquay", "mt norquay", "mount norquay"],
+    "lat": 51.204,
+    "lng": -115.6,
+    "region": "AB",
+    "kind": "resort"
+  },
+  {
+    "id": "nakiska",
+    "name": "Nakiska",
+    "aliases": ["nakiska", "nakiska ski"],
+    "lat": 50.942,
+    "lng": -115.151,
+    "region": "AB",
+    "kind": "resort"
+  },
+  {
+    "id": "marmot-basin",
+    "name": "Marmot Basin",
+    "aliases": ["marmot", "marmot basin", "jasper ski"],
+    "lat": 52.801,
+    "lng": -118.097,
+    "region": "AB",
+    "kind": "resort"
+  },
+  {
+    "id": "castle-mountain-resort",
+    "name": "Castle Mountain Resort",
+    "aliases": ["castle mountain", "castle resort", "castle ski"],
+    "lat": 49.316,
+    "lng": -114.411,
+    "region": "AB",
+    "kind": "resort"
+  },
+  {
+    "id": "pass-powderkeg",
+    "name": "Pass Powderkeg",
+    "aliases": ["pass powderkeg", "powderkeg", "crowsnest ski"],
+    "lat": 49.628,
+    "lng": -114.45,
+    "region": "AB",
+    "kind": "resort"
+  },
+  {
+    "id": "canada-olympic-park",
+    "name": "WinSport Canada Olympic Park",
+    "aliases": ["cop", "canada olympic park", "winsport", "olympic park calgary"],
+    "lat": 51.08,
+    "lng": -114.216,
+    "region": "AB",
+    "kind": "resort"
+  },
+  {
+    "id": "garibaldi-lake",
+    "name": "Garibaldi Lake",
+    "aliases": ["garibaldi", "garibaldi lake", "garibaldi lake th", "garibaldi trailhead"],
+    "lat": 49.936,
+    "lng": -123.01,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "black-tusk",
+    "name": "Black Tusk",
+    "aliases": ["black tusk"],
+    "lat": 49.975,
+    "lng": -123.043,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "the-chief",
+    "name": "The Chief",
+    "aliases": ["stawamus chief", "the chief", "squamish chief"],
+    "lat": 49.687,
+    "lng": -123.147,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "mount-garibaldi",
+    "name": "Mount Garibaldi",
+    "aliases": ["mt garibaldi", "mount garibaldi"],
+    "lat": 49.85,
+    "lng": -123.0,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "joffre-lakes",
+    "name": "Joffre Lakes",
+    "aliases": ["joffre", "joffre lakes", "joffre lakes trailhead"],
+    "lat": 50.341,
+    "lng": -122.477,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "elk-mountain",
+    "name": "Elk Mountain",
+    "aliases": ["elk mountain", "chilliwack elk"],
+    "lat": 49.123,
+    "lng": -121.825,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "crown-mountain",
+    "name": "Crown Mountain",
+    "aliases": ["crown mountain", "crown mt"],
+    "lat": 49.41,
+    "lng": -123.091,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "lynn-peak",
+    "name": "Lynn Peak",
+    "aliases": ["lynn peak"],
+    "lat": 49.395,
+    "lng": -123.012,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "dam-mountain",
+    "name": "Dam Mountain",
+    "aliases": ["dam mountain"],
+    "lat": 49.385,
+    "lng": -123.09,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "rogers-pass",
+    "name": "Rogers Pass",
+    "aliases": ["rogers pass", "glacier national park"],
+    "lat": 51.301,
+    "lng": -117.52,
+    "region": "BC",
+    "kind": "pass"
+  },
+  {
+    "id": "kootenay-pass",
+    "name": "Kootenay Pass",
+    "aliases": ["kootenay pass", "salmo creston pass"],
+    "lat": 49.058,
+    "lng": -117.043,
+    "region": "BC",
+    "kind": "pass"
+  },
+  {
+    "id": "coquihalla-summit",
+    "name": "Coquihalla Summit",
+    "aliases": ["coquihalla", "coq", "coquihalla pass", "coq summit"],
+    "lat": 49.594,
+    "lng": -121.1,
+    "region": "BC",
+    "kind": "pass"
+  },
+  {
+    "id": "duffey-lake",
+    "name": "Duffey Lake Road",
+    "aliases": ["duffey", "duffey lake", "highway 99 duffey"],
+    "lat": 50.4,
+    "lng": -122.3,
+    "region": "BC",
+    "kind": "pass"
+  },
+  {
+    "id": "frosty-mountain",
+    "name": "Frosty Mountain",
+    "aliases": ["frosty", "frosty mountain", "frosty manning"],
+    "lat": 49.062,
+    "lng": -120.835,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "three-brothers",
+    "name": "Three Brothers Mountain",
+    "aliases": ["three brothers", "3 brothers"],
+    "lat": 49.15,
+    "lng": -120.9,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "mt-baker-view",
+    "name": "Artist Point / Mount Baker View",
+    "aliases": ["artist point", "mount baker viewpoint"],
+    "lat": 49.0,
+    "lng": -121.85,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "wedgemount-lake",
+    "name": "Wedgemount Lake",
+    "aliases": ["wedgemount", "wedgemount lake"],
+    "lat": 50.165,
+    "lng": -122.806,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "elphin-lakes",
+    "name": "Elfin Lakes",
+    "aliases": ["elfin lakes", "elfin", "garibaldi elfin"],
+    "lat": 49.787,
+    "lng": -123.0,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "panorama-ridge",
+    "name": "Panorama Ridge",
+    "aliases": ["panorama ridge", "panorama garibaldi"],
+    "lat": 49.95,
+    "lng": -123.02,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "mount-assiniboine",
+    "name": "Mount Assiniboine",
+    "aliases": ["assiniboine", "mt assiniboine", "mount assiniboine", "matterhorn of the rockies"],
+    "lat": 50.87,
+    "lng": -115.65,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "bugaboos",
+    "name": "Bugaboo Provincial Park",
+    "aliases": ["bugaboos", "bugaboo", "bugs"],
+    "lat": 50.74,
+    "lng": -116.78,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "lake-ohara",
+    "name": "Lake O'Hara",
+    "aliases": ["lake ohara", "ohara", "o'hara"],
+    "lat": 51.355,
+    "lng": -116.335,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "yoho-emerald",
+    "name": "Emerald Lake",
+    "aliases": ["emerald lake", "emerald lake yoho"],
+    "lat": 51.443,
+    "lng": -116.53,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "mount-temple",
+    "name": "Mount Temple",
+    "aliases": ["mt temple", "mount temple", "temple"],
+    "lat": 51.353,
+    "lng": -116.206,
+    "region": "AB",
+    "kind": "peak"
+  },
+  {
+    "id": "mount-rundle",
+    "name": "Mount Rundle",
+    "aliases": ["rundle", "mt rundle", "mount rundle"],
+    "lat": 51.125,
+    "lng": -115.467,
+    "region": "AB",
+    "kind": "peak"
+  },
+  {
+    "id": "cascade-mountain",
+    "name": "Cascade Mountain",
+    "aliases": ["cascade mountain", "cascade banff"],
+    "lat": 51.23,
+    "lng": -115.565,
+    "region": "AB",
+    "kind": "peak"
+  },
+  {
+    "id": "sulphur-mountain",
+    "name": "Sulphur Mountain",
+    "aliases": ["sulphur mountain", "sulfur mountain", "sulphur"],
+    "lat": 51.147,
+    "lng": -115.576,
+    "region": "AB",
+    "kind": "peak"
+  },
+  {
+    "id": "fairview-mountain",
+    "name": "Fairview Mountain",
+    "aliases": ["fairview", "fairview mountain", "saddleback"],
+    "lat": 51.4,
+    "lng": -116.22,
+    "region": "AB",
+    "kind": "peak"
+  },
+  {
+    "id": "ha-ling",
+    "name": "Ha Ling Peak",
+    "aliases": ["ha ling", "haling", "ha ling peak"],
+    "lat": 51.064,
+    "lng": -115.4,
+    "region": "AB",
+    "kind": "peak"
+  },
+  {
+    "id": "mount-edith-cavell",
+    "name": "Mount Edith Cavell",
+    "aliases": ["edith cavell", "mt edith cavell", "mount edith cavell"],
+    "lat": 52.667,
+    "lng": -118.057,
+    "region": "AB",
+    "kind": "peak"
+  },
+  {
+    "id": "columbia-icefield",
+    "name": "Columbia Icefield",
+    "aliases": ["columbia icefield", "athabasca glacier", "icefields"],
+    "lat": 52.207,
+    "lng": -117.233,
+    "region": "AB",
+    "kind": "pass"
+  },
+  {
+    "id": "moraine-lake",
+    "name": "Moraine Lake",
+    "aliases": ["moraine lake", "moraine", "valley of the ten peaks"],
+    "lat": 51.322,
+    "lng": -116.186,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "lake-louise-village",
+    "name": "Lake Louise",
+    "aliases": ["lake louise village", "louise village"],
+    "lat": 51.425,
+    "lng": -116.177,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "johnston-canyon",
+    "name": "Johnston Canyon",
+    "aliases": ["johnston canyon", "johnson canyon"],
+    "lat": 51.246,
+    "lng": -115.84,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "lake-minnewanka",
+    "name": "Lake Minnewanka",
+    "aliases": ["minnewanka", "lake minnewanka"],
+    "lat": 51.25,
+    "lng": -115.37,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "bow-summit",
+    "name": "Bow Summit / Peyto Lake",
+    "aliases": ["peyto lake", "peyto", "bow summit", "bow lake"],
+    "lat": 51.726,
+    "lng": -116.522,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "parker-ridge",
+    "name": "Parker Ridge",
+    "aliases": ["parker ridge"],
+    "lat": 52.183,
+    "lng": -117.1,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "wilcox-pass",
+    "name": "Wilcox Pass",
+    "aliases": ["wilcox", "wilcox pass"],
+    "lat": 52.225,
+    "lng": -117.185,
+    "region": "AB",
+    "kind": "pass"
+  },
+  {
+    "id": "highwood-pass",
+    "name": "Highwood Pass",
+    "aliases": ["highwood", "highwood pass"],
+    "lat": 50.6,
+    "lng": -114.97,
+    "region": "AB",
+    "kind": "pass"
+  },
+  {
+    "id": "powder-highway",
+    "name": "Powder Highway",
+    "aliases": ["powder highway"],
+    "lat": 50.5,
+    "lng": -117.0,
+    "region": "BC",
+    "kind": "pass"
+  },
+  {
+    "id": "helicopter-heli-cat",
+    "name": "CMH Bugaboos",
+    "aliases": ["cmh", "cmh bugaboos", "canadian mountain holidays"],
+    "lat": 50.75,
+    "lng": -116.78,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "silverton",
+    "name": "Retallack",
+    "aliases": ["retallack", "retallack catskiing"],
+    "lat": 50.05,
+    "lng": -117.15,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "island-lake-lodge",
+    "name": "Island Lake Lodge",
+    "aliases": ["island lake", "island lake lodge", "island lake cat"],
+    "lat": 49.47,
+    "lng": -115.0,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "mt-robson",
+    "name": "Mount Robson",
+    "aliases": ["robson", "mt robson", "mount robson"],
+    "lat": 53.11,
+    "lng": -119.156,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "mt-waddington",
+    "name": "Mount Waddington",
+    "aliases": ["waddington", "mt waddington", "mount waddington"],
+    "lat": 51.374,
+    "lng": -125.263,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "forbidden-plateau",
+    "name": "Forbidden Plateau",
+    "aliases": ["forbidden plateau", "strathcona"],
+    "lat": 49.7,
+    "lng": -125.35,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "heather-mountain",
+    "name": "The Grind / Grouse Grind Trailhead",
+    "aliases": ["grouse grind", "the grind trailhead"],
+    "lat": 49.371,
+    "lng": -123.098,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "dog-mountain",
+    "name": "Dog Mountain",
+    "aliases": ["dog mountain", "dog mt seymour"],
+    "lat": 49.366,
+    "lng": -122.948,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "coliseum-mountain",
+    "name": "Coliseum Mountain",
+    "aliases": ["coliseum", "coliseum mountain"],
+    "lat": 49.425,
+    "lng": -122.97,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "brunswick-mountain",
+    "name": "Brunswick Mountain",
+    "aliases": ["brunswick", "brunswick mountain"],
+    "lat": 49.5,
+    "lng": -123.24,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "habrich",
+    "name": "Mount Habrich",
+    "aliases": ["habrich", "mt habrich", "mount habrich"],
+    "lat": 49.74,
+    "lng": -123.1,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "sky-pilot",
+    "name": "Sky Pilot Mountain",
+    "aliases": ["sky pilot", "skypilot"],
+    "lat": 49.645,
+    "lng": -123.09,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "shannon-falls",
+    "name": "Shannon Falls",
+    "aliases": ["shannon falls"],
+    "lat": 49.67,
+    "lng": -123.156,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "alice-lake",
+    "name": "Alice Lake",
+    "aliases": ["alice lake"],
+    "lat": 49.79,
+    "lng": -123.12,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "callaghan",
+    "name": "Callaghan Valley",
+    "aliases": ["callaghan", "callaghan valley", "whistler olympic park"],
+    "lat": 50.14,
+    "lng": -123.11,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "blackcomb-glacier",
+    "name": "Blackcomb Glacier",
+    "aliases": ["blackcomb glacier"],
+    "lat": 50.1,
+    "lng": -122.87,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "spearhead",
+    "name": "Spearhead Range",
+    "aliases": ["spearhead", "spearhead traverse", "spearhead range"],
+    "lat": 50.08,
+    "lng": -122.85,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "north-cascade",
+    "name": "North Cascades Highway Viewpoint",
+    "aliases": ["north cascades", "cascades bc"],
+    "lat": 49.05,
+    "lng": -120.8,
+    "region": "BC",
+    "kind": "pass"
+  },
+  {
+    "id": "helicopter-heli-cat-2",
+    "name": "Purcell Mountain Lodge",
+    "aliases": ["purcell lodge", "purcells"],
+    "lat": 50.9,
+    "lng": -116.5,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "banff-town",
+    "name": "Banff",
+    "aliases": ["banff", "banff town", "banff village"],
+    "lat": 51.178,
+    "lng": -115.57,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "jasper-town",
+    "name": "Jasper",
+    "aliases": ["jasper", "jasper town"],
+    "lat": 52.874,
+    "lng": -118.081,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "canmore",
+    "name": "Canmore",
+    "aliases": ["canmore"],
+    "lat": 51.089,
+    "lng": -115.359,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "golden-bc",
+    "name": "Golden",
+    "aliases": ["golden", "golden bc"],
+    "lat": 51.298,
+    "lng": -116.963,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "nelson-bc",
+    "name": "Nelson",
+    "aliases": ["nelson", "nelson bc"],
+    "lat": 49.493,
+    "lng": -117.295,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "rosso-land",
+    "name": "Rossland",
+    "aliases": ["rossland", "rossland bc"],
+    "lat": 49.078,
+    "lng": -117.802,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "revelstoke-town",
+    "name": "Revelstoke",
+    "aliases": ["revelstoke town", "revy town"],
+    "lat": 50.998,
+    "lng": -118.195,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "fernie-town",
+    "name": "Fernie",
+    "aliases": ["fernie town", "fernie bc"],
+    "lat": 49.504,
+    "lng": -115.063,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "squamish",
+    "name": "Squamish",
+    "aliases": ["squamish", "squamish bc"],
+    "lat": 49.701,
+    "lng": -123.156,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "pemberton",
+    "name": "Pemberton",
+    "aliases": ["pemberton", "pemberton bc"],
+    "lat": 50.321,
+    "lng": -122.807,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "hope-bc",
+    "name": "Hope",
+    "aliases": ["hope", "hope bc"],
+    "lat": 49.379,
+    "lng": -121.442,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "twin-peaks-kananaskis",
+    "name": "Heart Mountain",
+    "aliases": ["heart mountain", "heart mt"],
+    "lat": 51.04,
+    "lng": -115.14,
+    "region": "AB",
+    "kind": "peak"
+  },
+  {
+    "id": "yamnuska",
+    "name": "Mount Yamnuska",
+    "aliases": ["yamnuska", "mt yamnuska", "mount yamnuska"],
+    "lat": 51.123,
+    "lng": -115.12,
+    "region": "AB",
+    "kind": "peak"
+  },
+  {
+    "id": "grotto-mountain",
+    "name": "Grotto Mountain",
+    "aliases": ["grotto", "grotto mountain"],
+    "lat": 51.09,
+    "lng": -115.27,
+    "region": "AB",
+    "kind": "peak"
+  },
+  {
+    "id": "tunnel-mountain",
+    "name": "Tunnel Mountain",
+    "aliases": ["tunnel mountain", "tunnel mt"],
+    "lat": 51.18,
+    "lng": -115.55,
+    "region": "AB",
+    "kind": "peak"
+  },
+  {
+    "id": "cory-pass",
+    "name": "Cory Pass",
+    "aliases": ["cory pass", "edith pass"],
+    "lat": 51.2,
+    "lng": -115.7,
+    "region": "AB",
+    "kind": "pass"
+  },
+  {
+    "id": "skoki",
+    "name": "Skoki Lodge / Skoki Valley",
+    "aliases": ["skoki", "skoki lodge", "skoki valley"],
+    "lat": 51.52,
+    "lng": -116.07,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "egypt-lake",
+    "name": "Egypt Lake",
+    "aliases": ["egypt lake"],
+    "lat": 51.1,
+    "lng": -115.95,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "sunshine-meadows",
+    "name": "Sunshine Meadows",
+    "aliases": ["sunshine meadows"],
+    "lat": 51.07,
+    "lng": -115.78,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "sentinel-pass",
+    "name": "Sentinel Pass",
+    "aliases": ["sentinel pass", "larch valley"],
+    "lat": 51.34,
+    "lng": -116.22,
+    "region": "AB",
+    "kind": "pass"
+  },
+  {
+    "id": "plain-of-six-glaciers",
+    "name": "Plain of Six Glaciers",
+    "aliases": ["plain of six glaciers", "six glaciers"],
+    "lat": 51.41,
+    "lng": -116.24,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "sulphur-skyline",
+    "name": "Sulphur Skyline",
+    "aliases": ["sulphur skyline", "miette hot springs hike"],
+    "lat": 53.13,
+    "lng": -117.77,
+    "region": "AB",
+    "kind": "peak"
+  },
+  {
+    "id": "maligne-canyon",
+    "name": "Maligne Canyon",
+    "aliases": ["maligne", "maligne canyon", "maligne lake"],
+    "lat": 52.91,
+    "lng": -118.03,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "bald-hills",
+    "name": "Bald Hills",
+    "aliases": ["bald hills", "bald hills jasper"],
+    "lat": 52.7,
+    "lng": -117.65,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "angel-glacier",
+    "name": "Angel Glacier",
+    "aliases": ["angel glacier"],
+    "lat": 52.68,
+    "lng": -118.06,
+    "region": "AB",
+    "kind": "peak"
+  },
+  {
+    "id": "lake-agnes",
+    "name": "Lake Agnes Teahouse",
+    "aliases": ["lake agnes", "agnes teahouse", "little beehive"],
+    "lat": 51.416,
+    "lng": -116.206,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "berg-lake",
+    "name": "Berg Lake",
+    "aliases": ["berg lake", "berg lake trail"],
+    "lat": 53.14,
+    "lng": -119.16,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "kinney-lake",
+    "name": "Kinney Lake",
+    "aliases": ["kinney lake"],
+    "lat": 53.07,
+    "lng": -119.18,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "helmet-falls",
+    "name": "Helmet Falls / Rockwall Trail",
+    "aliases": ["rockwall", "rockwall trail", "helmet falls"],
+    "lat": 51.15,
+    "lng": -116.0,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "floe-lake",
+    "name": "Floe Lake",
+    "aliases": ["floe lake"],
+    "lat": 51.05,
+    "lng": -116.15,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "konkteux-pass",
+    "name": "Kokanee Glacier",
+    "aliases": ["kokanee", "kokanee glacier", "kokanee lake"],
+    "lat": 49.77,
+    "lng": -117.15,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "idaho-peak",
+    "name": "Idaho Peak",
+    "aliases": ["idaho peak", "idaho lookout"],
+    "lat": 50.02,
+    "lng": -117.33,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "valhalla",
+    "name": "Valhalla Provincial Park",
+    "aliases": ["valhalla", "valhallas", "gwillim lakes"],
+    "lat": 49.85,
+    "lng": -117.6,
+    "region": "BC",
+    "kind": "peak"
+  },
+  {
+    "id": "new-denver",
+    "name": "New Denver",
+    "aliases": ["new denver"],
+    "lat": 49.987,
+    "lng": -117.376,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "kaslo",
+    "name": "Kaslo",
+    "aliases": ["kaslo"],
+    "lat": 49.911,
+    "lng": -116.905,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "trout-lake",
+    "name": "Trout Lake",
+    "aliases": ["trout lake bc"],
+    "lat": 50.65,
+    "lng": -117.3,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "meadow-creek",
+    "name": "Meadow Creek",
+    "aliases": ["meadow creek"],
+    "lat": 50.25,
+    "lng": -116.95,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "silverton-village",
+    "name": "Silverton",
+    "aliases": ["silverton", "silverton bc"],
+    "lat": 49.95,
+    "lng": -117.37,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "apex-lookout",
+    "name": "Apex Mountain Trailhead",
+    "aliases": ["apex trailhead"],
+    "lat": 49.39,
+    "lng": -119.9,
+    "region": "BC",
+    "kind": "trailhead"
+  },
+  {
+    "id": "crystal-mountain",
+    "name": "Crystal Mountain (West Kelowna)",
+    "aliases": ["crystal mountain", "crystal west kelowna"],
+    "lat": 49.87,
+    "lng": -119.7,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "larch-hills",
+    "name": "Larch Hills",
+    "aliases": ["larch hills", "larch hills nordic"],
+    "lat": 50.75,
+    "lng": -119.2,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "telemark",
+    "name": "Telemark Nordic Club",
+    "aliases": ["telemark", "telemark kelowna", "telemark nordic"],
+    "lat": 49.92,
+    "lng": -119.65,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "sov",
+    "name": "Sovereign Lake Nordic Centre",
+    "aliases": ["sovereign lake", "sov", "sovereign nordic"],
+    "lat": 50.37,
+    "lng": -119.05,
+    "region": "BC",
+    "kind": "resort"
+  },
+  {
+    "id": "canmore-nordic",
+    "name": "Canmore Nordic Centre",
+    "aliases": ["canmore nordic", "nordic centre"],
+    "lat": 51.09,
+    "lng": -115.39,
+    "region": "AB",
+    "kind": "resort"
+  },
+  {
+    "id": "ptarmigan",
+    "name": "Ptarmigan Cirque",
+    "aliases": ["ptarmigan", "ptarmigan cirque"],
+    "lat": 50.71,
+    "lng": -114.93,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "pocaterra",
+    "name": "Pocaterra Ridge",
+    "aliases": ["pocaterra", "pocaterra ridge"],
+    "lat": 50.68,
+    "lng": -115.05,
+    "region": "AB",
+    "kind": "peak"
+  },
+  {
+    "id": "chester-lake",
+    "name": "Chester Lake",
+    "aliases": ["chester lake", "chester"],
+    "lat": 50.81,
+    "lng": -115.26,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "burstall-pass",
+    "name": "Burstall Pass",
+    "aliases": ["burstall", "burstall pass"],
+    "lat": 50.77,
+    "lng": -115.35,
+    "region": "AB",
+    "kind": "pass"
+  },
+  {
+    "id": "spray-lakes",
+    "name": "Spray Lakes",
+    "aliases": ["spray lakes", "spray lake"],
+    "lat": 50.95,
+    "lng": -115.35,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "barrier-lake",
+    "name": "Barrier Lake",
+    "aliases": ["barrier lake"],
+    "lat": 51.03,
+    "lng": -115.04,
+    "region": "AB",
+    "kind": "trailhead"
+  },
+  {
+    "id": "wasootch",
+    "name": "Wasootch Peak",
+    "aliases": ["wasootch", "wasootch peak"],
+    "lat": 51.0,
+    "lng": -115.1,
+    "region": "AB",
+    "kind": "peak"
+  },
+  {
+    "id": "east-end-of-rundle",
+    "name": "East End of Rundle",
+    "aliases": ["eeor", "east end of rundle", "eeor canmore"],
+    "lat": 51.1,
+    "lng": -115.4,
+    "region": "AB",
+    "kind": "peak"
+  },
+  {
+    "id": "big-sister",
+    "name": "The Three Sisters",
+    "aliases": ["three sisters", "big sister", "middle sister", "little sister"],
+    "lat": 51.02,
+    "lng": -115.35,
+    "region": "AB",
+    "kind": "peak"
+  },
+  {
+    "id": "lady-macdonald",
+    "name": "Mount Lady Macdonald",
+    "aliases": ["lady macdonald", "lady mcdonald", "mt lady macdonald"],
+    "lat": 51.12,
+    "lng": -115.33,
+    "region": "AB",
+    "kind": "peak"
+  }
+]

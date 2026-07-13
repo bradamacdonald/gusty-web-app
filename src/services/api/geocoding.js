@@ -4,6 +4,23 @@ import {
   MAPBOX_GEOCODE_BASE,
   MAPBOX_TOKEN,
 } from '../../lib/constants.js';
+import mountainSpots from '../../data/mountain-spots.json';
+
+/** Western Canada (BC + AB) bbox for Mapbox: minLon,minLat,maxLon,maxLat */
+export const WESTERN_CA_BBOX = '-139.06,48.3,-110.0,60.0';
+export const DEFAULT_PROXIMITY = '-120.0,51.0';
+
+const REGION_LABEL = {
+  BC: 'British Columbia, Canada',
+  AB: 'Alberta, Canada',
+};
+
+const WESTERN_ADMIN = new Set([
+  'british columbia',
+  'bc',
+  'alberta',
+  'ab',
+]);
 
 export function getRegionFromContext(context) {
   if (!context || !Array.isArray(context)) return '';
@@ -15,43 +32,252 @@ export function getRegionFromContext(context) {
   return parts.join(', ');
 }
 
-export async function searchPlaces(query, { signal } = {}) {
+export function normalizeSearchQuery(query) {
+  return String(query || '')
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/['’]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function scoreCuratedMatch(spot, normalizedQuery) {
+  if (!normalizedQuery) return 0;
+  const name = normalizeSearchQuery(spot.name);
+  const aliases = (spot.aliases || []).map(normalizeSearchQuery);
+  const candidates = [name, ...aliases];
+
+  let best = 0;
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+    if (candidate === normalizedQuery) best = Math.max(best, 100);
+    else if (candidate.startsWith(normalizedQuery)) best = Math.max(best, 90);
+    else if (normalizedQuery.startsWith(candidate) && candidate.length >= 3) {
+      best = Math.max(best, 80);
+    } else if (candidate.includes(normalizedQuery)) best = Math.max(best, 70);
+    else if (normalizedQuery.includes(candidate) && candidate.length >= 4) {
+      best = Math.max(best, 60);
+    }
+  }
+  return best;
+}
+
+export function searchCuratedSpots(query, { limit = 8 } = {}) {
+  const normalized = normalizeSearchQuery(query);
+  if (normalized.length < 2) return [];
+
+  return mountainSpots
+    .map((spot) => {
+      const score = scoreCuratedMatch(spot, normalized);
+      if (score <= 0) return null;
+      return {
+        id: spot.id,
+        name: spot.name,
+        lat: spot.lat,
+        lng: spot.lng,
+        region: spot.region,
+        regionLabel: REGION_LABEL[spot.region] || spot.region,
+        kind: spot.kind,
+        score,
+        source: 'curated',
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
+    .slice(0, limit);
+}
+
+function buildMapboxUrl(query, { proximity = DEFAULT_PROXIMITY, limit = 5 } = {}) {
+  return (
+    `${MAPBOX_GEOCODE_BASE}/${encodeURIComponent(query)}.json` +
+    `?access_token=${MAPBOX_TOKEN}` +
+    `&country=CA&bbox=${WESTERN_CA_BBOX}` +
+    `&proximity=${encodeURIComponent(proximity)}` +
+    `&types=poi,place,locality,region&language=en&limit=${limit}`
+  );
+}
+
+function buildGeoNamesUrl(query, adminCode1) {
+  return (
+    `${GEONAMES_SEARCH_BASE}?name_startsWith=${encodeURIComponent(query)}` +
+    `&featureClass=T&adminCode1=${adminCode1}&country=CA&maxRows=5` +
+    `&username=${GEONAMES_USERNAME}`
+  );
+}
+
+async function fetchJson(url, signal) {
+  return fetch(url, { signal })
+    .then((r) => r.json())
+    .catch(() => ({}));
+}
+
+function looksRecreational(query) {
+  const q = normalizeSearchQuery(query);
+  return /\b(ski|resort|peak|mountain|mt|mount|pass|glacier|ridge|trail|lake|alpine|nordic)\b/.test(
+    q
+  ) || q.length >= 5;
+}
+
+function regionBoostFromText(text) {
+  const lower = String(text || '').toLowerCase();
+  if (WESTERN_ADMIN.has(lower) || /british columbia|\balberta\b|\bbc\b|\bab\b/.test(lower)) {
+    return 25;
+  }
+  if (/\b(manitoba|ontario|quebec|saskatchewan|nova scotia|new brunswick|newfoundland)\b/.test(lower)) {
+    return -40;
+  }
+  return 0;
+}
+
+function scoreMapboxFeature(feature, query) {
+  const name = normalizeSearchQuery(feature.text || feature.place_name || '');
+  const q = normalizeSearchQuery(query);
+  let score = 40;
+
+  if (name === q) score += 40;
+  else if (name.startsWith(q)) score += 30;
+  else if (name.includes(q)) score += 15;
+
+  const types = feature.place_type || [];
+  if (types.includes('poi')) score += looksRecreational(query) ? 20 : 10;
+  if (types.includes('locality') || types.includes('place')) {
+    score += looksRecreational(query) ? -5 : 5;
+  }
+
+  score += regionBoostFromText(getRegionFromContext(feature.context));
+  score += regionBoostFromText(feature.place_name);
+  return score;
+}
+
+function scoreGeoNamesFeature(g, query) {
+  const name = normalizeSearchQuery(g.name || '');
+  const q = normalizeSearchQuery(query);
+  let score = 35;
+
+  if (name === q) score += 35;
+  else if (name.startsWith(q)) score += 25;
+  else if (name.includes(q)) score += 10;
+
+  const admin = String(g.adminName1 || g.adminCode1 || '');
+  score += regionBoostFromText(admin);
+  if (/british columbia|alberta|^bc$|^ab$/i.test(admin)) score += 15;
+  return score;
+}
+
+function approxEqualCoords(aLat, aLng, bLat, bLng, epsilon = 0.03) {
+  return Math.abs(aLat - bLat) < epsilon && Math.abs(aLng - bLng) < epsilon;
+}
+
+/**
+ * Merge curated + Mapbox + GeoNames into a ranked, deduped suggestion list.
+ * Returns { curated, features, geonames } in ranked display order (subset lists).
+ */
+export function rankSuggestions(query, { curated = [], features = [], geonames = [] } = {}) {
+  const ranked = [];
+
+  for (const spot of curated) {
+    ranked.push({
+      type: 'curated',
+      score: (spot.score || 70) + 50,
+      data: spot,
+      lat: spot.lat,
+      lng: spot.lng,
+      nameKey: normalizeSearchQuery(spot.name),
+    });
+  }
+
+  for (const feature of features) {
+    const coords = feature.geometry?.coordinates;
+    if (!coords || coords.length < 2) continue;
+    ranked.push({
+      type: 'mapbox',
+      score: scoreMapboxFeature(feature, query),
+      data: feature,
+      lat: coords[1],
+      lng: coords[0],
+      nameKey: normalizeSearchQuery(feature.text || feature.place_name || ''),
+    });
+  }
+
+  for (const g of geonames) {
+    const lat = parseFloat(g.lat);
+    const lng = parseFloat(g.lng);
+    if (Number.isNaN(lat) || Number.isNaN(lng)) continue;
+    ranked.push({
+      type: 'geonames',
+      score: scoreGeoNamesFeature(g, query),
+      data: g,
+      lat,
+      lng,
+      nameKey: normalizeSearchQuery(g.name || ''),
+    });
+  }
+
+  ranked.sort((a, b) => b.score - a.score);
+
+  const seenCoords = [];
+  const seenNames = new Set();
+  const outCurated = [];
+  const outFeatures = [];
+  const outGeonames = [];
+
+  for (const item of ranked) {
+    if (item.nameKey && seenNames.has(item.nameKey)) continue;
+    if (seenCoords.some((c) => approxEqualCoords(c.lat, c.lng, item.lat, item.lng))) {
+      continue;
+    }
+    if (item.nameKey) seenNames.add(item.nameKey);
+    seenCoords.push({ lat: item.lat, lng: item.lng });
+
+    if (item.type === 'curated') outCurated.push(item.data);
+    else if (item.type === 'mapbox') outFeatures.push(item.data);
+    else outGeonames.push(item.data);
+  }
+
+  return {
+    curated: outCurated,
+    features: outFeatures,
+    geonames: outGeonames,
+    ordered: [
+      ...outCurated.map((d) => ({ source: 'curated', data: d })),
+      ...outFeatures.map((d) => ({ source: 'mapbox', data: d })),
+      ...outGeonames.map((d) => ({ source: 'geonames', data: d })),
+    ],
+  };
+}
+
+export async function searchPlaces(query, { signal, proximity } = {}) {
   if (!query || query.trim().length < 3) {
-    return { features: [], geonames: [] };
+    return { curated: [], features: [], geonames: [] };
   }
 
   const trimmed = query.trim();
-  const mapboxUrl =
-    `${MAPBOX_GEOCODE_BASE}/${encodeURIComponent(trimmed)}.json` +
-    `?access_token=${MAPBOX_TOKEN}` +
-    '&country=CA&proximity=-123.0%2C49.9&types=poi,place,locality,region&language=en&limit=5';
+  const curated = searchCuratedSpots(trimmed);
+  const mapboxUrl = buildMapboxUrl(trimmed, {
+    proximity: proximity || DEFAULT_PROXIMITY,
+  });
 
   const fetchGeoNames = trimmed.length >= 4;
-  const geoNamesUrl =
-    `${GEONAMES_SEARCH_BASE}?name_startsWith=${encodeURIComponent(trimmed)}` +
-    `&featureClass=T&adminCode1=BC&country=CA&maxRows=5&username=${GEONAMES_USERNAME}`;
-
-  const fetches = [
-    fetch(mapboxUrl, { signal })
-      .then((r) => r.json())
-      .catch(() => ({})),
-  ];
+  const fetches = [fetchJson(mapboxUrl, signal)];
 
   if (fetchGeoNames) {
     fetches.push(
-      fetch(geoNamesUrl, { signal })
-        .then((r) => r.json())
-        .catch(() => ({}))
+      fetchJson(buildGeoNamesUrl(trimmed, 'BC'), signal),
+      fetchJson(buildGeoNamesUrl(trimmed, 'AB'), signal)
     );
-  } else {
-    fetches.push(Promise.resolve({}));
   }
 
   const results = await Promise.all(fetches);
   const features = results[0]?.features ?? [];
-  const geonames = fetchGeoNames && results[1]?.geonames ? results[1].geonames : [];
+  let geonames = [];
+  if (fetchGeoNames) {
+    const bc = results[1]?.geonames ?? [];
+    const ab = results[2]?.geonames ?? [];
+    geonames = [...bc, ...ab];
+  }
 
-  return { features, geonames };
+  return rankSuggestions(trimmed, { curated, features, geonames });
 }
 
 export async function reverseGeocode(lng, lat, { signal } = {}) {
@@ -74,28 +300,23 @@ export function buildForecastUrlFromCoords(lat, lng, name = 'Location') {
   );
 }
 
-export async function searchMapboxPlaces(query, { signal } = {}) {
-  const url =
-    `${MAPBOX_GEOCODE_BASE}/${encodeURIComponent(query)}.json` +
-    `?access_token=${MAPBOX_TOKEN}` +
-    '&country=CA&proximity=-123.0%2C49.9&types=poi,place,locality,region&language=en&limit=5';
-
-  const data = await fetch(url, { signal })
-    .then((r) => r.json())
-    .catch(() => ({}));
+export async function searchMapboxPlaces(query, { signal, proximity } = {}) {
+  if (!query || !query.trim()) return [];
+  const url = buildMapboxUrl(query.trim(), {
+    proximity: proximity || DEFAULT_PROXIMITY,
+  });
+  const data = await fetchJson(url, signal);
   return data?.features ?? [];
 }
 
 export async function searchTerrainFeatures(query, { signal } = {}) {
   if (!query || query.trim().length < 4) return [];
-  const url =
-    `${GEONAMES_SEARCH_BASE}?name_startsWith=${encodeURIComponent(query.trim())}` +
-    `&featureClass=T&adminCode1=BC&country=CA&maxRows=5&username=${GEONAMES_USERNAME}`;
-
-  const data = await fetch(url, { signal })
-    .then((r) => r.json())
-    .catch(() => ({}));
-  return data?.geonames ?? [];
+  const trimmed = query.trim();
+  const [bc, ab] = await Promise.all([
+    fetchJson(buildGeoNamesUrl(trimmed, 'BC'), signal),
+    fetchJson(buildGeoNamesUrl(trimmed, 'AB'), signal),
+  ]);
+  return [...(bc?.geonames ?? []), ...(ab?.geonames ?? [])];
 }
 
 export async function searchNearbyTerrain(lat, lng, { signal } = {}) {

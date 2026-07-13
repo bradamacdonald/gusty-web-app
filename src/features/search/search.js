@@ -5,11 +5,9 @@ import { DEFAULT_LAT, DEFAULT_LON, MAPBOX_TOKEN } from '../../lib/constants.js';
 import { fetchCurrentWeather } from '../../services/api/open-meteo.js';
 import {
   getRegionFromContext,
-  onlyStreetOrAddress,
   reverseGeocodeSmart,
-  searchMapboxPlaces,
   searchNearbyTerrain,
-  searchTerrainFeatures,
+  searchPlaces,
 } from '../../services/api/geocoding.js';
 import { formatCoordinates, isCoordinateLike } from '../../lib/coordinates.js';
 import { getCurrentHourIndex } from '../../lib/datetime.js';
@@ -101,107 +99,110 @@ document.addEventListener('DOMContentLoaded', function() {
       function fetchGeocode(query) {
         var requestId = ++lastRequestId;
         searchBar.classList.add('loading');
-        searchMapboxPlaces(query)
-          .then(function(features) {
+        var center = map.getCenter();
+        var proximity = center.lng.toFixed(3) + ',' + center.lat.toFixed(3);
+        searchPlaces(query, { proximity: proximity })
+          .then(function(result) {
             if (requestId !== lastRequestId) return;
-            var needsFallback = features.length === 0 || onlyStreetOrAddress(features);
-            if (needsFallback && query.trim().length >= 4) {
-              return searchTerrainFeatures(query).then(function(geonames) {
-                if (requestId !== lastRequestId) return;
-                searchBar.classList.remove('loading');
-                renderSuggestions(features, geonames);
-              });
-            }
             searchBar.classList.remove('loading');
-            renderSuggestions(features, []);
+            renderSuggestions(result.curated || [], result.features || [], result.geonames || []);
           })
           .catch(function() {
             if (requestId !== lastRequestId) return;
-            if (query.trim().length < 4) {
-              searchBar.classList.remove('loading');
-              renderSuggestions([], []);
-              return;
-            }
-            searchTerrainFeatures(query)
-              .then(function(geonames) {
-                if (requestId !== lastRequestId) return;
-                searchBar.classList.remove('loading');
-                renderSuggestions([], geonames);
-              })
-              .catch(function() {
-                if (requestId !== lastRequestId) return;
-                searchBar.classList.remove('loading');
-                renderSuggestions([], []);
-              });
+            searchBar.classList.remove('loading');
+            renderSuggestions([], [], []);
           });
       }
 
       var mountainIconSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 18 9-11 4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" /></svg>';
+      var pinIconSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>';
 
-      function renderSuggestions(features, geonames) {
+      function appendSuggestion(opts) {
+        var name = opts.name || '';
+        var region = opts.region || '';
+        var lat = opts.lat;
+        var lng = opts.lng;
+        var elev = opts.elev || '—';
+        var mountain = !!opts.mountain;
+        var coordsStr = formatCoordinates(lat, lng);
+        var btn = document.createElement('button');
+        btn.className = mountain ? 'suggestion-item suggestion-item-geonames' : 'suggestion-item';
+        btn.type = 'button';
+        btn.dataset.name = name;
+        btn.dataset.elev = elev;
+        btn.dataset.coords = coordsStr;
+        btn.dataset.lat = lat;
+        btn.dataset.lng = lng;
+        var iconClass = mountain ? 'suggestion-icon suggestion-icon-mountain' : 'suggestion-icon';
+        var iconTitle = mountain ? ' title="Mountain spot"' : '';
+        btn.innerHTML =
+          '<span class="' + iconClass + '"' + iconTitle + '>' +
+          (mountain ? mountainIconSvg : pinIconSvg) +
+          '</span><span class="suggestion-name"></span><span class="suggestion-region"></span>';
+        btn.querySelector('.suggestion-name').textContent = name || 'Location';
+        btn.querySelector('.suggestion-region').textContent = region || '';
+        btn.addEventListener('click', function() {
+          var itemName = btn.dataset.name;
+          var displayName = (itemName && !isCoordinateLike(itemName)) ? itemName : 'Dropped Pin';
+          goToSelected(displayName, btn.dataset.elev, btn.dataset.coords, btn.dataset.lat, btn.dataset.lng);
+          suggestionsList.innerHTML = '';
+          suggestionsList.classList.add('hidden');
+        });
+        suggestionsList.appendChild(btn);
+      }
+
+      function renderSuggestions(curated, features, geonames) {
         suggestionsList.innerHTML = '';
+        curated = curated || [];
+        features = features || [];
         geonames = geonames || [];
-        var total = (features || []).length + geonames.length;
+        var total = curated.length + features.length + geonames.length;
         if (total === 0) {
           suggestionsList.classList.add('hidden');
           return;
         }
         suggestionsList.classList.remove('hidden');
-        (features || []).forEach(function(f) {
+
+        curated.forEach(function(spot) {
+          if (spot.lat == null || spot.lng == null) return;
+          appendSuggestion({
+            name: spot.name,
+            region: spot.regionLabel || spot.region || '',
+            lat: spot.lat,
+            lng: spot.lng,
+            elev: '—',
+            mountain: true
+          });
+        });
+
+        features.forEach(function(f) {
           var coords = f.geometry && f.geometry.coordinates;
           if (!coords || coords.length < 2) return;
-          var lng = coords[0];
-          var lat = coords[1];
-          var name = f.text || f.place_name || '';
-          var region = getRegionFromContext(f.context);
-          var coordsStr = formatCoordinates(lat, lng);
-          var btn = document.createElement('button');
-          btn.className = 'suggestion-item';
-          btn.type = 'button';
-          btn.dataset.name = name;
-          btn.dataset.elev = '—';
-          btn.dataset.coords = coordsStr;
-          btn.dataset.lat = lat;
-          btn.dataset.lng = lng;
-          btn.innerHTML = '<span class="suggestion-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg></span><span class="suggestion-name"></span><span class="suggestion-region"></span>';
-          btn.querySelector('.suggestion-name').textContent = name || '';
-          btn.querySelector('.suggestion-region').textContent = region || '';
-          btn.addEventListener('click', function() {
-            var name = btn.dataset.name;
-            var displayName = (name && !isCoordinateLike(name)) ? name : 'Dropped Pin';
-            goToSelected(displayName, btn.dataset.elev, btn.dataset.coords, btn.dataset.lat, btn.dataset.lng);
-            suggestionsList.innerHTML = '';
-            suggestionsList.classList.add('hidden');
+          appendSuggestion({
+            name: f.text || f.place_name || '',
+            region: getRegionFromContext(f.context),
+            lat: coords[1],
+            lng: coords[0],
+            elev: '—',
+            mountain: false
           });
-          suggestionsList.appendChild(btn);
         });
+
         geonames.forEach(function(g) {
           var lng = parseFloat(g.lng);
           var lat = parseFloat(g.lat);
           if (isNaN(lng) || isNaN(lat)) return;
-          var name = (g.name || '').trim();
-          var region = [g.adminName1, g.countryName].filter(Boolean).join(', ');
-          var elev = (g.elevation != null && !isNaN(g.elevation)) ? Math.round(g.elevation).toLocaleString() + ' m' : '—';
-          var coordsStr = formatCoordinates(lat, lng);
-          var btn = document.createElement('button');
-          btn.className = 'suggestion-item suggestion-item-geonames';
-          btn.type = 'button';
-          btn.dataset.name = name;
-          btn.dataset.elev = elev;
-          btn.dataset.coords = coordsStr;
-          btn.dataset.lat = lat;
-          btn.dataset.lng = lng;
-          btn.innerHTML = '<span class="suggestion-icon suggestion-icon-mountain" title="Terrain feature">' + mountainIconSvg + '</span><span class="suggestion-name"></span><span class="suggestion-region"></span>';
-          btn.querySelector('.suggestion-name').textContent = name || 'Location';
-          btn.querySelector('.suggestion-region').textContent = region || '';
-          btn.addEventListener('click', function() {
-            var name = btn.dataset.name;
-            var displayName = (name && !isCoordinateLike(name)) ? name : 'Dropped Pin';
-            goToSelected(displayName, btn.dataset.elev, btn.dataset.coords, btn.dataset.lat, btn.dataset.lng);
-            suggestionsList.innerHTML = '';
-            suggestionsList.classList.add('hidden');
+          var elev = (g.elevation != null && !isNaN(g.elevation))
+            ? Math.round(g.elevation).toLocaleString() + ' m'
+            : '—';
+          appendSuggestion({
+            name: (g.name || '').trim(),
+            region: [g.adminName1, g.countryName].filter(Boolean).join(', '),
+            lat: lat,
+            lng: lng,
+            elev: elev,
+            mountain: true
           });
-          suggestionsList.appendChild(btn);
         });
       }
 
@@ -340,7 +341,7 @@ document.addEventListener('DOMContentLoaded', function() {
             fetchGeocode(query);
           }, 300);
         } else {
-          renderSuggestions([]);
+          renderSuggestions([], [], []);
         }
       });
 

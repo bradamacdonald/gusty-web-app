@@ -16,6 +16,9 @@ let lastRequestId = 0;
 const mountainIconSvg =
   '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 18 9-11 4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" /></svg>';
 
+const pinIconSvg =
+  '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>';
+
 function showDropdown() {
   dropdown.classList.remove('hidden');
 }
@@ -24,33 +27,57 @@ function hideDropdown() {
   dropdown.classList.add('hidden');
 }
 
-function renderSuggestions(features, geonames) {
+function appendSuggestionButton({ name, region, lat, lng, mountain }) {
+  const btn = document.createElement('button');
+  btn.className = 'search-dropdown-item';
+  btn.type = 'button';
+  const iconClass = mountain
+    ? 'search-dropdown-icon search-dropdown-icon-mountain'
+    : 'search-dropdown-icon';
+  const iconTitle = mountain ? ' title="Mountain spot"' : '';
+  btn.innerHTML =
+    `<span class="${iconClass}"${iconTitle}>${mountain ? mountainIconSvg : pinIconSvg}</span>` +
+    '<span class="search-dropdown-name"></span><span class="search-dropdown-region"></span>';
+  btn.querySelector('.search-dropdown-name').textContent = name || 'Location';
+  btn.querySelector('.search-dropdown-region').textContent = region || '';
+  btn.addEventListener('click', () => {
+    window.location.href = buildForecastUrlFromCoords(lat, lng, name || 'Location');
+  });
+  dropdown.appendChild(btn);
+}
+
+function renderSuggestions(curated, features, geonames) {
   dropdown.innerHTML = '';
+  curated = curated || [];
+  features = features || [];
   geonames = geonames || [];
-  const total = (features || []).length + geonames.length;
+  const total = curated.length + features.length + geonames.length;
   if (total === 0) {
     hideDropdown();
     return;
   }
   showDropdown();
 
-  (features || []).forEach((f) => {
+  curated.forEach((spot) => {
+    const lat = spot.lat;
+    const lng = spot.lng;
+    if (lat == null || lng == null) return;
+    appendSuggestionButton({
+      name: spot.name,
+      region: spot.regionLabel || spot.region || '',
+      lat,
+      lng,
+      mountain: true,
+    });
+  });
+
+  features.forEach((f) => {
     const coords = f.geometry?.coordinates;
     if (!coords || coords.length < 2) return;
     const [lng, lat] = coords;
     const name = (f.text || f.place_name || '').trim();
     const region = getRegionFromContext(f.context);
-    const btn = document.createElement('button');
-    btn.className = 'search-dropdown-item';
-    btn.type = 'button';
-    btn.innerHTML =
-      '<span class="search-dropdown-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg></span><span class="search-dropdown-name"></span><span class="search-dropdown-region"></span>';
-    btn.querySelector('.search-dropdown-name').textContent = name || 'Location';
-    btn.querySelector('.search-dropdown-region').textContent = region || '';
-    btn.addEventListener('click', () => {
-      window.location.href = buildForecastUrlFromCoords(lat, lng, name || 'Location');
-    });
-    dropdown.appendChild(btn);
+    appendSuggestionButton({ name, region, lat, lng, mountain: false });
   });
 
   geonames.forEach((g) => {
@@ -59,16 +86,7 @@ function renderSuggestions(features, geonames) {
     if (isNaN(lng) || isNaN(lat)) return;
     const name = (g.name || '').trim();
     const region = [g.adminName1, g.countryName].filter(Boolean).join(', ');
-    const btn = document.createElement('button');
-    btn.className = 'search-dropdown-item';
-    btn.type = 'button';
-    btn.innerHTML = `<span class="search-dropdown-icon search-dropdown-icon-mountain" title="Terrain feature">${mountainIconSvg}</span><span class="search-dropdown-name"></span><span class="search-dropdown-region"></span>`;
-    btn.querySelector('.search-dropdown-name').textContent = name || 'Location';
-    btn.querySelector('.search-dropdown-region').textContent = region || '';
-    btn.addEventListener('click', () => {
-      window.location.href = buildForecastUrlFromCoords(lat, lng, name || 'Location');
-    });
-    dropdown.appendChild(btn);
+    appendSuggestionButton({ name, region, lat, lng, mountain: true });
   });
 }
 
@@ -79,9 +97,9 @@ async function fetchGeocode(query) {
     return;
   }
   const requestId = ++lastRequestId;
-  const { features, geonames } = await searchPlaces(query);
+  const { curated, features, geonames } = await searchPlaces(query);
   if (requestId !== lastRequestId) return;
-  renderSuggestions(features, geonames);
+  renderSuggestions(curated, features, geonames);
 }
 
 searchInput.addEventListener('input', () => {
