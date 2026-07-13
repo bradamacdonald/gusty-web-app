@@ -10,7 +10,7 @@
    Contrast target: WCAG 2.1 AA
      - Text / icons (≥4.5:1) against bg, surface, surface-elevated
      - Interactive control borders (≥3:1) via --color-border-field
-     - Chart series use --chart-* (~3.2–4:1); UI wind tokens stay full-strength
+     - Decorative dividers use soft --color-border hairlines (not 3:1)
    ============================================================ */
 
 :root {
@@ -54,11 +54,13 @@
   --color-surface:          var(--navy-900);
   --color-surface-elevated: var(--navy-800);
 
-  /* Component / divider borders — ≥3:1 vs adjacent surfaces (WCAG 1.4.11) */
-  --color-border:        var(--navy-350);
-  --color-border-strong: var(--navy-300);
-  /* Form / control chrome — ≥3:1 vs adjacent surfaces */
-  --color-border-field:  var(--navy-350);
+  /*
+   * Decorative borders / dividers stay quiet — structure with space, not boxes.
+   * Interactive fields keep a stronger border for WCAG 1.4.11 (≥3:1).
+   */
+  --color-border:        rgba(184, 196, 212, 0.12);
+  --color-border-strong: rgba(184, 196, 212, 0.22);
+  --color-border-field:  var(--navy-500);
 
   /* ── Semantic: Text (≥4.5:1 on bg / surface / elevated) ── */
   --color-text-primary:   var(--navy-25);
@@ -160,9 +162,9 @@ html.theme-light {
   --color-surface:          #FFFFFF;
   --color-surface-elevated: var(--navy-100);
 
-  --color-border:        var(--navy-350);
-  --color-border-strong: var(--navy-400);
-  --color-border-field:  var(--navy-350);
+  --color-border:        rgba(61, 79, 99, 0.14);
+  --color-border-strong: rgba(61, 79, 99, 0.24);
+  --color-border-field:  var(--navy-400);
 
   --color-text-primary:   var(--navy-950);
   --color-text-secondary: #3D4F63;

@@ -11,17 +11,21 @@ from the scales below.
 - Dark-first UI. The canvas is always deep navy, never pure black.
 - Data is the design. No decorative gradients, illustrations, or drop shadows.
 - Instrument-grade clarity. Every element should feel precise and trustworthy.
+- Prefer space and typography over borders and nested cards.
 - Mobile-first. Design for 390px wide iPhone portrait unless told otherwise.
 
 ---
 
 ## Contrast (WCAG 2.1 AA)
 
-All text, icons, and form control borders must meet AA against the surface
-they sit on (`bg`, `surface`, or `surface-elevated`):
+All text and icons must meet AA against the surface they sit on
+(`bg`, `surface`, or `surface-elevated`):
 
 - Normal text / icons: **≥ 4.5:1**
 - Interactive control borders (`border-field`): **≥ 3:1**
+
+Decorative hairlines (`border`, `border-strong`) are intentionally soft and
+are **not** required to meet 3:1 — they structure space, not affordance.
 
 Do not invent new greys for labels, placeholders, or captions — use the
 semantic text tokens below. Runtime SSOT: `src/styles/tokens.css`.
@@ -83,10 +87,13 @@ navies from the ramp; light `surface` may use white for card lift.
 | bg               | navy-950  | navy-50   | Page canvas, app background      |
 | surface          | navy-900  | #FFFFFF   | Cards, panels, containers        |
 | surface-elevated | navy-800  | navy-100  | Raised panels, model comparison  |
-| border           | navy-350  | navy-350  | Panel / card boundaries (≥3:1)   |
-| border-strong    | navy-300  | navy-400  | Emphasized dividers (≥3:1)       |
-| border-field     | navy-350  | navy-350  | Inputs, selects, toggles (≥3:1)  |
+| border           | hairline (~12% slate) | hairline (~14%) | Decorative dividers only — keep quiet |
+| border-strong    | hairline (~22%) | hairline (~24%) | Slightly stronger, still quiet     |
+| border-field     | navy-500  | navy-400  | Inputs / toggles (≥3:1 interactive) |
 | accent-border    | accent    | accent    | Focus / selected control border  |
+
+Prefer **space over boxes**. Do not wrap every section in a bordered card.
+Use hairline dividers sparingly; never stack nested bordered surfaces.
 
 ---
 

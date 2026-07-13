@@ -27,6 +27,7 @@ import {
   MAX_COMPARE_ALTERNATES,
 } from '../../services/compare-spots.js';
 import { parseLocationFromUrl, formatCoordinates, spotKey } from '../../lib/coordinates.js';
+import { withPlanElevParams } from '../../lib/plan-url.js';
 import { formatDay, formatHour, getCurrentHourIndex } from '../../lib/datetime.js';
 import {
   getHairTier,
@@ -273,6 +274,20 @@ mountBottomNav('location');
         paint('model-gem', mVal);
         paint('model-hrdps', hVal);
 
+        var hrdpsRow = document.querySelector('.model-row[data-model="hrdps"]');
+        var hrdpsUnavailable = hVal == null;
+        if (hrdpsRow) {
+          hrdpsRow.classList.toggle('is-unavailable', hrdpsUnavailable);
+          hrdpsRow.setAttribute('aria-disabled', hrdpsUnavailable ? 'true' : 'false');
+        }
+        if (hrdpsUnavailable) {
+          var hrdpsEl = document.getElementById('model-hrdps');
+          if (hrdpsEl) {
+            hrdpsEl.textContent = 'Unavailable';
+            hrdpsEl.style.color = 'var(--color-text-muted)';
+          }
+        }
+
         ['hrdps', 'gfs', 'ecmwf', 'gem'].forEach(function(key) {
           var row = document.querySelector('.model-row[data-model="' + key + '"]');
           var badge = document.getElementById('active-badge-' + key);
@@ -294,7 +309,9 @@ mountBottomNav('location');
         if (spread <= 5) conf = 'Models agree within ' + spreadDisp + ' ' + windUnit + ' — high confidence.';
         else if (spread <= 15) conf = 'Models agree within ' + spreadDisp + ' ' + windUnit + ' — moderate confidence.';
         else conf = 'Models differ by ' + spreadDisp + ' ' + windUnit + ' — low confidence.';
-        if (activeModelKey === 'hrdps') {
+        if (hrdpsUnavailable) {
+          conf += ' HRDPS is unavailable here — near-term uses ECMWF/GEM instead.';
+        } else if (activeModelKey === 'hrdps') {
           conf += ' HRDPS is best for the next 24–48h; use ECMWF for day 3+.';
         } else if (activeModelKey === 'ecmwf') {
           conf += ' ECMWF anchors longer-range; check HRDPS for near-term wind.';
@@ -661,6 +678,12 @@ mountBottomNav('location');
         thInput.value = String(th);
         objInput.value = String(obj);
         setPlanElevations(lat, lng, th, obj);
+        try {
+          var qs = withPlanElevParams(window.location.search, th, obj);
+          window.history.replaceState(null, '', window.location.pathname + '?' + qs + window.location.hash);
+        } catch {
+          // ignore
+        }
         section.hidden = false;
         refreshPlanCompare();
       }
@@ -669,6 +692,13 @@ mountBottomNav('location');
         var elevs = readPlanElevations();
         if (elevs.th == null || elevs.obj == null) return;
         setPlanElevations(lat, lng, elevs.th, elevs.obj);
+        try {
+          var qs = withPlanElevParams(window.location.search, elevs.th, elevs.obj);
+          var next = window.location.pathname + '?' + qs + window.location.hash;
+          window.history.replaceState(null, '', next);
+        } catch {
+          // ignore (file:// or restricted history)
+        }
       }
 
       var compareSelectedKeys = new Set();
@@ -1056,6 +1086,7 @@ mountBottomNav('location');
         var modelName = modelKeyToName(model);
         row.style.cursor = 'pointer';
         row.addEventListener('click', function() {
+          if (row.classList.contains('is-unavailable')) return;
           if (modelName) setDefaultModel(modelName);
           window.location.href = buildDetailUrl(modelName);
         });
