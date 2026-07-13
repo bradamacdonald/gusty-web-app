@@ -2,18 +2,21 @@
 
 :root {
   --chart-height: 180px;
+  /* Mobile scroll width; desktop charts fill the frame instead */
   --chart-width: 1100px;
 }
 
+/* Match search/shared horizontal real estate (not a phone-width frame) */
 .app-frame {
   margin: 0 auto;
-  max-width: 390px;
+  max-width: clamp(390px, 92vw, 980px);
   width: 100%;
   min-height: 100vh;
   position: relative;
   transform: translateZ(0);
   border-left: 1px solid var(--color-border);
   border-right: 1px solid var(--color-border);
+  padding: 0;
   padding-bottom: var(--space-16);
 }
 
@@ -122,19 +125,20 @@
     }
     .chart-scroll::-webkit-scrollbar { display: none; }
     .chart-scroll-inner {
-      width: var(--chart-width);
-      min-width: var(--chart-width);
+      width: 100%;
+      min-width: 100%;
       position: relative;
     }
     .time-axis-wrap {
       position: relative;
-      width: var(--chart-width);
-      min-width: var(--chart-width);
+      width: 100%;
+      min-width: 100%;
     }
     .time-axis {
       display: flex;
       padding: var(--space-2) 0;
-      width: var(--chart-width);
+      width: 100%;
+      min-width: 100%;
     }
     .time-tick {
       flex: 1;
@@ -175,8 +179,8 @@
       padding: 0 var(--space-4) var(--space-4);
     }
     .chart-blocks-inner {
-      width: var(--chart-width);
-      min-width: var(--chart-width);
+      width: 100%;
+      min-width: 100%;
     }
     .chart-label {
       font-size: var(--text-xs);
@@ -189,12 +193,28 @@
     .chart-container {
       position: relative;
       height: var(--chart-height);
-      width: var(--chart-width);
+      width: 100%;
+      min-width: 100%;
     }
     .chart-container canvas {
       display: block;
-      width: var(--chart-width);
-      height: var(--chart-height);
+      width: 100% !important;
+      height: var(--chart-height) !important;
+    }
+
+    /* On narrow viewports keep a wide scrollable chart for 48h detail */
+    @media (max-width: 767px) {
+      .chart-scroll-inner,
+      .time-axis-wrap,
+      .time-axis,
+      .chart-blocks-inner,
+      .chart-container {
+        width: var(--chart-width);
+        min-width: var(--chart-width);
+      }
+      .chart-container canvas {
+        width: var(--chart-width) !important;
+      }
     }
     .chart-legend-row {
       display: flex;

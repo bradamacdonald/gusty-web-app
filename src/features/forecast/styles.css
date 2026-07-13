@@ -568,26 +568,78 @@ body {
       padding: var(--space-5);
       margin-bottom: var(--space-6);
     }
+    .avalanche-card[hidden] { display: none !important; }
+    .avalanche-card-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+    }
     .avalanche-card-title {
       font-size: var(--text-base);
       font-weight: var(--weight-semibold);
       color: var(--color-text-primary);
-      margin-bottom: var(--space-2);
+      margin: 0;
+    }
+    .avalanche-source {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      font-family: var(--font-data);
+      flex-shrink: 0;
+    }
+    .avalanche-bands {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+    }
+    .avalanche-band {
+      background: var(--color-surface-elevated);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: var(--space-2) var(--space-3);
+      text-align: center;
+    }
+    .avalanche-band-label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+    }
+    .avalanche-band-value {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+    }
+    .avalanche-band-swatch {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      flex-shrink: 0;
+      border: 1px solid rgba(0,0,0,0.15);
     }
     .avalanche-card-desc {
       font-size: var(--text-sm);
       color: var(--color-text-secondary);
       line-height: var(--leading-normal);
-      margin-bottom: var(--space-4);
+      margin-bottom: var(--space-2);
     }
     .avalanche-indicator {
-      display: inline-flex;
+      display: flex;
+      flex-wrap: wrap;
       align-items: center;
       gap: var(--space-2);
       font-size: var(--text-sm);
       color: var(--color-text-secondary);
-      margin-bottom: var(--space-4);
+      margin-bottom: var(--space-3);
     }
+    .avalanche-indicator:empty { display: none; }
     .avalanche-indicator-sq {
       width: 8px;
       height: 8px;
@@ -596,6 +648,12 @@ body {
     }
     .avalanche-num {
       font-weight: var(--weight-semibold);
+    }
+    .avalanche-disclaimer {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      line-height: 1.4;
+      margin: 0 0 var(--space-3);
     }
     .avalanche-link {
       font-size: var(--text-xs);
@@ -607,6 +665,49 @@ body {
     }
     .avalanche-link:hover {
       color: var(--color-accent);
+    }
+
+/* LOADING WATCH */
+.loading-watch {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      padding: var(--space-5);
+      margin-bottom: var(--space-6);
+    }
+    .loading-watch[hidden] { display: none !important; }
+    .loading-watch .section-header {
+      margin-bottom: var(--space-3);
+    }
+    .loading-watch-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-3);
+    }
+    .loading-watch-item {
+      background: var(--color-surface-elevated);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: var(--space-3);
+    }
+    .loading-watch-label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+    }
+    .loading-watch-value {
+      font-family: var(--font-data);
+      font-size: var(--text-base);
+      font-weight: var(--weight-medium);
+      color: var(--color-text-primary);
+    }
+    .loading-watch-note {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      margin: var(--space-3) 0 0;
     }
 
 /* LOADING & ERROR STATES */

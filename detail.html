@@ -25,6 +25,7 @@
     </a>
     <a href="search.html" class="wordmark">GUSTY</a>
     <select class="model-select" id="model-select" aria-label="Select model">
+      <option value="HRDPS">HRDPS</option>
       <option value="ECMWF">ECMWF</option>
       <option value="GFS">GFS</option>
       <option value="GEM">GEM</option>
@@ -40,7 +41,7 @@
 
   <div class="chart-section">
     <div class="chart-scroll" id="chart-scroll">
-      <div class="chart-scroll-inner" style="width: var(--chart-width); min-width: var(--chart-width);">
+      <div class="chart-scroll-inner">
         <div class="date-header" id="date-header"></div>
         <div class="time-axis-wrap">
           <div class="time-axis" id="time-axis"></div>
@@ -57,7 +58,7 @@
             <span class="chart-swatch"><span class="chart-swatch-sq" style="background:var(--wind-calm)"></span>Trailhead</span>
           </div>
           <div class="chart-container">
-            <canvas id="wind-chart" width="1100" height="180"></canvas>
+            <canvas id="wind-chart"></canvas>
           </div>
         </div>
         <div class="chart-block">
@@ -69,7 +70,7 @@
             <span class="chart-swatch" style="color:var(--color-text-muted)"><span class="chart-swatch-line dashed"></span>Freezing Level</span>
           </div>
           <div class="chart-container">
-            <canvas id="temp-chart" width="1100" height="180"></canvas>
+            <canvas id="temp-chart"></canvas>
           </div>
         </div>
         <div class="chart-block">
@@ -80,7 +81,7 @@
             <span class="precip-swatch" style="color:var(--color-accent)"><span class="chart-swatch-line solid"></span>Cumulative</span>
           </div>
           <div class="chart-container">
-            <canvas id="precip-chart" width="1100" height="180"></canvas>
+            <canvas id="precip-chart"></canvas>
           </div>
         </div>
       </div>

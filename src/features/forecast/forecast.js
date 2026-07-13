@@ -16,8 +16,9 @@ import {
   isSpotSaved,
   toggleSavedSpot,
 } from '../../services/storage/saved-spots.js';
+import { fetchAvalancheForecast } from '../../services/api/avalanche-canada.js';
 import { fetchLocationForecast, fetchModelWind } from '../../services/api/open-meteo.js';
-import { formatCoordinates } from '../../lib/coordinates.js';
+import { parseLocationFromUrl, formatCoordinates } from '../../lib/coordinates.js';
 import { formatDay, formatHour, getCurrentHourIndex } from '../../lib/datetime.js';
 import {
   getHairTier,
@@ -33,17 +34,25 @@ mountBottomNav('location');
 (function() {
       'use strict';
 
-      const params = new URLSearchParams(window.location.search);
-      const lat = parseFloat(params.get('lat')) || DEFAULT_LAT;
-      const lng = parseFloat(params.get('lng')) || DEFAULT_LON;
+      const parsed = parseLocationFromUrl(window.location.search);
+      const lat = Number.isFinite(parsed.lat) ? parsed.lat : DEFAULT_LAT;
+      const lng = Number.isFinite(parsed.lng) ? parsed.lng : DEFAULT_LON;
+      const urlElevation = parsed.elevation != null && !isNaN(parsed.elevation)
+        ? Math.round(parsed.elevation)
+        : null;
 
-      const nameParam = params.get('name');
-      const decodedName = nameParam ? decodeURIComponent(nameParam) : null;
+      const decodedName = parsed.name ? parsed.name : null;
       const locationName = (decodedName && decodedName !== 'Location') ? decodedName : formatCoordinates(lat, lng);
 
       var apiElevation = null;
       var _popoverCurrentWind = null;
       var _popoverMaxWind = null;
+
+      function resolveElevation() {
+        if (urlElevation != null) return urlElevation;
+        if (apiElevation != null && !isNaN(apiElevation)) return Math.round(apiElevation);
+        return null;
+      }
 
       function showLoading() {
         document.getElementById('loading-overlay').classList.remove('hidden');
@@ -216,26 +225,32 @@ mountBottomNav('location');
         }
       }
 
-      function renderModelComparison(ecmwf, gfs, gem, activeModelKey) {
+      function renderModelComparison(ecmwf, gfs, gem, hrdps, activeModelKey) {
         const idx = getCurrentHourIndex(ecmwf.hourly);
-        const gLen = gfs.hourly.windspeed_10m.length;
-        const mLen = gem.hourly.windspeed_10m.length;
-        const eVal = ecmwf.hourly.windspeed_10m[idx];
-        const gVal = gfs.hourly.windspeed_10m[Math.min(idx, gLen - 1)];
-        const mVal = gem.hourly.windspeed_10m[Math.min(idx, mLen - 1)];
+        function valAt(data) {
+          if (!data?.hourly?.windspeed_10m?.length) return null;
+          const i = Math.min(idx, data.hourly.windspeed_10m.length - 1);
+          return data.hourly.windspeed_10m[i];
+        }
+        const eVal = valAt(ecmwf);
+        const gVal = valAt(gfs);
+        const mVal = valAt(gem);
+        const hVal = valAt(hrdps);
 
         var windUnit = getWindUnit();
-        var eDisp = convertWindForDisplay(eVal);
-        var gDisp = convertWindForDisplay(gVal);
-        var mDisp = convertWindForDisplay(mVal);
-        document.getElementById('model-ecmwf').textContent = (eDisp != null ? eDisp : '—') + ' ' + windUnit;
-        document.getElementById('model-ecmwf').style.color = windRampColor(eVal || 0);
-        document.getElementById('model-gfs').textContent = (gDisp != null ? gDisp : '—') + ' ' + windUnit;
-        document.getElementById('model-gfs').style.color = windRampColor(gVal || 0);
-        document.getElementById('model-gem').textContent = (mDisp != null ? mDisp : '—') + ' ' + windUnit;
-        document.getElementById('model-gem').style.color = windRampColor(mVal || 0);
+        function paint(id, raw) {
+          var el = document.getElementById(id);
+          if (!el) return;
+          var disp = convertWindForDisplay(raw);
+          el.textContent = (disp != null ? disp : '—') + ' ' + windUnit;
+          el.style.color = windRampColor(raw || 0);
+        }
+        paint('model-ecmwf', eVal);
+        paint('model-gfs', gVal);
+        paint('model-gem', mVal);
+        paint('model-hrdps', hVal);
 
-        ['gfs', 'ecmwf', 'gem'].forEach(function(key) {
+        ['hrdps', 'gfs', 'ecmwf', 'gem'].forEach(function(key) {
           var row = document.querySelector('.model-row[data-model="' + key + '"]');
           var badge = document.getElementById('active-badge-' + key);
           var runEl = document.getElementById('model-run-' + key);
@@ -246,7 +261,7 @@ mountBottomNav('location');
           if (runEl) runEl.textContent = getModelRunTimeAgo(key);
         });
 
-        const vals = [eVal, gVal, mVal].filter(v => v != null);
+        const vals = [hVal, eVal, gVal, mVal].filter(v => v != null);
         const spread = vals.length >= 2 ? Math.round(Math.max(...vals) - Math.min(...vals)) : 0;
         var spreadDisp = convertWindForDisplay(spread);
         let conf = '—';
@@ -278,25 +293,179 @@ mountBottomNav('location');
         else verdict.classList.add('unfavorable');
       }
 
+      function meanDirection(dirs) {
+        if (!dirs.length) return null;
+        var sin = 0;
+        var cos = 0;
+        dirs.forEach(function(d) {
+          var rad = (d * Math.PI) / 180;
+          sin += Math.sin(rad);
+          cos += Math.cos(rad);
+        });
+        var deg = (Math.atan2(sin / dirs.length, cos / dirs.length) * 180) / Math.PI;
+        return (deg + 360) % 360;
+      }
+
+      function renderLoadingWatch(data, startIdx, hours) {
+        var section = document.getElementById('loading-watch');
+        if (!section || !data?.hourly) return;
+        var h = data.hourly;
+        var end = Math.min(startIdx + hours, h.time.length);
+        var snowTotal = 0;
+        var maxWind = 0;
+        var dirs = [];
+        var fzlVals = [];
+
+        for (var i = startIdx; i < end; i++) {
+          var snow = h.snowfall && h.snowfall[i];
+          if (snow != null) snowTotal += snow;
+          var wind = h.windspeed_10m && h.windspeed_10m[i];
+          if (wind != null && wind > maxWind) maxWind = wind;
+          var dir = h.winddirection_10m && h.winddirection_10m[i];
+          if (dir != null) dirs.push(dir);
+          var fzl = h.freezing_level_height && h.freezing_level_height[i];
+          if (fzl != null && !isNaN(fzl)) fzlVals.push(fzl);
+        }
+
+        var snowCm = snowTotal; // Open-Meteo snowfall is cm
+        var windFmt = formatWindSpeed(maxWind);
+        var meanDir = meanDirection(dirs);
+        var fzlAvg = fzlVals.length
+          ? Math.round(fzlVals.reduce(function(a, b) { return a + b; }, 0) / fzlVals.length)
+          : null;
+
+        var snowEl = document.getElementById('watch-snow');
+        var windEl = document.getElementById('watch-wind');
+        var dirEl = document.getElementById('watch-dir');
+        var fzlEl = document.getElementById('watch-fzl');
+        if (snowEl) {
+          snowEl.textContent = snowCm > 0.05 ? snowCm.toFixed(1) + ' cm' : '0 cm';
+        }
+        if (windEl) {
+          windEl.textContent = (windFmt.value != null ? windFmt.value : '—') + ' ' + windFmt.unit;
+          windEl.style.color = windRampColor(maxWind || 0);
+        }
+        if (dirEl) {
+          dirEl.textContent = meanDir != null
+            ? degreesToCompass(meanDir) + ' · ' + Math.round(meanDir) + '°'
+            : '—';
+        }
+        if (fzlEl) {
+          if (fzlAvg != null) {
+            fzlEl.textContent = fzlAvg.toLocaleString() + ' m';
+          } else {
+            // Fallback: crude FZL from near-term temp when model omits freezing_level_height
+            var temp = h.temperature_2m && h.temperature_2m[startIdx];
+            var elev = resolveElevation();
+            if (temp != null && elev != null) {
+              var approx = Math.round(elev + Math.max(0, -temp * 120));
+              fzlEl.textContent = '~' + approx.toLocaleString() + ' m';
+            } else {
+              fzlEl.textContent = '—';
+            }
+          }
+        }
+        section.hidden = false;
+      }
+
+      function formatIssued(iso) {
+        if (!iso) return 'avalanche.ca';
+        try {
+          var d = new Date(iso);
+          return 'Issued ' + d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        } catch (e) {
+          return 'avalanche.ca';
+        }
+      }
+
+      function renderAvalancheCard(forecast) {
+        var card = document.getElementById('avalanche-card');
+        if (!card) return;
+        if (!forecast) {
+          card.hidden = true;
+          return;
+        }
+
+        var bandsEl = document.getElementById('avalanche-bands');
+        var indicator = document.getElementById('avalanche-indicator');
+        var desc = document.getElementById('avalanche-desc');
+        var link = document.getElementById('avalanche-link');
+
+        if (bandsEl) {
+          bandsEl.innerHTML = '';
+          (forecast.bands || []).forEach(function(band) {
+            var cell = document.createElement('div');
+            cell.className = 'avalanche-band';
+            var short = band.key === 'alp' ? 'ALP' : band.key === 'tln' ? 'TLN' : 'BTL';
+            var valueText = band.num != null ? String(band.num) : '—';
+            cell.innerHTML =
+              '<span class="avalanche-band-label">' + short + '</span>' +
+              '<span class="avalanche-band-value">' +
+              '<span class="avalanche-band-swatch" style="background:' + band.colour + '"></span>' +
+              '<span style="color:' + band.colour + '">' + valueText + '</span>' +
+              '</span>';
+            bandsEl.appendChild(cell);
+          });
+        }
+
+        if (indicator) {
+          var highest = forecast.highest;
+          var problems = (forecast.problems || []).join(', ');
+          if (highest) {
+            var numHtml = highest.num != null
+              ? '<span class="avalanche-num" style="color:' + highest.colour + '">' + highest.num + '</span> '
+              : '';
+            indicator.innerHTML =
+              '<span class="avalanche-indicator-sq" style="background:' + highest.colour + '"></span>' +
+              numHtml +
+              '<span>' + highest.display + (problems ? ' · ' + problems : '') + '</span>';
+          } else {
+            indicator.innerHTML = '';
+          }
+        }
+
+        if (desc) {
+          desc.textContent = forecast.highlights ||
+            (forecast.areaName ? ('Forecast region: ' + forecast.areaName) : '');
+        }
+        if (link) {
+          link.href = forecast.url || 'https://avalanche.ca';
+          link.textContent = formatIssued(forecast.dateIssued) + ' · View full forecast →';
+        }
+        card.hidden = false;
+      }
+
       async function loadForecast() {
         showLoading();
         hideError();
         try {
-          const [main, gfs, gem] = await Promise.all([
-            fetchLocationForecast(lat, lng),
-            fetchModelWind(lat, lng, 'gfs_seamless'),
-            fetchModelWind(lat, lng, 'gem_seamless')
+          const elevHint = urlElevation;
+          const settled = await Promise.allSettled([
+            fetchLocationForecast(lat, lng, elevHint),
+            fetchModelWind(lat, lng, 'gfs_seamless', 2, elevHint),
+            fetchModelWind(lat, lng, 'gem_seamless', 2, elevHint),
+            fetchModelWind(lat, lng, 'gem_hrdps_continental', 2, elevHint),
+            fetchAvalancheForecast(lat, lng),
           ]);
 
-          console.log('Open-Meteo API response (main/ECMWF):', main);
-          console.log('Open-Meteo API response (GFS):', gfs);
-          console.log('Open-Meteo API response (GEM):', gem);
+          const main = settled[0].status === 'fulfilled' ? settled[0].value : null;
+          if (!main) {
+            throw settled[0].reason || new Error('Failed to load forecast.');
+          }
+          const gfs = settled[1].status === 'fulfilled' ? settled[1].value : main;
+          const gem = settled[2].status === 'fulfilled' ? settled[2].value : main;
+          const hrdps = settled[3].status === 'fulfilled' ? settled[3].value : null;
+          const avy = settled[4].status === 'fulfilled' ? settled[4].value : null;
+
+          apiElevation = main.elevation;
+          var elev = resolveElevation();
 
           var preferred = getDefaultModel();
           var heroData = main;
           var activeKey = 'ecmwf';
           if (preferred === 'GFS') { heroData = gfs; activeKey = 'gfs'; }
           else if (preferred === 'GEM') { heroData = gem; activeKey = 'gem'; }
+          else if (preferred === 'HRDPS' && hrdps) { heroData = hrdps; activeKey = 'hrdps'; }
 
           const idx = getCurrentHourIndex(main.hourly);
           var heroIdx = Math.min(idx, (heroData.hourly.windspeed_10m.length || 1) - 1);
@@ -305,19 +474,14 @@ mountBottomNav('location');
           renderHourlyStrip(main, idx, 24);
           renderPrecipStrip(main, idx, 24);
           renderDailyStrip(main);
-          renderModelComparison(main, gfs, gem, activeKey);
+          renderModelComparison(main, gfs, gem, hrdps, activeKey);
           renderConditionVerdict(heroData, idx, 12);
-          apiElevation = main.elevation;
-          console.log('API elevation:', main.elevation);
-          const elevText = document.getElementById('wind-hero-elev-text');
-          if (elevText) elevText.textContent = (main.elevation != null && !isNaN(main.elevation))
-            ? Math.round(main.elevation).toLocaleString() + ' m'
-            : '—';
+          renderLoadingWatch(main, idx, 24);
+          renderAvalancheCard(avy);
 
-          const avalancheCard = document.getElementById('avalanche-card');
-          if (avalancheCard) {
-            const elev = main.elevation;
-            avalancheCard.style.display = (elev != null && !isNaN(elev) && elev >= 1000) ? '' : 'none';
+          const elevText = document.getElementById('wind-hero-elev-text');
+          if (elevText) {
+            elevText.textContent = elev != null ? elev.toLocaleString() + ' m' : '—';
           }
 
           hideLoading();
@@ -347,7 +511,7 @@ mountBottomNav('location');
           lat,
           lng,
           name: locationName,
-          elevation: apiElevation != null && !isNaN(apiElevation) ? Math.round(apiElevation) : null,
+          elevation: resolveElevation(),
         });
         updateSaveButtonState();
       }
@@ -452,7 +616,8 @@ mountBottomNav('location');
       }
       function buildDetailUrl(model) {
         var p = new URLSearchParams({ lat: lat, lng: lng, name: locationName });
-        if (apiElevation != null && !isNaN(apiElevation)) p.set('elevation', Math.round(apiElevation));
+        var elev = resolveElevation();
+        if (elev != null) p.set('elevation', elev);
         if (model) p.set('model', model);
         return 'detail.html?' + p.toString();
       }

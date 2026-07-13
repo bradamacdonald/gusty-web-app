@@ -1,6 +1,6 @@
 import { MODEL_API_BY_NAME } from './constants.js';
 
-/** Model run schedules (UTC): GFS 00/06/12/18, ECMWF/GEM 00/12, HRRR hourly */
+/** Model run schedules (UTC): GFS 00/06/12/18, ECMWF/GEM 00/12, HRDPS ~every 6h, HRRR hourly */
 export function getModelRunTimeAgo(model) {
   const now = new Date();
   const y = now.getUTCFullYear();
@@ -18,6 +18,13 @@ export function getModelRunTimeAgo(model) {
         : new Date(Date.UTC(y, m, d - 1, 18, 0, 0));
   } else if (model === 'ecmwf' || model === 'gem') {
     lastRun = h >= 12 ? new Date(Date.UTC(y, m, d, 12, 0, 0)) : new Date(Date.UTC(y, m, d, 0, 0, 0));
+  } else if (model === 'hrdps') {
+    const hours = [0, 6, 12, 18];
+    const prev = hours.filter((x) => x <= h).pop();
+    lastRun =
+      prev !== undefined
+        ? new Date(Date.UTC(y, m, d, prev, 0, 0))
+        : new Date(Date.UTC(y, m, d - 1, 18, 0, 0));
   } else if (model === 'hrrr') {
     lastRun = new Date(Date.UTC(y, m, d, h, 0, 0));
   } else {
@@ -33,11 +40,23 @@ export function getModelRunTimeAgo(model) {
 }
 
 export function modelKeyToApi(key) {
-  const map = { ecmwf: 'ECMWF', gfs: 'GFS', gem: 'GEM', hrrr: 'HRRR' };
+  const map = {
+    ecmwf: 'ECMWF',
+    gfs: 'GFS',
+    gem: 'GEM',
+    hrdps: 'HRDPS',
+    hrrr: 'HRRR',
+  };
   return MODEL_API_BY_NAME[map[key]] || key;
 }
 
 export function modelKeyToName(key) {
-  const map = { gfs: 'GFS', ecmwf: 'ECMWF', gem: 'GEM', hrrr: 'HRRR' };
+  const map = {
+    gfs: 'GFS',
+    ecmwf: 'ECMWF',
+    gem: 'GEM',
+    hrdps: 'HRDPS',
+    hrrr: 'HRRR',
+  };
   return map[key] || '';
 }

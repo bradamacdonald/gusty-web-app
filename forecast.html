@@ -125,20 +125,51 @@
       </button>
     </div>
     <div class="model-panel-body">
-      <div class="model-row" data-model="gfs">
-        <span class="model-name-wrap"><span class="model-name-row"><span class="model-name">GFS</span><span class="model-run-time" id="model-run-gfs"></span></span><span class="model-active-badge hidden" id="active-badge-gfs">Powering forecast</span></span>
-        <span class="model-value" id="model-gfs">— km/h</span>
-      </div>
-      <div class="model-row" data-model="ecmwf">
-        <span class="model-name-wrap"><span class="model-name-row"><span class="model-name">ECMWF</span><span class="model-run-time" id="model-run-ecmwf"></span></span><span class="model-active-badge hidden" id="active-badge-ecmwf">Powering forecast</span></span>
-        <span class="model-value" id="model-ecmwf">— km/h</span>
+      <div class="model-row" data-model="hrdps">
+        <span class="model-name-wrap"><span class="model-name-row"><span class="model-name">HRDPS</span><span class="model-run-time" id="model-run-hrdps"></span></span><span class="model-active-badge hidden" id="active-badge-hrdps">Powering forecast</span></span>
+        <span class="model-value" id="model-hrdps">— km/h</span>
       </div>
       <div class="model-row" data-model="gem">
         <span class="model-name-wrap"><span class="model-name-row"><span class="model-name">GEM</span><span class="model-run-time" id="model-run-gem"></span></span><span class="model-active-badge hidden" id="active-badge-gem">Powering forecast</span></span>
         <span class="model-value" id="model-gem">— km/h</span>
       </div>
+      <div class="model-row" data-model="ecmwf">
+        <span class="model-name-wrap"><span class="model-name-row"><span class="model-name">ECMWF</span><span class="model-run-time" id="model-run-ecmwf"></span></span><span class="model-active-badge hidden" id="active-badge-ecmwf">Powering forecast</span></span>
+        <span class="model-value" id="model-ecmwf">— km/h</span>
+      </div>
+      <div class="model-row" data-model="gfs">
+        <span class="model-name-wrap"><span class="model-name-row"><span class="model-name">GFS</span><span class="model-run-time" id="model-run-gfs"></span></span><span class="model-active-badge hidden" id="active-badge-gfs">Powering forecast</span></span>
+        <span class="model-value" id="model-gfs">— km/h</span>
+      </div>
       <p class="model-confidence" id="model-confidence">—</p>
     </div>
+  </section>
+
+  <!-- LOADING WATCH -->
+  <section class="loading-watch" id="loading-watch" hidden>
+    <div class="section-header">
+      <span class="section-label">Loading Watch</span>
+      <span class="section-link" id="loading-watch-window">Next 24h</span>
+    </div>
+    <div class="loading-watch-grid">
+      <div class="loading-watch-item">
+        <span class="loading-watch-label">New snow</span>
+        <span class="loading-watch-value" id="watch-snow">—</span>
+      </div>
+      <div class="loading-watch-item">
+        <span class="loading-watch-label">Max wind</span>
+        <span class="loading-watch-value" id="watch-wind">—</span>
+      </div>
+      <div class="loading-watch-item">
+        <span class="loading-watch-label">Wind dir</span>
+        <span class="loading-watch-value" id="watch-dir">—</span>
+      </div>
+      <div class="loading-watch-item">
+        <span class="loading-watch-label">Freezing lvl</span>
+        <span class="loading-watch-value" id="watch-fzl">—</span>
+      </div>
+    </div>
+    <p class="loading-watch-note" id="loading-watch-note">Weather drivers only — not an avalanche assessment.</p>
   </section>
 
   <!-- DAILY STRIP -->
@@ -153,11 +184,16 @@
   </section>
 
   <!-- AVALANCHE CONDITIONS CARD -->
-  <section class="avalanche-card" id="avalanche-card">
-    <h3 class="avalanche-card-title">Avalanche Conditions</h3>
-    <div class="avalanche-indicator"><span class="avalanche-indicator-sq" style="background:#FFD700"></span><span class="avalanche-num" style="color:#FFD700">2</span> Moderate · Wind Slab, Cornices</div>
-    <p class="avalanche-card-desc">Moderate avalanche danger above treeline. Recent wind-loading on lee slopes. Avoid steep, wind-loaded terrain.</p>
-    <a href="https://avalanche.ca" class="avalanche-link" target="_blank" rel="noopener">Issued today · avalanche.ca →</a>
+  <section class="avalanche-card" id="avalanche-card" hidden>
+    <div class="avalanche-card-header">
+      <h3 class="avalanche-card-title">Avalanche Conditions</h3>
+      <span class="avalanche-source">Avalanche Canada</span>
+    </div>
+    <div class="avalanche-bands" id="avalanche-bands" aria-label="Danger ratings by elevation band"></div>
+    <div class="avalanche-indicator" id="avalanche-indicator"></div>
+    <p class="avalanche-card-desc" id="avalanche-desc"></p>
+    <p class="avalanche-disclaimer">Hazard context from Avalanche Canada. Gusty does not assess avalanche risk.</p>
+    <a href="https://avalanche.ca" class="avalanche-link" id="avalanche-link" target="_blank" rel="noopener">View full forecast →</a>
   </section>
 
   <!-- BOTTOM NAVIGATION -->
