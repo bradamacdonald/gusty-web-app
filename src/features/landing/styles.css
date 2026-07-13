@@ -373,29 +373,20 @@
       to { opacity: 1; }
     }
 
-    /* ── ANIMATED WIND PATHS ── */
-    .topo-bg svg path {
-      stroke-dasharray: 1200;
-      stroke-dashoffset: 1200;
-    }
-    .topo-bg svg path:nth-child(odd) {
-      animation: flowWind 8s ease-in-out infinite;
-    }
-    .topo-bg svg path:nth-child(even) {
-      animation: flowWind 10s ease-in-out 1.5s infinite;
-    }
-    .topo-bg svg path:nth-child(3n) {
-      animation: flowWind 12s ease-in-out 3s infinite;
-    }
-    .topo-bg svg path:nth-child(5n) {
-      animation: flowWind 9s ease-in-out 4.5s infinite;
+    /* ── ANIMATED WIND LINE ── */
+    /* Short dash + long gap = thin filament traveling the path, not a lit band */
+    .topo-bg svg path.w {
+      fill: none;
+      stroke-dasharray: 72 1728;
+      stroke-dashoffset: 0;
+      animation: flowWind 8s linear infinite;
     }
 
     @keyframes flowWind {
-      0%   { stroke-dashoffset: 1200; opacity: 0; }
-      10%  { opacity: 1; }
-      80%  { opacity: 1; }
-      100% { stroke-dashoffset: -1200; opacity: 0; }
+      0%   { stroke-dashoffset: 0; opacity: 0; }
+      8%   { opacity: 1; }
+      88%  { opacity: 1; }
+      100% { stroke-dashoffset: -1800; opacity: 0; }
     }
 
     @keyframes fadeUp {
