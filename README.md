@@ -128,6 +128,7 @@ npm run dev                 # http://localhost:5173
 
 ```bash
 npm run build               # outputs to dist/
+npm run test                # Vitest unit tests (lib utilities)
 npm run preview             # serve dist/ locally
 ```
 
@@ -166,18 +167,21 @@ The app is a working, deployable product — not a mockup. The recent refactor m
 - HRRR model uses `ncep_hrrr_conus` — limited utility outside CONUS; included for completeness
 - Saved spot list shows hash-derived wind previews when live data isn’t cached on the spot object
 - Page modules still own UI rendering logic (hourly strips, chart setup, map state machine) — candidates for future `components/ui/` extraction
-- No automated test suite or accessibility audit yet
+- Vitest covers `lib/wind` and `lib/coordinates` only; no browser/integration tests yet
+- No accessibility audit yet
 
 **What I’d do next**
 - Wire avalanche.ca API or remove the placeholder card until real data exists
-- Add Vitest coverage for stores, services, and utils (pure functions are easy to test)
+- Expand Vitest coverage for services and storage modules
 - Extract remaining page UI into render functions or lightweight web components
-- Add ESLint + Prettier and a GitHub Actions build check
+- Add ESLint + Prettier
 
 ---
 
 ## Design references
 
+- [`docs/architecture.md`](docs/architecture.md) — folder layout and layer rules
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — where to put new code
 - [`Guidelines.md`](Guidelines.md) — canonical design tokens and UI rules
 - [`gusty-design-system.html`](gusty-design-system.html) — live component showcase
 - [`docs/design-system-frames.html`](docs/design-system-frames.html) — frame-level component catalog
