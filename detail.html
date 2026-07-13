@@ -53,9 +53,9 @@
         <div class="chart-block">
           <div class="chart-label">Wind & Gusts</div>
           <div class="chart-legend-row">
-            <span class="chart-swatch"><span class="chart-swatch-sq" style="background:var(--wind-strong)"></span>Summit</span>
-            <span class="chart-swatch"><span class="chart-swatch-sq" style="background:var(--wind-moderate)"></span>Mid</span>
-            <span class="chart-swatch"><span class="chart-swatch-sq" style="background:var(--wind-calm)"></span>Trailhead</span>
+            <span class="chart-swatch"><span class="chart-swatch-sq" style="background:var(--chart-series-summit)"></span>Summit</span>
+            <span class="chart-swatch"><span class="chart-swatch-sq" style="background:var(--chart-series-mid)"></span>Mid</span>
+            <span class="chart-swatch"><span class="chart-swatch-sq" style="background:var(--chart-series-trailhead)"></span>Trailhead</span>
           </div>
           <div class="chart-container">
             <canvas id="wind-chart"></canvas>
@@ -65,9 +65,9 @@
           <div class="chart-label">Temperature & Freezing Level</div>
           <div class="chart-subtitle">All values in °C</div>
           <div class="chart-legend-row">
-            <span class="chart-swatch" style="color:var(--color-accent)"><span class="chart-swatch-line solid"></span>Temp</span>
-            <span class="chart-swatch" style="color:var(--color-text-secondary)"><span class="chart-swatch-line dashed"></span>Dew Point</span>
-            <span class="chart-swatch" style="color:var(--color-text-muted)"><span class="chart-swatch-line dashed"></span>Freezing Level</span>
+            <span class="chart-swatch" style="color:var(--chart-series-accent)"><span class="chart-swatch-line solid"></span>Temp</span>
+            <span class="chart-swatch" style="color:var(--chart-series-secondary)"><span class="chart-swatch-line dashed"></span>Dew Point</span>
+            <span class="chart-swatch" style="color:var(--chart-series-muted)"><span class="chart-swatch-line dashed"></span>Freezing Level</span>
           </div>
           <div class="chart-container">
             <canvas id="temp-chart"></canvas>
@@ -76,9 +76,9 @@
         <div class="chart-block">
           <div class="chart-label">Precipitation</div>
           <div class="precip-legend">
-            <span class="precip-swatch"><span class="precip-swatch-sq" style="background:rgba(96,165,250,0.85)"></span>Rain</span>
-            <span class="precip-swatch"><span class="precip-swatch-sq" style="background:rgba(226,232,240,0.70)"></span>Snow</span>
-            <span class="precip-swatch" style="color:var(--color-accent)"><span class="chart-swatch-line solid"></span>Cumulative</span>
+            <span class="precip-swatch"><span class="precip-swatch-sq" style="background:var(--chart-precip-rain)"></span>Rain</span>
+            <span class="precip-swatch"><span class="precip-swatch-sq" style="background:var(--chart-precip-snow)"></span>Snow</span>
+            <span class="precip-swatch" style="color:var(--chart-series-accent)"><span class="chart-swatch-line solid"></span>Cumulative</span>
           </div>
           <div class="chart-container">
             <canvas id="precip-chart"></canvas>

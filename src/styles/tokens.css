@@ -10,6 +10,7 @@
    Contrast target: WCAG 2.1 AA
      - Text / icons (≥4.5:1) against bg, surface, surface-elevated
      - Interactive control borders (≥3:1) via --color-border-field
+     - Chart series use --chart-* (~3.2–4:1); UI wind tokens stay full-strength
    ============================================================ */
 
 :root {

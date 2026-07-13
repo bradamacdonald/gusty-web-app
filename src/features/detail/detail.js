@@ -41,22 +41,18 @@ mountBottomNav('location');
         return value || fallback;
       }
 
-      var chartGrid = cssVar('--color-border', 'rgba(255,255,255,0.12)');
-      var chartTick = cssVar('--color-text-muted', '#8A9BB0');
-      var chartAccent = cssVar('--color-accent', '#38BDF8');
-      var chartSecondary = cssVar('--color-text-secondary', '#B8C4D4');
-      var chartMuted = cssVar('--color-text-muted', '#8A9BB0');
-      var windStrong = cssVar('--wind-strong', '#F97316');
-      var windModerate = cssVar('--wind-moderate', '#FBBF24');
-      var windCalm = cssVar('--wind-calm', '#34D399');
-      var precipHeavy = cssVar('--precip-heavy', 'rgba(96, 165, 250, 0.85)');
-      var precipSnow = cssVar('--precip-snow', 'rgba(226, 232, 240, 0.70)');
-      var cloudFill = document.documentElement.classList.contains('theme-light')
-        ? 'rgba(61, 79, 99, 0.08)'
-        : 'rgba(255,255,255,0.04)';
-      var cloudStroke = document.documentElement.classList.contains('theme-light')
-        ? 'rgba(61, 79, 99, 0.18)'
-        : 'rgba(255,255,255,0.12)';
+      var chartGrid = cssVar('--chart-grid', 'rgba(138,155,176,0.14)');
+      var chartTick = cssVar('--chart-tick', 'rgba(138,155,176,0.62)');
+      var chartAccent = cssVar('--chart-series-accent', 'rgba(56,189,248,0.78)');
+      var chartSecondary = cssVar('--chart-series-secondary', 'rgba(184,196,212,0.62)');
+      var chartMuted = cssVar('--chart-series-muted', 'rgba(138,155,176,0.52)');
+      var windStrong = cssVar('--chart-series-summit', 'rgba(249,115,22,0.78)');
+      var windModerate = cssVar('--chart-series-mid', 'rgba(251,191,36,0.78)');
+      var windCalm = cssVar('--chart-series-trailhead', 'rgba(52,211,153,0.78)');
+      var precipHeavy = cssVar('--chart-precip-rain', 'rgba(96,165,250,0.55)');
+      var precipSnow = cssVar('--chart-precip-snow', 'rgba(226,232,240,0.45)');
+      var cloudFill = cssVar('--chart-cloud-fill', 'rgba(255,255,255,0.03)');
+      var cloudStroke = cssVar('--chart-cloud-stroke', 'rgba(255,255,255,0.10)');
 
       var xAxisTicksEvery2 = {
         grid: { color: chartGrid },
