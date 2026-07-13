@@ -1,7 +1,26 @@
-import './styles.css';
-import { bootstrap } from '../../app/bootstrap.js';
-import { mountBottomNav } from '../../components/shell/bottom-nav.js';
-import { DEFAULT_LAT, DEFAULT_LON } from '../../lib/constants.js';
+import {
+  isSpotSaved,
+  toggleSavedSpot,
+  getSavedSpots,
+  buildForecastUrl,
+} from '../../services/storage/saved-spots.js';
+import { fetchAvalancheForecast } from '../../services/api/avalanche-canada.js';
+import { fetchLocationForecast, fetchModelWind } from '../../services/api/open-meteo.js';
+import {
+  fetchSpotWindSnapshot,
+  pickCompareCandidates,
+  rankSnapshotsByCalm,
+  MAX_COMPARE_ALTERNATES,
+} from '../../services/compare-spots.js';
+import { parseLocationFromUrl, formatCoordinates, spotKey } from '../../lib/coordinates.js';
+import { formatDay, formatHour, getCurrentHourIndex } from '../../lib/datetime.js';
+import {
+  getHairTier,
+  getStandardTierTooltip,
+  isHairModeEnabled,
+} from '../../lib/hair-mode.js';
+import { getModelRunTimeAgo, modelKeyToName } from '../../lib/models.js';
+import { degreesToCompass, windRampColor } from '../../lib/wind.js';
 import {
   convertWindForDisplay,
   formatTemp,
@@ -12,21 +31,10 @@ import {
   getWindUnit,
   setDefaultModel,
 } from '../../services/storage/settings.js';
-import {
-  isSpotSaved,
-  toggleSavedSpot,
-} from '../../services/storage/saved-spots.js';
-import { fetchAvalancheForecast } from '../../services/api/avalanche-canada.js';
-import { fetchLocationForecast, fetchModelWind } from '../../services/api/open-meteo.js';
-import { parseLocationFromUrl, formatCoordinates } from '../../lib/coordinates.js';
-import { formatDay, formatHour, getCurrentHourIndex } from '../../lib/datetime.js';
-import {
-  getHairTier,
-  getStandardTierTooltip,
-  isHairModeEnabled,
-} from '../../lib/hair-mode.js';
-import { getModelRunTimeAgo, modelKeyToName } from '../../lib/models.js';
-import { degreesToCompass, windRampColor } from '../../lib/wind.js';
+import { DEFAULT_LAT, DEFAULT_LON } from '../../lib/constants.js';
+import { bootstrap } from '../../app/bootstrap.js';
+import { mountBottomNav } from '../../components/shell/bottom-nav.js';
+import './styles.css';
 
 bootstrap();
 mountBottomNav('location');
@@ -572,6 +580,147 @@ mountBottomNav('location');
         refreshPlanCompare();
       }
 
+      var compareSelectedKeys = new Set();
+      var compareCandidates = [];
+      var compareModelApi = 'ecmwf_ifs025';
+      var compareRequestId = 0;
+
+      function escapeHtml(str) {
+        return String(str || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function renderComparePicks() {
+        var picks = document.getElementById('compare-picks');
+        var empty = document.getElementById('compare-empty');
+        var intro = document.getElementById('compare-intro');
+        if (!picks) return;
+
+        if (!compareCandidates.length) {
+          picks.hidden = true;
+          picks.innerHTML = '';
+          if (empty) empty.hidden = false;
+          if (intro) intro.textContent = 'Save alternate spots to compare wind against this location.';
+          return;
+        }
+
+        if (empty) empty.hidden = true;
+        if (intro) {
+          intro.textContent =
+            'Select up to ' + MAX_COMPARE_ALTERNATES + ' saved alternates. Calmest ranks first.';
+        }
+        picks.hidden = false;
+        picks.innerHTML = '';
+        compareCandidates.forEach(function(spot) {
+          var key = spotKey(spot.lat, spot.lng);
+          var selected = compareSelectedKeys.has(key);
+          var atCap = !selected && compareSelectedKeys.size >= MAX_COMPARE_ALTERNATES;
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'compare-pick' + (selected ? ' selected' : '');
+          btn.disabled = atCap;
+          btn.dataset.key = key;
+          var elevTxt = spot.elevation != null ? Math.round(spot.elevation).toLocaleString() + ' m' : '';
+          btn.innerHTML =
+            '<strong>' + escapeHtml(spot.name || 'Location') + '</strong>' +
+            (elevTxt ? ' · ' + elevTxt : '');
+          btn.addEventListener('click', function() {
+            if (compareSelectedKeys.has(key)) compareSelectedKeys.delete(key);
+            else if (compareSelectedKeys.size < MAX_COMPARE_ALTERNATES) compareSelectedKeys.add(key);
+            renderComparePicks();
+            refreshCompareResults();
+          });
+          picks.appendChild(btn);
+        });
+      }
+
+      function renderCompareResults(snapshots) {
+        var results = document.getElementById('compare-results');
+        if (!results) return;
+        results.innerHTML = '';
+        if (!snapshots || !snapshots.length) return;
+
+        rankSnapshotsByCalm(snapshots).forEach(function(snap, i) {
+          var isHere = spotKey(snap.lat, snap.lng) === spotKey(lat, lng);
+          var card = document.createElement(isHere ? 'div' : 'a');
+          card.className = 'compare-card' + (isHere ? ' is-here' : '');
+          if (!isHere) {
+            card.href = buildForecastUrl({
+              lat: snap.lat,
+              lng: snap.lng,
+              name: snap.name,
+              elevation: snap.elevation,
+            });
+          }
+          var windText = snap.windDisp != null && snap.windDisp !== '—'
+            ? snap.windDisp + ' ' + snap.windUnit
+            : '—';
+          var metaParts = [];
+          if (snap.dirLabel && snap.dirLabel !== '—') metaParts.push(snap.dirLabel);
+          if (snap.elevation != null) metaParts.push(Math.round(snap.elevation).toLocaleString() + ' m');
+          if (snap.conditionLabel && snap.conditionLabel !== '—') metaParts.push(snap.conditionLabel);
+          card.innerHTML =
+            '<div class="compare-card-name">' +
+            '<span class="compare-card-rank">#' + (i + 1) + '</span>' +
+            escapeHtml(snap.name || 'Location') +
+            (isHere ? '<span class="compare-card-badge">Here</span>' : '') +
+            '</div>' +
+            '<div class="compare-card-wind" style="color:' + windRampColor(snap.speed || 0) + '">' +
+            windText +
+            '</div>' +
+            '<div class="compare-card-meta">' + escapeHtml(metaParts.join(' · ') || '—') + '</div>';
+          results.appendChild(card);
+        });
+      }
+
+      async function refreshCompareResults() {
+        var results = document.getElementById('compare-results');
+        if (!results) return;
+        var req = ++compareRequestId;
+        var here = {
+          id: 'here',
+          name: locationName,
+          lat: lat,
+          lng: lng,
+          elevation: resolveElevation(),
+        };
+        var alts = compareCandidates.filter(function(s) {
+          return compareSelectedKeys.has(spotKey(s.lat, s.lng));
+        });
+        var targets = [here].concat(alts);
+        results.innerHTML = '<div class="compare-card"><div class="compare-card-name">Loading…</div></div>';
+
+        try {
+          var snaps = await Promise.all(
+            targets.map(function(t) {
+              return fetchSpotWindSnapshot(t, { model: compareModelApi });
+            })
+          );
+          if (req !== compareRequestId) return;
+          renderCompareResults(snaps);
+        } catch (err) {
+          if (req !== compareRequestId) return;
+          console.warn('Compare spots failed:', err);
+          results.innerHTML =
+            '<div class="compare-card"><div class="compare-card-name">Could not load comparison</div></div>';
+        }
+      }
+
+      function initCompareSpots(elev, nearTermApi) {
+        compareModelApi = nearTermApi || 'ecmwf_ifs025';
+        compareCandidates = pickCompareCandidates(getSavedSpots(), lat, lng);
+        compareSelectedKeys = new Set(
+          compareCandidates.slice(0, Math.min(1, compareCandidates.length)).map(function(s) {
+            return spotKey(s.lat, s.lng);
+          })
+        );
+        renderComparePicks();
+        refreshCompareResults();
+      }
+
       async function loadForecast() {
         showLoading();
         hideError();
@@ -623,6 +772,7 @@ mountBottomNav('location');
 
           var nearTermApi = hrdps ? 'gem_hrdps_continental' : 'ecmwf_ifs025';
           initPlanMode(elev, main, nearTermApi);
+          initCompareSpots(elev, nearTermApi);
 
           hideLoading();
         } catch (err) {
