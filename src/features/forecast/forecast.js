@@ -4,6 +4,14 @@ import {
   getSavedSpots,
   buildForecastUrl,
 } from '../../services/storage/saved-spots.js';
+import {
+  readForecastCache,
+  writeForecastCache,
+} from '../../services/storage/forecast-cache.js';
+import {
+  getPlanElevations,
+  setPlanElevations,
+} from '../../services/storage/plan-elevations.js';
 import { fetchAvalancheForecast } from '../../services/api/avalanche-canada.js';
 import { fetchLocationForecast, fetchModelWind } from '../../services/api/open-meteo.js';
 import { fetchTerrainAspect } from '../../services/api/terrain.js';
@@ -623,6 +631,7 @@ mountBottomNav('location');
       }
 
       function schedulePlanRefresh() {
+        persistPlanElevationsFromInputs();
         clearTimeout(planTimer);
         planTimer = setTimeout(refreshPlanCompare, 350);
       }
@@ -641,13 +650,23 @@ mountBottomNav('location');
         var objParam = params.get('obj');
         var th = thParam != null && thParam !== '' ? parseInt(thParam, 10) : NaN;
         var obj = objParam != null && objParam !== '' ? parseInt(objParam, 10) : NaN;
+        var savedPlan = getPlanElevations(lat, lng);
+        if (!Number.isFinite(th) && savedPlan) th = savedPlan.th;
+        if (!Number.isFinite(obj) && savedPlan) obj = savedPlan.obj;
         if (!Number.isFinite(th)) th = baseElev != null ? baseElev : 1200;
         if (!Number.isFinite(obj)) obj = Math.min(5000, th + 500);
 
         thInput.value = String(th);
         objInput.value = String(obj);
+        setPlanElevations(lat, lng, th, obj);
         section.hidden = false;
         refreshPlanCompare();
+      }
+
+      function persistPlanElevationsFromInputs() {
+        var elevs = readPlanElevations();
+        if (elevs.th == null || elevs.obj == null) return;
+        setPlanElevations(lat, lng, elevs.th, elevs.obj);
       }
 
       var compareSelectedKeys = new Set();
@@ -792,27 +811,10 @@ mountBottomNav('location');
       }
 
       async function loadForecast() {
-        showLoading();
-        hideError();
-        try {
-          const elevHint = urlElevation;
-          const settled = await Promise.allSettled([
-            fetchLocationForecast(lat, lng, elevHint),
-            fetchModelWind(lat, lng, 'gfs_seamless', 2, elevHint),
-            fetchModelWind(lat, lng, 'gem_seamless', 2, elevHint),
-            fetchModelWind(lat, lng, 'gem_hrdps_continental', 2, elevHint),
-            fetchAvalancheForecast(lat, lng),
-          ]);
+        const elevHint = urlElevation;
+        const cached = readForecastCache(lat, lng, elevHint);
 
-          const main = settled[0].status === 'fulfilled' ? settled[0].value : null;
-          if (!main) {
-            throw settled[0].reason || new Error('Failed to load forecast.');
-          }
-          const gfs = settled[1].status === 'fulfilled' ? settled[1].value : main;
-          const gem = settled[2].status === 'fulfilled' ? settled[2].value : main;
-          const hrdps = settled[3].status === 'fulfilled' ? settled[3].value : null;
-          const avy = settled[4].status === 'fulfilled' ? settled[4].value : null;
-
+        function applyBundle(main, gfs, gem, hrdps, avy) {
           apiElevation = main.elevation;
           var elev = resolveElevation();
 
@@ -843,7 +845,57 @@ mountBottomNav('location');
           var nearTermApi = hrdps ? 'gem_hrdps_continental' : 'ecmwf_ifs025';
           initPlanMode(elev, main, nearTermApi);
           initCompareSpots(elev, nearTermApi);
+        }
 
+        async function fetchBundle() {
+          const settled = await Promise.allSettled([
+            fetchLocationForecast(lat, lng, elevHint),
+            fetchModelWind(lat, lng, 'gfs_seamless', 2, elevHint),
+            fetchModelWind(lat, lng, 'gem_seamless', 2, elevHint),
+            fetchModelWind(lat, lng, 'gem_hrdps_continental', 2, elevHint),
+            fetchAvalancheForecast(lat, lng),
+          ]);
+
+          const main = settled[0].status === 'fulfilled' ? settled[0].value : null;
+          if (!main) {
+            throw settled[0].reason || new Error('Failed to load forecast.');
+          }
+          return {
+            main: main,
+            gfs: settled[1].status === 'fulfilled' ? settled[1].value : main,
+            gem: settled[2].status === 'fulfilled' ? settled[2].value : main,
+            hrdps: settled[3].status === 'fulfilled' ? settled[3].value : null,
+            avy: settled[4].status === 'fulfilled' ? settled[4].value : null,
+          };
+        }
+
+        if (cached && cached.main) {
+          hideError();
+          applyBundle(
+            cached.main,
+            cached.gfs || cached.main,
+            cached.gem || cached.main,
+            cached.hrdps,
+            cached.avy
+          );
+          hideLoading();
+          fetchBundle()
+            .then(function(bundle) {
+              writeForecastCache(lat, lng, elevHint, bundle);
+              applyBundle(bundle.main, bundle.gfs, bundle.gem, bundle.hrdps, bundle.avy);
+            })
+            .catch(function(err) {
+              console.warn('Background forecast refresh failed:', err);
+            });
+          return;
+        }
+
+        showLoading();
+        hideError();
+        try {
+          const bundle = await fetchBundle();
+          writeForecastCache(lat, lng, elevHint, bundle);
+          applyBundle(bundle.main, bundle.gfs, bundle.gem, bundle.hrdps, bundle.avy);
           hideLoading();
         } catch (err) {
           console.error('Forecast fetch error:', err);

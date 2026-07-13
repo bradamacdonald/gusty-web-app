@@ -13,6 +13,7 @@ export const STORAGE_KEYS = {
   theme: 'gusty_theme',
   defaultModel: 'gusty_default_model',
   savedSpots: 'gusty_saved_spots',
+  planElevs: 'gusty_plan_elevs',
 };
 
 export const WEATHER_MODELS = [
