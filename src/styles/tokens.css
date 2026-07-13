@@ -91,6 +91,24 @@
   --precip-heavy: rgba(96, 165, 250, 0.85);
   --precip-snow:  rgba(226, 232, 240, 0.70);
 
+  /*
+   * Chart-only colors (detail graphs). Softened vs UI wind tokens:
+   * series target ~3.2–4:1 vs chart bg (WCAG 1.4.11); grids quieter.
+   * Do not use these for hero values / badges — keep --wind-* punchy.
+   */
+  --chart-grid:              rgba(138, 155, 176, 0.14);
+  --chart-tick:              rgba(138, 155, 176, 0.62);
+  --chart-series-accent:     rgba(56, 189, 248, 0.78);
+  --chart-series-secondary:  rgba(184, 196, 212, 0.62);
+  --chart-series-muted:      rgba(138, 155, 176, 0.52);
+  --chart-series-summit:     rgba(249, 115, 22, 0.78);
+  --chart-series-mid:        rgba(251, 191, 36, 0.78);
+  --chart-series-trailhead:  rgba(52, 211, 153, 0.78);
+  --chart-cloud-stroke:      rgba(255, 255, 255, 0.10);
+  --chart-cloud-fill:        rgba(255, 255, 255, 0.03);
+  --chart-precip-rain:       rgba(96, 165, 250, 0.55);
+  --chart-precip-snow:       rgba(226, 232, 240, 0.45);
+
   /* ── Typography ── */
   --font-ui:   'Inter', system-ui, sans-serif;
   --font-data: 'DM Mono', 'Menlo', monospace;
@@ -171,4 +189,18 @@ html.theme-light {
   --precip-light: rgba(3, 105, 161, 0.85);
   --precip-heavy: var(--cyan-700);
   --precip-snow:  rgba(74, 92, 114, 0.85);
+
+  /* Chart series on light — slightly softer than solid UI tokens */
+  --chart-grid:              rgba(90, 107, 128, 0.18);
+  --chart-tick:              rgba(90, 107, 128, 0.72);
+  --chart-series-accent:     rgba(3, 105, 161, 0.82);
+  --chart-series-secondary:  rgba(61, 79, 99, 0.72);
+  --chart-series-muted:      rgba(90, 107, 128, 0.62);
+  --chart-series-summit:     rgba(154, 52, 18, 0.82);
+  --chart-series-mid:        rgba(146, 64, 14, 0.82);
+  --chart-series-trailhead:  rgba(4, 120, 87, 0.82);
+  --chart-cloud-stroke:      rgba(61, 79, 99, 0.18);
+  --chart-cloud-fill:        rgba(61, 79, 99, 0.06);
+  --chart-precip-rain:       rgba(3, 105, 161, 0.55);
+  --chart-precip-snow:       rgba(74, 92, 114, 0.45);
 }
