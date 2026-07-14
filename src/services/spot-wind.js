@@ -7,14 +7,13 @@ import {
   getWindUnit,
 } from './storage/settings.js';
 
-const MAX_COMPARE_ALTERNATES = 2;
-
 /**
  * Snapshot current-hour wind for a spot (elevation-aware when provided).
+ * Used by Saved list refresh; Compare Spots UI is paused.
  */
 export async function fetchSpotWindSnapshot(
   { lat, lng, elevation = null, name = 'Location', id = null },
-  { model = 'gem_hrdps_continental', signal } = {}
+  { model = 'gem_hrdps_continental' } = {}
 ) {
   const attempts = [model, 'ecmwf_ifs025'];
   let data = null;
@@ -74,25 +73,3 @@ export async function fetchSpotWindSnapshot(
     error: false,
   };
 }
-
-export function pickCompareCandidates(savedSpots, currentLat, currentLng, { limit = 8 } = {}) {
-  if (!Array.isArray(savedSpots) || !savedSpots.length) return [];
-  return savedSpots
-    .filter((s) => {
-      if (s.lat == null || s.lng == null) return false;
-      return (
-        Math.abs(s.lat - currentLat) > 0.0008 || Math.abs(s.lng - currentLng) > 0.0008
-      );
-    })
-    .slice(0, limit);
-}
-
-export function rankSnapshotsByCalm(snapshots) {
-  return [...snapshots].sort((a, b) => {
-    const aSpeed = a.speed == null ? Number.POSITIVE_INFINITY : a.speed;
-    const bSpeed = b.speed == null ? Number.POSITIVE_INFINITY : b.speed;
-    return aSpeed - bSpeed;
-  });
-}
-
-export { MAX_COMPARE_ALTERNATES };

@@ -3,7 +3,7 @@ import { bootstrap } from '../../app/bootstrap.js';
 import { mountBottomNav } from '../../components/shell/bottom-nav.js';
 import { formatElevation } from '../../lib/datetime.js';
 import { spotKey } from '../../lib/coordinates.js';
-import { fetchSpotWindSnapshot } from '../../services/compare-spots.js';
+import { fetchSpotWindSnapshot } from '../../services/spot-wind.js';
 import {
   buildForecastUrl,
   getSavedSpots,

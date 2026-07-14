@@ -2,8 +2,6 @@ import {
   isSpotSaved,
   toggleSavedSpot,
   updateSavedSpotWind,
-  getSavedSpots,
-  buildForecastUrl,
 } from '../../services/storage/saved-spots.js';
 import {
   readForecastCache,
@@ -20,12 +18,6 @@ import {
   classifyWindExposure,
   formatAspectSummary,
 } from '../../lib/terrain-aspect.js';
-import {
-  fetchSpotWindSnapshot,
-  pickCompareCandidates,
-  rankSnapshotsByCalm,
-  MAX_COMPARE_ALTERNATES,
-} from '../../services/compare-spots.js';
 import { parseLocationFromUrl, formatCoordinates, spotKey } from '../../lib/coordinates.js';
 import { withPlanElevParams } from '../../lib/plan-url.js';
 import { formatDay, formatHour, getCurrentHourIndex } from '../../lib/datetime.js';
@@ -623,7 +615,6 @@ mountBottomNav('location');
       function activateTripToolsContent() {
         if (!tripToolsOpen()) return;
         refreshPlanCompare();
-        if (compareCandidates.length) refreshCompareResults();
       }
 
       async function refreshPlanCompare() {
@@ -719,137 +710,6 @@ mountBottomNav('location');
         }
       }
 
-      var compareSelectedKeys = new Set();
-      var compareCandidates = [];
-      var compareModelApi = 'ecmwf_ifs025';
-      var compareRequestId = 0;
-
-      function escapeHtml(str) {
-        return String(str || '')
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      }
-
-      function renderComparePicks() {
-        var picks = document.getElementById('compare-picks');
-        var section = document.getElementById('compare-spots');
-        if (!picks || !section) return;
-
-        if (!compareCandidates.length) {
-          section.hidden = true;
-          picks.innerHTML = '';
-          return;
-        }
-
-        section.hidden = false;
-        picks.innerHTML = '';
-        compareCandidates.forEach(function(spot) {
-          var key = spotKey(spot.lat, spot.lng);
-          var selected = compareSelectedKeys.has(key);
-          var atCap = !selected && compareSelectedKeys.size >= MAX_COMPARE_ALTERNATES;
-          var btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'compare-pick' + (selected ? ' selected' : '');
-          btn.disabled = atCap;
-          btn.dataset.key = key;
-          var elevTxt = spot.elevation != null ? Math.round(spot.elevation).toLocaleString() + ' m' : '';
-          btn.innerHTML =
-            '<strong>' + escapeHtml(spot.name || 'Location') + '</strong>' +
-            (elevTxt ? ' · ' + elevTxt : '');
-          btn.addEventListener('click', function() {
-            if (compareSelectedKeys.has(key)) compareSelectedKeys.delete(key);
-            else if (compareSelectedKeys.size < MAX_COMPARE_ALTERNATES) compareSelectedKeys.add(key);
-            renderComparePicks();
-            if (tripToolsOpen()) refreshCompareResults();
-          });
-          picks.appendChild(btn);
-        });
-      }
-
-      function renderCompareResults(snapshots) {
-        var results = document.getElementById('compare-results');
-        if (!results) return;
-        results.innerHTML = '';
-        if (!snapshots || !snapshots.length) return;
-
-        rankSnapshotsByCalm(snapshots).forEach(function(snap) {
-          var isHere = spotKey(snap.lat, snap.lng) === spotKey(lat, lng);
-          var card = document.createElement(isHere ? 'div' : 'a');
-          card.className = 'compare-card' + (isHere ? ' is-here' : '');
-          if (!isHere) {
-            card.href = buildForecastUrl({
-              lat: snap.lat,
-              lng: snap.lng,
-              name: snap.name,
-              elevation: snap.elevation,
-            });
-          }
-          var windText = snap.windDisp != null && snap.windDisp !== '—'
-            ? snap.windDisp + ' ' + snap.windUnit
-            : '—';
-          var metaParts = [];
-          if (snap.dirLabel && snap.dirLabel !== '—') metaParts.push(snap.dirLabel);
-          if (snap.elevation != null) metaParts.push(Math.round(snap.elevation).toLocaleString() + ' m');
-          card.innerHTML =
-            '<div class="compare-card-name">' +
-            escapeHtml(snap.name || 'Location') +
-            (isHere ? '<span class="compare-card-badge">Here</span>' : '') +
-            '</div>' +
-            '<div class="compare-card-wind" style="color:' + windRampColor(snap.speed || 0) + '">' +
-            windText +
-            '</div>' +
-            '<div class="compare-card-meta">' + escapeHtml(metaParts.join(' · ') || '—') + '</div>';
-          results.appendChild(card);
-        });
-      }
-
-      async function refreshCompareResults() {
-        var results = document.getElementById('compare-results');
-        if (!results || !tripToolsOpen() || !compareCandidates.length) return;
-        var req = ++compareRequestId;
-        var here = {
-          id: 'here',
-          name: locationName,
-          lat: lat,
-          lng: lng,
-          elevation: resolveElevation(),
-        };
-        var alts = compareCandidates.filter(function(s) {
-          return compareSelectedKeys.has(spotKey(s.lat, s.lng));
-        });
-        var targets = [here].concat(alts);
-        results.innerHTML = '<div class="compare-card"><div class="compare-card-name">Loading…</div></div>';
-
-        try {
-          var snaps = await Promise.all(
-            targets.map(function(t) {
-              return fetchSpotWindSnapshot(t, { model: compareModelApi });
-            })
-          );
-          if (req !== compareRequestId) return;
-          renderCompareResults(snaps);
-        } catch (err) {
-          if (req !== compareRequestId) return;
-          console.warn('Compare spots failed:', err);
-          results.innerHTML =
-            '<div class="compare-card"><div class="compare-card-name">Could not load comparison</div></div>';
-        }
-      }
-
-      function initCompareSpots(elev, nearTermApi) {
-        compareModelApi = nearTermApi || 'ecmwf_ifs025';
-        compareCandidates = pickCompareCandidates(getSavedSpots(), lat, lng);
-        compareSelectedKeys = new Set(
-          compareCandidates.slice(0, Math.min(1, compareCandidates.length)).map(function(s) {
-            return spotKey(s.lat, s.lng);
-          })
-        );
-        renderComparePicks();
-        if (tripToolsOpen()) refreshCompareResults();
-      }
-
       async function loadForecast() {
         const elevHint = urlElevation;
         const cached = readForecastCache(lat, lng, elevHint);
@@ -884,7 +744,6 @@ mountBottomNav('location');
 
           var nearTermApi = hrdps ? 'gem_hrdps_continental' : 'ecmwf_ifs025';
           initPlanMode(elev, main, nearTermApi);
-          initCompareSpots(elev, nearTermApi);
 
           var speed = heroData.hourly.windspeed_10m[heroIdx];
           var dirDeg = heroData.hourly.winddirection_10m
