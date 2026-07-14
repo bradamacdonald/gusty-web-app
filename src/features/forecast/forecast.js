@@ -92,7 +92,14 @@ mountBottomNav('location');
       function showError(msg) {
         document.getElementById('loading-overlay').classList.add('hidden');
         document.getElementById('error-overlay').classList.remove('hidden');
-        document.getElementById('error-message').textContent = msg || 'Failed to load forecast.';
+        var el = document.getElementById('error-message');
+        var raw = (msg || '').toString().trim();
+        var isNetwork = !raw || /failed to fetch|networkerror|load failed|network request failed|Failed to load forecast/i.test(raw);
+        el.textContent = isNetwork
+          ? 'Check your connection and try again.'
+          : raw.length > 120
+            ? 'Something went wrong loading this spot.'
+            : raw;
         document.getElementById('forecast-content').style.visibility = 'hidden';
       }
 
@@ -445,8 +452,8 @@ mountBottomNav('location');
 
         if (titleEl) {
           titleEl.textContent = forecast.isOffseason
-            ? 'Seasonal Avalanche Notice'
-            : 'Avalanche Conditions';
+            ? 'Seasonal notice'
+            : 'Avalanche';
         }
 
         if (bandsEl) {
@@ -475,7 +482,7 @@ mountBottomNav('location');
           if (forecast.isOffseason) {
             indicator.innerHTML =
               '<span class="avalanche-indicator-sq" style="background:#8A9BB0"></span>' +
-              '<span>Summer Conditions · Regular ratings resume in winter</span>';
+              '<span>Summer conditions</span>';
           } else {
             var highest = forecast.highest;
             var problems = (forecast.problems || []).join(', ');
@@ -498,21 +505,17 @@ mountBottomNav('location');
             desc.textContent = forecast.highlights;
           } else if (forecast.isOffseason) {
             desc.textContent =
-              'Regular avalanche forecasts have ended for the season. Isolated hazard may still exist at high elevations — check Avalanche Canada before travel.';
+              'Isolated hazard may remain at high elevations — check Avalanche Canada.';
           } else {
-            desc.textContent = forecast.areaName
-              ? ('Forecast region: ' + forecast.areaName)
-              : '';
+            desc.textContent = forecast.areaName || '';
           }
         }
         if (disclaimer) {
-          disclaimer.textContent = forecast.isOffseason
-            ? 'Seasonal notice from Avalanche Canada. Gusty does not assess avalanche risk.'
-            : 'Hazard context from Avalanche Canada. Gusty does not assess avalanche risk.';
+          disclaimer.textContent = 'Avalanche Canada · Gusty does not assess risk.';
         }
         if (link) {
           link.href = forecast.url || 'https://avalanche.ca';
-          link.textContent = formatIssued(forecast.dateIssued) + ' · View on avalanche.ca →';
+          link.textContent = formatIssued(forecast.dateIssued) + ' · avalanche.ca →';
         }
         card.hidden = false;
       }

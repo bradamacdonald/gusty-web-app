@@ -20,14 +20,15 @@
 <!-- LOADING OVERLAY -->
   <div class="loading-overlay" id="loading-overlay">
     <div class="loading-spinner"></div>
-    <span class="loading-text">Loading forecast…</span>
+    <span class="loading-text">Loading…</span>
   </div>
 
   <!-- ERROR STATE (hidden by default) -->
   <div class="loading-overlay hidden" id="error-overlay">
     <div class="error-state">
-      <p class="error-message" id="error-message">Failed to load forecast.</p>
-      <button type="button" class="retry-btn" id="retry-btn">Retry</button>
+      <p class="error-kicker">Forecast unavailable</p>
+      <p class="error-message" id="error-message">Check your connection and try again.</p>
+      <button type="button" class="retry-btn" id="retry-btn">Try again</button>
     </div>
   </div>
 
@@ -219,7 +220,7 @@
     <div class="avalanche-bands" id="avalanche-bands" aria-label="Danger ratings by elevation band"></div>
     <div class="avalanche-indicator" id="avalanche-indicator"></div>
     <p class="avalanche-card-desc" id="avalanche-desc"></p>
-    <p class="avalanche-disclaimer">Hazard context from Avalanche Canada. Gusty does not assess avalanche risk.</p>
+    <p class="avalanche-disclaimer">Avalanche Canada · Gusty does not assess risk.</p>
     <a href="https://avalanche.ca" class="avalanche-link" id="avalanche-link" target="_blank" rel="noopener">View full forecast →</a>
   </section>
 

@@ -3,7 +3,7 @@
 
 /* PAGE HEADER */
 .page-header {
-      margin-bottom: var(--space-6);
+      margin-bottom: var(--space-8);
     }
     .wordmark {
       font-family: 'Barlow', sans-serif;
@@ -25,26 +25,30 @@
 
 /* SETTINGS SECTIONS */
 .settings-section {
-      margin-bottom: var(--space-6);
+      margin-bottom: var(--space-8);
     }
     .settings-section:last-child {
       margin-bottom: 0;
     }
     .settings-section-label {
-      font-size: var(--text-base);
+      font-size: var(--text-xs);
       font-weight: var(--weight-medium);
-      color: var(--color-text-primary);
-      margin-bottom: var(--space-1);
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-2);
     }
     .settings-section-desc {
       font-size: var(--text-sm);
       color: var(--color-text-muted);
       margin-bottom: var(--space-4);
+      opacity: 0.9;
     }
     .settings-divider {
-      height: 1px;
-      background: var(--color-border);
-      margin: var(--space-6) 0;
+      height: 0;
+      background: transparent;
+      margin: var(--space-2) 0 var(--space-6);
+      border: none;
     }
 
     /* Toggle switch */
@@ -57,8 +61,8 @@
     .toggle {
       width: 48px;
       height: 28px;
-      background: var(--color-surface-elevated);
-      border: 1px solid var(--color-border-field);
+      background: transparent;
+      border: 1px solid var(--color-border-strong);
       border-radius: var(--radius-full);
       cursor: pointer;
       position: relative;
@@ -87,24 +91,25 @@
     /* Segmented control */
     .segmented-control {
       display: flex;
-      background: var(--color-surface-elevated);
-      border: 1px solid var(--color-border-field);
-      border-radius: var(--radius-md);
-      padding: var(--space-1);
-      gap: var(--space-1);
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 0;
+      gap: var(--space-5);
     }
     .segmented-option {
-      flex: 1;
-      padding: var(--space-2) var(--space-3);
+      flex: 0 0 auto;
+      padding: var(--space-2) 0;
       background: none;
       border: none;
-      border-radius: var(--radius-sm);
+      border-bottom: 1px solid transparent;
+      border-radius: 0;
       font-family: var(--font-ui);
       font-size: var(--text-sm);
       font-weight: var(--weight-medium);
-      color: var(--color-text-secondary);
+      color: var(--color-text-muted);
       cursor: pointer;
-      transition: background 150ms ease, color 150ms ease;
+      transition: color 150ms ease, border-color 150ms ease;
     }
     .segmented-option:hover {
       color: var(--color-text-primary);
@@ -112,18 +117,19 @@
     .segmented-option.active {
       background: transparent;
       color: var(--color-accent);
-      border: none;
+      border-bottom-color: var(--color-accent-border);
       box-shadow: none;
     }
 
     /* Dropdown */
     .settings-dropdown {
       width: 100%;
-      max-width: 200px;
-      padding: var(--space-2) var(--space-4);
-      background: var(--color-surface-elevated);
-      border: 1px solid var(--color-border-field);
-      border-radius: var(--radius-md);
+      max-width: 220px;
+      padding: var(--space-2) 0;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--color-border-field);
+      border-radius: 0;
       font-family: var(--font-data);
       font-size: var(--text-sm);
       font-weight: var(--weight-medium);
@@ -132,5 +138,5 @@
     }
     .settings-dropdown:focus {
       outline: none;
-      border-color: var(--color-accent-border);
+      border-bottom-color: var(--color-accent-border);
     }
