@@ -22,6 +22,7 @@ Notable product changes for Gusty. Routine UI polish is folded into thematic ent
 
 ### Fixes
 - Search elevation now resolves from DEM at the selected lat/lng (no Garibaldi `1580 m` default for city places)
+- Restored forecast card surfaces and qualitative descriptor chips (stripped in quieter polish)
 
 ### Removed
 - **Compare Spots** — multi-spot alternate comparison on the forecast page (parked)

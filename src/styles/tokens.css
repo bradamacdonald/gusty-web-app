@@ -55,11 +55,11 @@
   --color-surface-elevated: var(--navy-800);
 
   /*
-   * Decorative borders / dividers stay quiet — structure with space, not boxes.
+   * Decorative borders stay quiet; card structure comes from surface fills.
    * Interactive fields keep a stronger border for WCAG 1.4.11 (≥3:1).
    */
-  --color-border:        rgba(184, 196, 212, 0.08);
-  --color-border-strong: rgba(184, 196, 212, 0.16);
+  --color-border:        rgba(184, 196, 212, 0.12);
+  --color-border-strong: rgba(184, 196, 212, 0.22);
   --color-border-field:  var(--navy-500);
 
   /* ── Semantic: Text (≥4.5:1 on bg / surface / elevated) ── */
