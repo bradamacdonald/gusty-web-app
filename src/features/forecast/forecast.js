@@ -14,6 +14,7 @@ import {
 import { fetchAvalancheForecast } from '../../services/api/avalanche-canada.js';
 import { fetchLocationForecast, fetchModelWind } from '../../services/api/open-meteo.js';
 import { fetchTerrainAspect } from '../../services/api/terrain.js';
+import { resolveSpotElevation } from '../../services/spot-elevation.js';
 import {
   classifyWindExposure,
   formatAspectSummary,
@@ -60,13 +61,15 @@ mountBottomNav('location');
       const locationName = (decodedName && decodedName !== 'Location') ? decodedName : formatCoordinates(lat, lng);
 
       var apiElevation = null;
+      var resolvedElevation = null;
       var lastWindSnapshot = null;
       var _popoverCurrentWind = null;
       var _popoverMaxWind = null;
 
       function resolveElevation() {
-        if (urlElevation != null) return urlElevation;
+        if (resolvedElevation != null) return resolvedElevation;
         if (apiElevation != null && !isNaN(apiElevation)) return Math.round(apiElevation);
+        if (urlElevation != null) return urlElevation;
         return null;
       }
 
@@ -711,11 +714,16 @@ mountBottomNav('location');
       }
 
       async function loadForecast() {
-        const elevHint = urlElevation;
+        // DEM at this pin is canonical. URL elev is only a hint if it matches.
+        resolvedElevation = await resolveSpotElevation(lat, lng, { hint: urlElevation });
+        const elevHint = resolvedElevation;
         const cached = readForecastCache(lat, lng, elevHint);
 
         function applyBundle(main, gfs, gem, hrdps, avy) {
           apiElevation = main.elevation;
+          if (resolvedElevation == null && apiElevation != null && !isNaN(apiElevation)) {
+            resolvedElevation = Math.round(apiElevation);
+          }
           var elev = resolveElevation();
 
           var preferred = getDefaultModel();

@@ -5,6 +5,7 @@ import {
   MAPBOX_TOKEN,
 } from '../../lib/constants.js';
 import mountainSpots from '../../data/mountain-spots.json';
+import { buildSpotForecastUrl } from '../spot-elevation.js';
 
 /** Western Canada (BC + AB) bbox for Mapbox: minLon,minLat,maxLon,maxLat */
 export const WESTERN_CA_BBOX = '-139.06,48.3,-110.0,60.0';
@@ -292,12 +293,9 @@ export async function reverseGeocode(lng, lat, { signal } = {}) {
   return data?.features ?? [];
 }
 
-export function buildForecastUrlFromCoords(lat, lng, name = 'Location') {
-  return (
-    `forecast.html?lat=${encodeURIComponent(lat)}` +
-    `&lng=${encodeURIComponent(lng)}` +
-    `&name=${encodeURIComponent(name)}`
-  );
+/** Forecast deep-link for a searched pin. Elevation omitted unless known for this lat/lng. */
+export function buildForecastUrlFromCoords(lat, lng, name = 'Location', elevation = null) {
+  return buildSpotForecastUrl({ lat, lng, name, elevation });
 }
 
 export async function searchMapboxPlaces(query, { signal, proximity } = {}) {

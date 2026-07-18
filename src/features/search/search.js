@@ -9,6 +9,11 @@ import {
   searchNearbyTerrain,
   searchPlaces,
 } from '../../services/api/geocoding.js';
+import {
+  buildSpotForecastUrl,
+  parseElevationMetres,
+  resolveSpotElevation,
+} from '../../services/spot-elevation.js';
 import { formatCoordinates, isCoordinateLike } from '../../lib/coordinates.js';
 import { getCurrentHourIndex } from '../../lib/datetime.js';
 import { formatTemp, formatWindSpeed } from '../../services/storage/settings.js';
@@ -25,6 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
       var selectedLocation = null;
       var debounceTimer = null;
       var lastRequestId = 0;
+      var elevRequestId = 0;
 
       var sheet = document.getElementById('bottom-sheet');
       var searchBar = document.getElementById('search-bar');
@@ -235,9 +241,28 @@ document.addEventListener('DOMContentLoaded', function() {
           searchInput.placeholder = '';
           document.querySelector('.sheet-location-name').textContent = selectedLocation.name;
           document.querySelector('.sheet-coords').textContent = selectedLocation.coords;
-          var cta = document.getElementById('sheet-cta');
-          if (cta) cta.href = buildForecastUrl();
+          syncSheetElevationUi();
+          updateSheetCta();
         }
+      }
+
+      function formatElevLabel(metres) {
+        return metres != null && !Number.isNaN(metres)
+          ? Math.round(metres).toLocaleString() + ' m'
+          : '';
+      }
+
+      function syncSheetElevationUi() {
+        if (!selectedLocation) return;
+        var elevEl = document.getElementById('sheet-weather-elev');
+        var label = formatElevLabel(selectedLocation.elevationMetres);
+        if (elevEl && label) elevEl.textContent = label;
+        if (label) selectedLocation.elev = label;
+      }
+
+      function updateSheetCta() {
+        var cta = document.getElementById('sheet-cta');
+        if (cta) cta.href = buildForecastUrl();
       }
 
       function toggleSheetExpand() {
@@ -261,7 +286,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var elevEl = document.getElementById('sheet-weather-elev');
         if (windEl) windEl.textContent = '—';
         if (tempEl) tempEl.textContent = '—';
-        if (elevEl) elevEl.textContent = '';
+        if (elevEl) elevEl.textContent = formatElevLabel(selectedLocation && selectedLocation.elevationMetres);
 
         fetchCurrentWeather(lat, lng)
           .then(function(data) {
@@ -275,47 +300,84 @@ document.addEventListener('DOMContentLoaded', function() {
             var tempFmt = formatTemp(tempC);
             var windStr = windFmt.value !== '—' ? windFmt.value + ' ' + windFmt.unit + ' ' + degreesToCompass(dir) : '—';
             var tempStr = tempFmt.value !== '—' ? tempFmt.value + tempFmt.unit : '—';
-            var elev = data.elevation;
-            var elevStr = (elev != null && !isNaN(elev)) ? Math.round(elev).toLocaleString() + ' m' : '';
             if (windEl) windEl.textContent = windStr;
             if (tempEl) tempEl.textContent = tempStr;
-            if (elevEl) elevEl.textContent = elevStr;
+
+            // Prefer DEM already resolved for this pin; fall back to forecast elev.
+            if (selectedLocation && selectedLocation.elevationMetres == null) {
+              var elev = data.elevation;
+              if (elev != null && !isNaN(elev)) {
+                selectedLocation.elevationMetres = Math.round(elev);
+                syncSheetElevationUi();
+                updateSheetCta();
+              }
+            } else {
+              syncSheetElevationUi();
+            }
           })
           .catch(function() {
             if (windEl) windEl.textContent = '—';
             if (tempEl) tempEl.textContent = '—';
-            if (elevEl) elevEl.textContent = '';
+          });
+      }
+
+      function resolveSelectedElevation(lat, lng, hintMetres) {
+        var req = ++elevRequestId;
+        resolveSpotElevation(lat, lng, { hint: hintMetres })
+          .then(function(metres) {
+            if (req !== elevRequestId || !selectedLocation) return;
+            if (
+              Math.abs(selectedLocation.lat - lat) > 0.0001 ||
+              Math.abs(selectedLocation.lng - lng) > 0.0001
+            ) {
+              return;
+            }
+            selectedLocation.elevationMetres = metres;
+            syncSheetElevationUi();
+            updateSheetCta();
+          })
+          .catch(function() {
+            /* leave elev unset — forecast will resolve DEM */
           });
       }
 
       function goToSelected(name, elev, coords, lat, lng) {
-        selectedLocation = { name: name, elev: elev, coords: coords, lat: lat, lng: lng };
+        var latN = lat != null ? parseFloat(lat) : null;
+        var lngN = lng != null ? parseFloat(lng) : null;
+        var hint = parseElevationMetres(elev);
+        selectedLocation = {
+          name: name,
+          elev: elev,
+          coords: coords,
+          lat: latN,
+          lng: lngN,
+          elevationMetres: hint,
+        };
         setState(STATES.SELECTED);
-        if (lat != null && lng != null) {
-          flyToLocation(parseFloat(lng), parseFloat(lat));
-          loadWeatherPreview(parseFloat(lat), parseFloat(lng));
+        if (latN != null && lngN != null && !Number.isNaN(latN) && !Number.isNaN(lngN)) {
+          flyToLocation(lngN, latN);
+          resolveSelectedElevation(latN, lngN, hint);
+          loadWeatherPreview(latN, lngN);
         }
-      }
-
-      function parseElevation(elevStr) {
-        if (!elevStr || elevStr === '—') return 1580;
-        var m = String(elevStr).match(/([\d,]+)\s*m/);
-        return m ? parseInt(m[1].replace(/,/g, ''), 10) : 1580;
       }
 
       function buildForecastUrl() {
         if (!selectedLocation || selectedLocation.lat == null || selectedLocation.lng == null) {
-          return 'forecast.html?lat=' + DEFAULT_LAT + '&lng=' + DEFAULT_LON + '&elevation=1580&name=Garibaldi+Lake+TH';
+          return buildSpotForecastUrl({
+            lat: DEFAULT_LAT,
+            lng: DEFAULT_LON,
+            name: 'Garibaldi Lake TH',
+            elevation: 1580,
+          });
         }
         var name = selectedLocation.name || 'Location';
         if (isCoordinateLike(name)) name = 'Location';
-        var params = new URLSearchParams({
+        return buildSpotForecastUrl({
           lat: selectedLocation.lat,
           lng: selectedLocation.lng,
-          elevation: parseElevation(selectedLocation.elev),
-          name: name
+          name: name,
+          elevation: selectedLocation.elevationMetres,
         });
-        return 'forecast.html?' + params.toString();
       }
 
       function dismissSuggestions() {
