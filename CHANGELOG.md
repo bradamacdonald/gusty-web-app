@@ -19,6 +19,7 @@ Notable product changes for Gusty. Routine UI polish is folded into thematic ent
 ### Design
 - Quieter visual language: soft hairline tokens, fewer boxes, optional Elevations disclosure
 - Softened Search / Settings chrome; clearer forecast error state
+- Light mode revamp: cooler canvas, vivid mid-step wind/accent tokens (same hue family as dark, still WCAG AA)
 
 ### Fixes
 - Search elevation now resolves from DEM at the selected lat/lng (no Garibaldi `1580 m` default for city places)

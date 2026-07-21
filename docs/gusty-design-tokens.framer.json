@@ -1,0 +1,765 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "meta": {
+    "name": "Gusty Design Tokens",
+    "version": "1.0.0",
+    "source": "gusty.ca — src/styles/tokens.css + Guidelines.md",
+    "exportedFor": "Framer",
+    "notes": [
+      "Dark theme is the default product UI.",
+      "Resolved hex/rgba values are provided so Framer can import without CSS variables.",
+      "Icons: Lucide @0.460.0 (stroke-width 1.5) + Heroicons-style outline SVGs in bottom nav.",
+      "Brand wordmark uses Barlow Italic 700; UI uses Inter; data uses DM Mono."
+    ],
+    "googleFonts": [
+      "Inter:wght@400;500;600",
+      "DM+Mono:wght@400;500",
+      "Barlow:ital,wght@1,700"
+    ]
+  },
+
+  "primitives": {
+    "navy": {
+      "950": "#0B1120",
+      "900": "#111827",
+      "800": "#1A2333",
+      "700": "#243044",
+      "600": "#334155",
+      "500": "#4A5C72",
+      "400": "#5A6B80",
+      "350": "#6B7C90",
+      "300": "#8A9BB0",
+      "200": "#B8C4D4",
+      "100": "#E8ECF1",
+      "50": "#F5F7FA",
+      "25": "#F0F4F8"
+    },
+      "cyan": {
+      "400": "#38BDF8",
+      "500": "#0EA5E9",
+      "600": "#0284C7",
+      "650": "#0272B6",
+      "700": "#0369A1"
+    },
+    "status": {
+      "green": { "dark": "#34D399", "light": "#0F766E" },
+      "lime": { "dark": "#A3E635", "light": "#4D7C0F" },
+      "amber": { "dark": "#FBBF24", "light": "#B45309" },
+      "orange": { "dark": "#F97316", "light": "#C2410C" },
+      "red": { "dark": "#F05252", "light": "#CF2A1F" },
+      "magenta": { "dark": "#D946EF", "light": "#B91BC7" }
+    }
+  },
+
+  "themes": {
+    "dark": {
+      "surfaces": {
+        "bg": "#0B1120",
+        "surface": "#111827",
+        "surfaceElevated": "#1A2333",
+        "border": "rgba(184, 196, 212, 0.12)",
+        "borderStrong": "rgba(184, 196, 212, 0.22)",
+        "borderField": "#4A5C72"
+      },
+      "text": {
+        "primary": "#F0F4F8",
+        "secondary": "#B8C4D4",
+        "muted": "#8A9BB0",
+        "inverse": "#0B1120"
+      },
+      "accent": {
+        "default": "#38BDF8",
+        "dim": "rgba(56, 189, 248, 0.15)",
+        "border": "#38BDF8"
+      },
+      "status": {
+        "go": "#34D399",
+        "caution": "#FBBF24",
+        "noGo": "#F05252"
+      },
+      "wind": {
+        "calm": "#34D399",
+        "light": "#A3E635",
+        "moderate": "#FBBF24",
+        "strong": "#F97316",
+        "severe": "#F05252",
+        "extreme": "#D946EF"
+      },
+      "precipitation": {
+        "none": "rgba(255, 255, 255, 0)",
+        "trace": "rgba(147, 197, 253, 0.50)",
+        "light": "rgba(147, 197, 253, 0.70)",
+        "heavy": "rgba(96, 165, 250, 0.85)",
+        "snow": "rgba(226, 232, 240, 0.70)"
+      },
+      "chart": {
+        "grid": "rgba(138, 155, 176, 0.14)",
+        "tick": "rgba(138, 155, 176, 0.62)",
+        "seriesAccent": "rgba(56, 189, 248, 0.78)",
+        "seriesSecondary": "rgba(184, 196, 212, 0.62)",
+        "seriesMuted": "rgba(138, 155, 176, 0.52)",
+        "seriesSummit": "rgba(249, 115, 22, 0.78)",
+        "seriesMid": "rgba(251, 191, 36, 0.78)",
+        "seriesTrailhead": "rgba(52, 211, 153, 0.78)",
+        "cloudStroke": "rgba(255, 255, 255, 0.10)",
+        "cloudFill": "rgba(255, 255, 255, 0.03)",
+        "precipRain": "rgba(96, 165, 250, 0.55)",
+        "precipSnow": "rgba(226, 232, 240, 0.45)"
+      }
+    },
+    "light": {
+      "surfaces": {
+        "bg": "#F0F4F8",
+        "surface": "#FFFFFF",
+        "surfaceElevated": "#F3F6FA",
+        "border": "rgba(36, 48, 68, 0.10)",
+        "borderStrong": "rgba(36, 48, 68, 0.18)",
+        "borderField": "#4A5C72"
+      },
+      "text": {
+        "primary": "#0B1120",
+        "secondary": "#334155",
+        "muted": "#5A6B80",
+        "inverse": "#F0F4F8"
+      },
+      "accent": {
+        "default": "#0272B6",
+        "dim": "rgba(14, 165, 233, 0.14)",
+        "border": "#0272B6"
+      },
+      "status": {
+        "go": "#0F766E",
+        "caution": "#B45309",
+        "noGo": "#CF2A1F"
+      },
+      "wind": {
+        "calm": "#0F766E",
+        "light": "#4D7C0F",
+        "moderate": "#B45309",
+        "strong": "#C2410C",
+        "severe": "#CF2A1F",
+        "extreme": "#B91BC7"
+      },
+      "precipitation": {
+        "none": "rgba(0, 0, 0, 0)",
+        "trace": "rgba(2, 114, 182, 0.45)",
+        "light": "rgba(2, 114, 182, 0.65)",
+        "heavy": "#0272B6",
+        "snow": "rgba(74, 92, 114, 0.70)"
+      },
+      "chart": {
+        "grid": "rgba(90, 107, 128, 0.16)",
+        "tick": "rgba(90, 107, 128, 0.70)",
+        "seriesAccent": "rgba(2, 114, 182, 0.88)",
+        "seriesSecondary": "rgba(51, 65, 85, 0.72)",
+        "seriesMuted": "rgba(90, 107, 128, 0.58)",
+        "seriesSummit": "rgba(194, 65, 12, 0.88)",
+        "seriesMid": "rgba(180, 83, 9, 0.88)",
+        "seriesTrailhead": "rgba(15, 118, 110, 0.88)",
+        "cloudStroke": "rgba(36, 48, 68, 0.14)",
+        "cloudFill": "rgba(2, 114, 182, 0.05)",
+        "precipRain": "rgba(2, 114, 182, 0.50)",
+        "precipSnow": "rgba(74, 92, 114, 0.42)"
+      }
+    }
+  },
+
+  "windColorRamp": {
+    "description": "Primary data color scale for all wind speeds. Use consistently on hero values, hourly strips, and model panels.",
+    "unit": "km/h",
+    "tiers": [
+      {
+        "token": "calm",
+        "label": "Calm",
+        "range": { "min": 0, "max": 15 },
+        "dark": "#34D399",
+        "light": "#0F766E"
+      },
+      {
+        "token": "light",
+        "label": "Light",
+        "range": { "min": 16, "max": 30 },
+        "dark": "#A3E635",
+        "light": "#4D7C0F"
+      },
+      {
+        "token": "moderate",
+        "label": "Moderate",
+        "range": { "min": 31, "max": 50 },
+        "dark": "#FBBF24",
+        "light": "#B45309"
+      },
+      {
+        "token": "strong",
+        "label": "Strong",
+        "range": { "min": 51, "max": 74 },
+        "dark": "#F97316",
+        "light": "#C2410C"
+      },
+      {
+        "token": "severe",
+        "label": "Severe",
+        "range": { "min": 75, "max": 100 },
+        "dark": "#F05252",
+        "light": "#CF2A1F"
+      },
+      {
+        "token": "extreme",
+        "label": "Extreme",
+        "range": { "min": 101, "max": null },
+        "dark": "#D946EF",
+        "light": "#B91BC7"
+      }
+    ],
+    "mappingFunctionNote": "windRampColor(kmh): ≤15 calm, ≤30 light, ≤50 moderate, ≤74 strong, ≤100 severe, else extreme"
+  },
+
+  "windQualityChips": {
+    "description": "Pill chips with status tint. Used on forecast hero (wind-hero-verdict) and daily condition badges.",
+    "layout": {
+      "display": "inline-flex",
+      "alignItems": "center",
+      "gap": "8px",
+      "padding": "8px 16px",
+      "borderRadius": "999px",
+      "fontFamily": "Inter",
+      "fontSize": "11px",
+      "fontWeight": 500,
+      "letterSpacing": "0.02em",
+      "dotSize": "6px"
+    },
+    "tintRecipe": {
+      "backgroundOpacity": 0.15,
+      "borderOpacity": 0.3,
+      "note": "Background = status color @ 15%; border = status color @ 30%"
+    },
+    "conditionBands": {
+      "description": "Standard go / caution / no-go bands from max sustained wind",
+      "tiers": [
+        {
+          "id": "favorable",
+          "label": "Favorable",
+          "className": "favorable",
+          "maxWindKmh": { "lt": 30 },
+          "statusToken": "go",
+          "dark": {
+            "color": "#34D399",
+            "background": "rgba(52, 211, 153, 0.15)",
+            "border": "rgba(52, 211, 153, 0.3)"
+          },
+          "light": {
+            "color": "#0F766E",
+            "background": "rgba(15, 118, 110, 0.16)",
+            "border": "rgba(15, 118, 110, 0.32)"
+          },
+          "tooltip": "Winds under 30 km/h."
+        },
+        {
+          "id": "marginal",
+          "label": "Marginal",
+          "className": "marginal",
+          "maxWindKmh": { "gte": 30, "lte": 60 },
+          "statusToken": "caution",
+          "dark": {
+            "color": "#FBBF24",
+            "background": "rgba(251, 191, 36, 0.15)",
+            "border": "rgba(251, 191, 36, 0.3)"
+          },
+          "light": {
+            "color": "#B45309",
+            "background": "rgba(180, 83, 9, 0.16)",
+            "border": "rgba(180, 83, 9, 0.32)"
+          },
+          "tooltip": "Winds 30–60 km/h."
+        },
+        {
+          "id": "unfavorable",
+          "label": "Unfavorable",
+          "className": "unfavorable",
+          "maxWindKmh": { "gt": 60 },
+          "statusToken": "noGo",
+          "dark": {
+            "color": "#F05252",
+            "background": "rgba(240, 82, 82, 0.15)",
+            "border": "rgba(240, 82, 82, 0.3)"
+          },
+          "light": {
+            "color": "#CF2A1F",
+            "background": "rgba(207, 42, 31, 0.16)",
+            "border": "rgba(207, 42, 31, 0.32)"
+          },
+          "tooltip": "Winds over 60 km/h."
+        }
+      ]
+    },
+    "hairModeLabels": {
+      "description": "Optional alternate chip copy when Hair Mode is enabled. Chip color still follows conditionBands above.",
+      "shortLabels": [
+        { "maxKmh": 15, "label": "Zero Drama" },
+        { "maxKmh": 30, "label": "Messy Bun Situation" },
+        { "maxKmh": 50, "label": "Full Chaos" },
+        { "maxKmh": 74, "label": "Don't Even Bother" },
+        { "maxKmh": null, "label": "Feral Creature" }
+      ],
+      "detailedTiers": [
+        {
+          "maxKmh": 5,
+          "name": "No Drama",
+          "oneliner": "Barely a whisper. Hair is completely safe."
+        },
+        {
+          "maxKmh": 19,
+          "name": "Hair Aware",
+          "oneliner": "A gentle reminder that air exists."
+        },
+        {
+          "maxKmh": 28,
+          "name": "Windswept",
+          "oneliner": "Romantic movie hair. Slightly chaotic."
+        },
+        {
+          "maxKmh": 38,
+          "name": "Character Building",
+          "oneliner": "A toque is not optional."
+        },
+        {
+          "maxKmh": 49,
+          "name": "Absolutely Feral",
+          "oneliner": "Your hair has filed for independence."
+        },
+        {
+          "maxKmh": 61,
+          "name": "Unhinged",
+          "oneliner": "Forward progress is now a negotiation."
+        },
+        {
+          "maxKmh": 74,
+          "name": "Beyond Help",
+          "oneliner": "You ARE the weather event."
+        },
+        {
+          "maxKmh": null,
+          "name": "Do Not Go Outside",
+          "oneliner": "gusty agrees with your hair on this one."
+        }
+      ]
+    },
+    "utilityChips": {
+      "neutral": {
+        "use": "Elevation, tags",
+        "dark": {
+          "background": "#1A2333",
+          "color": "#B8C4D4",
+          "border": "rgba(184, 196, 212, 0.12)"
+        },
+        "light": {
+          "background": "#E8ECF1",
+          "color": "#4A5C72",
+          "border": "rgba(0, 0, 0, 0.08)"
+        }
+      },
+      "accent": {
+        "use": "Active model / selected elevation",
+        "dark": {
+          "background": "rgba(56, 189, 248, 0.15)",
+          "color": "#38BDF8",
+          "border": "rgba(56, 189, 248, 0.3)"
+        },
+        "light": {
+          "background": "rgba(14, 165, 233, 0.14)",
+          "color": "#0272B6",
+          "border": "rgba(2, 114, 182, 0.32)"
+        }
+      }
+    }
+  },
+
+  "typography": {
+    "families": {
+      "ui": {
+        "name": "Inter",
+        "fallback": "system-ui, sans-serif",
+        "use": "All UI text, labels, headings, body"
+      },
+      "data": {
+        "name": "DM Mono",
+        "fallback": "Menlo, monospace",
+        "use": "Numeric data, model names, elevation, coordinates",
+        "defaultWeight": 500
+      },
+      "brand": {
+        "name": "Barlow",
+        "style": "italic",
+        "weight": 700,
+        "fallback": "sans-serif",
+        "use": "GUSTY wordmark only",
+        "letterSpacing": "-0.03em",
+        "textTransform": "uppercase",
+        "size": "22px"
+      }
+    },
+    "scale": {
+      "xs": { "size": "11px", "use": "Captions, timestamps, ALL CAPS labels" },
+      "sm": { "size": "13px", "use": "Secondary labels, metadata, model names" },
+      "base": { "size": "15px", "use": "Body text, primary UI" },
+      "lg": { "size": "18px", "use": "Section headers, unit next to hero" },
+      "xl": { "size": "22px", "use": "Location name" },
+      "2xl": { "size": "28px", "use": "Large data display" },
+      "3xl": { "size": "40px", "use": "Hero wind value" }
+    },
+    "weights": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600
+    },
+    "lineHeight": {
+      "tight": 1.15,
+      "normal": 1.45
+    },
+    "letterSpacing": {
+      "tight": "-0.025em",
+      "normal": "0em",
+      "wide": "0.06em"
+    },
+    "recipes": {
+      "sectionLabel": {
+        "fontFamily": "Inter",
+        "fontSize": "11px",
+        "fontWeight": 500,
+        "letterSpacing": "0.06em",
+        "textTransform": "uppercase",
+        "colorToken": "text.muted",
+        "examples": ["HOURLY", "PRECIPITATION", "MODELS", "LOADING WATCH"]
+      },
+      "heroWindValue": {
+        "fontFamily": "DM Mono",
+        "fontSize": "40px",
+        "fontWeight": 500,
+        "letterSpacing": "-0.025em",
+        "lineHeight": 1.15,
+        "colorFrom": "windColorRamp"
+      },
+      "heroWindUnit": {
+        "fontFamily": "DM Mono",
+        "fontSize": "18px",
+        "colorToken": "text.secondary"
+      },
+      "locationName": {
+        "fontFamily": "Inter",
+        "fontSize": "22px",
+        "fontWeight": 600,
+        "letterSpacing": "-0.025em",
+        "colorToken": "text.primary"
+      }
+    }
+  },
+
+  "spacing": {
+    "1": "4px",
+    "2": "8px",
+    "3": "12px",
+    "4": "16px",
+    "5": "20px",
+    "6": "24px",
+    "8": "32px",
+    "10": "40px",
+    "12": "48px",
+    "16": "64px"
+  },
+
+  "radius": {
+    "sm": { "value": "6px", "use": "Chips, small tags, model tags, hour cells" },
+    "md": { "value": "10px", "use": "Cards, panels, containers, primary buttons" },
+    "lg": { "value": "14px", "use": "Bottom sheets, modals" },
+    "full": { "value": "999px", "use": "Pills, badges, elevation chips, condition chips" }
+  },
+
+  "layout": {
+    "mobileCanvasWidth": "390px",
+    "pagePaddingX": "16px",
+    "sectionGap": "24px",
+    "cardPadding": "16px–24px",
+    "minTouchTarget": "44px",
+    "bottomNavHeight": "64px",
+    "hourCellWidth": "52px"
+  },
+
+  "buttons": {
+    "sizes": {
+      "sm": { "padding": "8px 16px", "fontSize": "13px" },
+      "md": { "padding": "12px 20px", "fontSize": "15px", "minHeight": "44px" },
+      "lg": { "padding": "16px 24px", "fontSize": "16px" }
+    },
+    "base": {
+      "fontFamily": "Inter",
+      "fontWeight": 600,
+      "borderRadius": "10px",
+      "border": "none",
+      "cursor": "pointer",
+      "disabledOpacity": 0.5
+    },
+    "variants": {
+      "primary": {
+        "alias": "sheet-cta",
+        "use": "Primary CTA (e.g. View Forecast)",
+        "dark": {
+          "background": "#38BDF8",
+          "color": "#0B1120",
+          "border": "none"
+        },
+        "light": {
+          "background": "#0272B6",
+          "color": "#F0F4F8",
+          "border": "none"
+        },
+        "padding": "16px",
+        "width": "100%",
+        "minHeight": "44px",
+        "borderRadius": "10px",
+        "fontSize": "15px",
+        "fontWeight": 600
+      },
+      "secondary": {
+        "dark": {
+          "background": "rgba(56, 189, 248, 0.15)",
+          "color": "#38BDF8",
+          "border": "1px solid rgba(56, 189, 248, 0.3)"
+        },
+        "light": {
+          "background": "rgba(14, 165, 233, 0.14)",
+          "color": "#0272B6",
+          "border": "1px solid rgba(2, 114, 182, 0.35)"
+        }
+      },
+      "ghost": {
+        "dark": {
+          "background": "transparent",
+          "color": "#F0F4F8",
+          "border": "1px solid rgba(184, 196, 212, 0.12)"
+        },
+        "light": {
+          "background": "transparent",
+          "color": "#0B1120",
+          "border": "1px solid rgba(0, 0, 0, 0.08)"
+        }
+      },
+      "destructive": {
+        "dark": {
+          "background": "rgba(240, 82, 82, 0.15)",
+          "color": "#F05252",
+          "border": "1px solid rgba(240, 82, 82, 0.3)"
+        },
+        "light": {
+          "background": "rgba(207, 42, 31, 0.15)",
+          "color": "#CF2A1F",
+          "border": "1px solid rgba(207, 42, 31, 0.3)"
+        }
+      },
+      "link": {
+        "background": "transparent",
+        "border": "none",
+        "dark": { "color": "#38BDF8" },
+        "light": { "color": "#0272B6" }
+      },
+      "retry": {
+        "alias": "retry-btn",
+        "use": "Error state retry",
+        "padding": "8px 16px",
+        "borderRadius": "999px",
+        "fontSize": "15px",
+        "fontWeight": 500,
+        "minHeight": "44px",
+        "dark": {
+          "background": "rgba(56, 189, 248, 0.15)",
+          "color": "#38BDF8",
+          "border": "1px solid #38BDF8",
+          "hoverBackground": "rgba(56, 189, 248, 0.25)"
+        }
+      },
+      "iconButton": {
+        "use": "Share / save in forecast top bar",
+        "size": "44px",
+        "padding": "8px",
+        "borderRadius": "6px",
+        "background": "transparent",
+        "border": "none",
+        "iconSize": "24px",
+        "dark": {
+          "color": "#8A9BB0",
+          "hover": "#38BDF8",
+          "active": "#38BDF8",
+          "success": "#34D399"
+        }
+      },
+      "presetChip": {
+        "use": "Plan elevation presets",
+        "padding": "6px 12px",
+        "borderRadius": "999px",
+        "fontFamily": "DM Mono",
+        "fontSize": "11px",
+        "fontWeight": 500,
+        "minHeight": "32px",
+        "dark": {
+          "background": "#1A2333",
+          "color": "#B8C4D4",
+          "border": "1px solid rgba(184, 196, 212, 0.12)",
+          "hoverBorder": "#38BDF8",
+          "hoverColor": "#38BDF8"
+        }
+      }
+    }
+  },
+
+  "icons": {
+    "library": "Lucide",
+    "version": "0.460.0",
+    "cdn": "https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js",
+    "defaults": {
+      "size": 16,
+      "strokeWidth": 1.5,
+      "stroke": "currentColor",
+      "fill": "none",
+      "colorToken": "text.muted"
+    },
+    "sizes": {
+      "inline": "16px",
+      "nav": "24px",
+      "searchField": "20px",
+      "action": "24px"
+    },
+    "set": [
+      {
+        "name": "mountain",
+        "lucide": "mountain",
+        "use": "Elevation in wind hero"
+      },
+      {
+        "name": "compass",
+        "lucide": "compass",
+        "use": "Wind direction"
+      },
+      {
+        "name": "wind",
+        "lucide": "wind",
+        "use": "Gusts"
+      },
+      {
+        "name": "thermometer",
+        "lucide": "thermometer",
+        "use": "Temperature"
+      },
+      {
+        "name": "map-pin",
+        "lucide": "map-pin",
+        "use": "Location / bottom nav Location",
+        "note": "Bottom nav uses Heroicons outline map-pin equivalent"
+      },
+      {
+        "name": "search",
+        "lucide": "search",
+        "use": "Search / bottom nav Search"
+      },
+      {
+        "name": "bookmark",
+        "lucide": "bookmark",
+        "use": "Saved spots / save forecast",
+        "note": "Heroicons bookmark outline/filled used in app"
+      },
+      {
+        "name": "settings",
+        "lucide": "settings",
+        "use": "Settings / bottom nav Settings"
+      },
+      {
+        "name": "share-2",
+        "lucide": "share-2",
+        "use": "Share forecast link",
+        "note": "Custom 3-node share network SVG in forecast top bar"
+      },
+      {
+        "name": "check",
+        "lucide": "check",
+        "use": "Share copied confirmation"
+      },
+      {
+        "name": "chevron-up",
+        "lucide": "chevron-up",
+        "use": "Collapse model panel"
+      }
+    ],
+    "bottomNav": [
+      { "id": "location", "label": "Location", "icon": "map-pin" },
+      { "id": "search", "label": "Search", "icon": "search" },
+      { "id": "saved", "label": "Saved", "icon": "bookmark" },
+      { "id": "settings", "label": "Settings", "icon": "settings" }
+    ]
+  },
+
+  "components": {
+    "card": {
+      "backgroundToken": "surfaces.surface",
+      "border": "1px solid border",
+      "borderRadius": "10px",
+      "padding": "20px–24px"
+    },
+    "cardElevated": {
+      "backgroundToken": "surfaces.surfaceElevated",
+      "border": "1px solid border",
+      "borderRadius": "10px",
+      "padding": "20px",
+      "use": "Models panel"
+    },
+    "elevationChip": {
+      "borderRadius": "999px",
+      "padding": "2px 8px",
+      "fontFamily": "DM Mono",
+      "fontSize": "11px",
+      "fontWeight": 500,
+      "gap": "8px",
+      "dark": {
+        "background": "#1A2333",
+        "color": "#B8C4D4",
+        "border": "1px solid rgba(184, 196, 212, 0.12)"
+      }
+    },
+    "modelRoleTag": {
+      "padding": "1px 6px",
+      "borderRadius": "999px",
+      "fontSize": "10px",
+      "fontWeight": 500,
+      "dark": {
+        "background": "#111827",
+        "color": "#8A9BB0",
+        "border": "1px solid rgba(184, 196, 212, 0.12)"
+      },
+      "active": {
+        "color": "#38BDF8",
+        "border": "1px solid rgba(56, 189, 248, 0.4)"
+      }
+    },
+    "conditionPopover": {
+      "minWidth": "220px",
+      "maxWidth": "280px",
+      "padding": "16px",
+      "borderRadius": "10px",
+      "dark": {
+        "background": "#1A2333",
+        "border": "1px solid rgba(184, 196, 212, 0.22)",
+        "shadow": "0 12px 32px rgba(0, 0, 0, 0.35)"
+      }
+    }
+  },
+
+  "framerImportHints": {
+    "colors": "Map themes.dark.* into a Framer Color Style set named Gusty / Dark; duplicate for Light.",
+    "typography": "Create Text Styles for recipes.sectionLabel, recipes.heroWindValue, recipes.locationName, and body/base.",
+    "components": "Build Wind Quality Chip and Primary CTA as Framer components with variants for favorable/marginal/unfavorable and button variants.",
+    "icons": "Install Lucide in Framer or paste SVG; keep stroke-width 1.5.",
+    "avoid": [
+      "Pure #000000 backgrounds",
+      "Drop shadows on cards (use surface elevation instead)",
+      "Decorative gradients",
+      "Fonts other than Inter, DM Mono, Barlow (wordmark only)"
+    ]
+  }
+}

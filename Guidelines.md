@@ -57,23 +57,27 @@ reach for primitives only when defining new aliases.
 
 ### Cyan (accent)
 
-| Token    | Hex     | Notes                |
-|----------|---------|----------------------|
-| cyan-400 | #38BDF8 | Dark-mode accent     |
-| cyan-500 | #0EA5E9 |                      |
-| cyan-600 | #0284C7 |                      |
-| cyan-700 | #0369A1 | Light-mode accent    |
+| Token    | Hex     | Notes                          |
+|----------|---------|--------------------------------|
+| cyan-400 | #38BDF8 | Dark-mode accent               |
+| cyan-500 | #0EA5E9 | Accent tints / light dim base  |
+| cyan-600 | #0284C7 |                                |
+| cyan-650 | #0272B6 | Light-mode accent (AA on white)|
+| cyan-700 | #0369A1 | Legacy deep cyan               |
 
 ### Wind / status pairs (dark → light)
 
-| Family  | Dark hex | Light hex |
-|---------|----------|-----------|
-| green   | #34D399  | #047857   |
-| lime    | #A3E635  | #3F6212   |
-| amber   | #FBBF24  | #92400E   |
-| orange  | #F97316  | #9A3412   |
-| red     | #F05252  | #B91C1C   |
-| magenta | #D946EF  | #A21CAF   |
+Same hue family in both themes. Light uses mid-steps (not muddy 800s) so
+the product still feels cyan / instrument-grade — just daylight.
+
+| Family   | Dark hex | Light hex | Light token  |
+|----------|----------|-----------|--------------|
+| teal/go  | #34D399  | #0F766E   | teal-700     |
+| lime     | #A3E635  | #4D7C0F   | lime-700     |
+| amber    | #FBBF24  | #B45309   | amber-700    |
+| orange   | #F97316  | #C2410C   | orange-650   |
+| red      | #F05252  | #CF2A1F   | red-600      |
+| magenta  | #D946EF  | #B91BC7   | magenta-600  |
 
 ---
 
@@ -84,12 +88,12 @@ navies from the ramp; light `surface` may use white for card lift.
 
 | Token            | Dark      | Light     | Use                              |
 |------------------|-----------|-----------|----------------------------------|
-| bg               | navy-950  | navy-50   | Page canvas, app background      |
+| bg               | navy-950  | navy-25   | Page canvas (cool slate, not warm grey) |
 | surface          | navy-900  | #FFFFFF   | Cards, panels, containers        |
-| surface-elevated | navy-800  | navy-100  | Raised panels, model comparison  |
-| border           | hairline (~12% slate) | hairline (~14%) | Decorative dividers only — keep quiet |
-| border-strong    | hairline (~22%) | hairline (~24%) | Slightly stronger, still quiet     |
-| border-field     | navy-500  | navy-400  | Inputs / toggles (≥3:1 interactive) |
+| surface-elevated | navy-800  | #F3F6FA   | Raised panels — soft so midtones stay vivid |
+| border           | hairline (~12% slate) | hairline (~10% navy-700) | Decorative dividers only — keep quiet |
+| border-strong    | hairline (~22%) | hairline (~18%) | Slightly stronger, still quiet     |
+| border-field     | navy-500  | navy-500  | Inputs / toggles (≥3:1 interactive) |
 | accent-border    | accent    | accent    | Focus / selected control border  |
 
 Prefer **space over boxes**. Do not wrap every section in a bordered card.
@@ -104,10 +108,10 @@ Never use pure white or pure black for text — use navy-25 / navy-950.
 | Token          | Dark      | Light     | Use                          |
 |----------------|-----------|-----------|------------------------------|
 | text-primary   | navy-25   | navy-950  | Headings, primary values     |
-| text-secondary | navy-200  | #3D4F63   | Labels, supporting info      |
+| text-secondary | navy-200  | navy-600  | Labels, supporting info      |
 | text-muted     | navy-300  | navy-400  | Captions, timestamps, hints  |
 | text-inverse   | navy-950  | navy-25   | Text on filled accent        |
-| accent         | cyan-400  | cyan-700  | Links, active states, focus  |
+| accent         | cyan-400  | cyan-650  | Links, active states, focus  |
 
 ---
 
@@ -120,12 +124,12 @@ so wind text stays AA on light surfaces.
 
 | Token    | Dark    | Light   | Range       | Label   |
 |----------|---------|---------|-------------|---------|
-| calm     | #34D399 | #047857 | 0–15 km/h   | Calm    |
-| light    | #A3E635 | #3F6212 | 16–30 km/h  | Light   |
-| moderate | #FBBF24 | #92400E | 31–50 km/h  | Moderate|
-| strong   | #F97316 | #9A3412 | 51–74 km/h  | Strong  |
-| severe   | #F05252 | #B91C1C | 75–100 km/h | Severe  |
-| extreme  | #D946EF | #A21CAF | 100+ km/h   | Extreme |
+| calm     | #34D399 | #0F766E | 0–15 km/h   | Calm    |
+| light    | #A3E635 | #4D7C0F | 16–30 km/h  | Light   |
+| moderate | #FBBF24 | #B45309 | 31–50 km/h  | Moderate|
+| strong   | #F97316 | #C2410C | 51–74 km/h  | Strong  |
+| severe   | #F05252 | #CF2A1F | 75–100 km/h | Severe  |
+| extreme  | #D946EF | #B91BC7 | 100+ km/h   | Extreme |
 
 ---
 
@@ -136,11 +140,12 @@ Light mode uses the darker wind-pair aliases so badge text stays AA.
 
 | Token    | Dark    | Light   | Meaning              |
 |----------|---------|---------|----------------------|
-| go       | #34D399 | #047857 | Favorable conditions |
-| caution  | #FBBF24 | #92400E | Marginal conditions  |
-| no-go    | #F05252 | #B91C1C | Unsafe conditions    |
+| go       | #34D399 | #0F766E | Favorable conditions |
+| caution  | #FBBF24 | #B45309 | Marginal conditions  |
+| no-go    | #F05252 | #CF2A1F | Unsafe conditions    |
 
-Status badges use 15% opacity background tint + 30% opacity border of the same color.
+Status badges use ~16% opacity background tint + ~32% opacity border of the
+status token (`color-mix`), so chip fills track the active theme.
 
 ---
 
@@ -152,10 +157,10 @@ Fills meet WCAG 1.4.11 (≥3:1) against theme surfaces.
 | Token  | Dark                       | Light                      |
 |--------|----------------------------|----------------------------|
 | none   | transparent                | transparent                |
-| trace  | rgba(147,197,253, 0.50)    | rgba(3,105,161, 0.75)      |
-| light  | rgba(147,197,253, 0.70)    | rgba(3,105,161, 0.85)      |
-| heavy  | rgba(96,165,250, 0.85)     | #0369A1 (cyan-700)         |
-| snow   | rgba(226,232,240, 0.70)    | rgba(74,92,114, 0.85)      |
+| trace  | rgba(147,197,253, 0.50)    | rgba(2,114,182, 0.45)      |
+| light  | rgba(147,197,253, 0.70)    | rgba(2,114,182, 0.65)      |
+| heavy  | rgba(96,165,250, 0.85)     | #0272B6 (cyan-650)         |
+| snow   | rgba(226,232,240, 0.70)    | rgba(74,92,114, 0.70)      |
 
 ---
 
